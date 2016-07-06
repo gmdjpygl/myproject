@@ -22,46 +22,46 @@ public class Demo01 {
 	@Test
 	public void test() throws Exception {
 
-		// ´´½¨saxReader¶ÔÏó
+		// åˆ›å»ºsaxReaderå¯¹è±¡
 		SAXReader reader = new SAXReader();
-		// Í¨¹ıread·½·¨¶ÁÈ¡Ò»¸öÎÄ¼ş ×ª»»³ÉDocument¶ÔÏó
+		// é€šè¿‡readæ–¹æ³•è¯»å–ä¸€ä¸ªæ–‡ä»¶ è½¬æ¢æˆDocumentå¯¹è±¡
 		Document document = reader.read(new File("c://2.xml"));
-		//»ñÈ¡¸ù½ÚµãÔªËØ¶ÔÏó
+		//è·å–æ ¹èŠ‚ç‚¹å…ƒç´ å¯¹è±¡
 		Element node = document.getRootElement();
-		//±éÀúËùÓĞµÄÔªËØ½Úµã
+		//éå†æ‰€æœ‰çš„å…ƒç´ èŠ‚ç‚¹
 		listNodes(node);
 /*
-		// »ñÈ¡ËÄ´óÃûÖøÔªËØ½ÚµãÖĞ£¬×Ó½ÚµãÃû³ÆÎªºìÂ¥ÃÎÔªËØ½Úµã¡£
-		Element element = node.element("ºìÂ¥ÃÎ");
-		//»ñÈ¡elementµÄidÊôĞÔ½Úµã¶ÔÏó
+		// è·å–å››å¤§åè‘—å…ƒç´ èŠ‚ç‚¹ä¸­ï¼Œå­èŠ‚ç‚¹åç§°ä¸ºçº¢æ¥¼æ¢¦å…ƒç´ èŠ‚ç‚¹ã€‚
+		Element element = node.element("çº¢æ¥¼æ¢¦");
+		//è·å–elementçš„idå±æ€§èŠ‚ç‚¹å¯¹è±¡
 		Attribute attr = element.attribute("id");
-		//É¾³ıÊôĞÔ
+		//åˆ é™¤å±æ€§
 		element.remove(attr);
-		//Ìí¼ÓĞÂµÄÊôĞÔ
-		element.addAttribute("name", "×÷Õß");
-		// ÔÚºìÂ¥ÃÎÔªËØ½ÚµãÖĞÌí¼Ó³¯´úÔªËØµÄ½Úµã
-		Element newElement = element.addElement("³¯´ú");
-		newElement.setText("Çå³¯");
-		//»ñÈ¡elementÖĞµÄ×÷ÕßÔªËØ½Úµã¶ÔÏó
-		Element author = element.element("×÷Õß");
-		//É¾³ıÔªËØ½Úµã
+		//æ·»åŠ æ–°çš„å±æ€§
+		element.addAttribute("name", "ä½œè€…");
+		// åœ¨çº¢æ¥¼æ¢¦å…ƒç´ èŠ‚ç‚¹ä¸­æ·»åŠ æœä»£å…ƒç´ çš„èŠ‚ç‚¹
+		Element newElement = element.addElement("æœä»£");
+		newElement.setText("æ¸…æœ");
+		//è·å–elementä¸­çš„ä½œè€…å…ƒç´ èŠ‚ç‚¹å¯¹è±¡
+		Element author = element.element("ä½œè€…");
+		//åˆ é™¤å…ƒç´ èŠ‚ç‚¹
 		boolean flag = element.remove(author);
-		//·µ»Øtrue´úÂëÉ¾³ı³É¹¦£¬·ñÔòÊ§°Ü
+		//è¿”å›trueä»£ç åˆ é™¤æˆåŠŸï¼Œå¦åˆ™å¤±è´¥
 		System.out.println(flag);
-		//Ìí¼ÓCDATAÇøÓò
-		element.addCDATA("ºìÂ¥ÃÎ£¬ÊÇÒ»²¿°®ÇéĞ¡Ëµ.");
-		// Ğ´Èëµ½Ò»¸öĞÂµÄÎÄ¼şÖĞ
+		//æ·»åŠ CDATAåŒºåŸŸ
+		element.addCDATA("çº¢æ¥¼æ¢¦ï¼Œæ˜¯ä¸€éƒ¨çˆ±æƒ…å°è¯´.");
+		// å†™å…¥åˆ°ä¸€ä¸ªæ–°çš„æ–‡ä»¶ä¸­
 		writer(document);
 */
 	}
 	@Test
 	public void test2() throws Exception {
 		
-		// ´´½¨saxReader¶ÔÏó
+		// åˆ›å»ºsaxReaderå¯¹è±¡
 		SAXReader reader = new SAXReader();
-		// Í¨¹ıread·½·¨¶ÁÈ¡Ò»¸öÎÄ¼ş ×ª»»³ÉDocument¶ÔÏó
+		// é€šè¿‡readæ–¹æ³•è¯»å–ä¸€ä¸ªæ–‡ä»¶ è½¬æ¢æˆDocumentå¯¹è±¡
 		Document document = reader.read(new File("c://1.xml"));
-		//»ñÈ¡¸ù½ÚµãÔªËØ¶ÔÏó
+		//è·å–æ ¹èŠ‚ç‚¹å…ƒç´ å¯¹è±¡
 		Element node = document.getRootElement();
 		Node node1;
 		try {
@@ -73,82 +73,82 @@ public class Demo01 {
 	}
 
 	/**
-	 * °Ñdocument¶ÔÏóĞ´ÈëĞÂµÄÎÄ¼ş
+	 * æŠŠdocumentå¯¹è±¡å†™å…¥æ–°çš„æ–‡ä»¶
 	 * 
 	 * @param document
 	 * @throws Exception
 	 */
 	public void writer(Document document) throws Exception {
-		// ½ô´ÕµÄ¸ñÊ½
+		// ç´§å‡‘çš„æ ¼å¼
 		// OutputFormat format = OutputFormat.createCompactFormat();
-		// ÅÅ°æËõ½øµÄ¸ñÊ½
+		// æ’ç‰ˆç¼©è¿›çš„æ ¼å¼
 		OutputFormat format = OutputFormat.createPrettyPrint();
-		// ÉèÖÃ±àÂë
+		// è®¾ç½®ç¼–ç 
 		format.setEncoding("UTF-8");
-		// ´´½¨XMLWriter¶ÔÏó,Ö¸¶¨ÁËĞ´³öÎÄ¼ş¼°±àÂë¸ñÊ½
+		// åˆ›å»ºXMLWriterå¯¹è±¡,æŒ‡å®šäº†å†™å‡ºæ–‡ä»¶åŠç¼–ç æ ¼å¼
 		// XMLWriter writer = new XMLWriter(new FileWriter(new
 		// File("src//a.xml")),format);
 		XMLWriter writer = new XMLWriter(new OutputStreamWriter(
 				new FileOutputStream(new File("src//a.xml")), "UTF-8"), format);
-		// Ğ´Èë
+		// å†™å…¥
 		writer.write(document);
-		// Á¢¼´Ğ´Èë
+		// ç«‹å³å†™å…¥
 		writer.flush();
-		// ¹Ø±Õ²Ù×÷
+		// å…³é—­æ“ä½œ
 		writer.close();
 	}
 
 	/**
-	 * ±éÀúµ±Ç°½ÚµãÔªËØÏÂÃæµÄËùÓĞ(ÔªËØµÄ)×Ó½Úµã
+	 * éå†å½“å‰èŠ‚ç‚¹å…ƒç´ ä¸‹é¢çš„æ‰€æœ‰(å…ƒç´ çš„)å­èŠ‚ç‚¹
 	 * 
 	 * @param node
 	 */
 	public void listNodes(Element node) {
-		System.out.println("µ±Ç°½ÚµãµÄÃû³Æ£º£º" + node.getName());
-		// »ñÈ¡µ±Ç°½ÚµãµÄËùÓĞÊôĞÔ½Úµã
+		System.out.println("å½“å‰èŠ‚ç‚¹çš„åç§°ï¼šï¼š" + node.getName());
+		// è·å–å½“å‰èŠ‚ç‚¹çš„æ‰€æœ‰å±æ€§èŠ‚ç‚¹
 		List<Attribute> list = node.attributes();
-		// ±éÀúÊôĞÔ½Úµã
+		// éå†å±æ€§èŠ‚ç‚¹
 		for (Attribute attr : list) {
 			System.out.println(attr.getText() + "-----" + attr.getName()
 					+ "---" + attr.getValue());
 		}
 
 		if (!(node.getTextTrim().equals(""))) {
-			System.out.println("ÎÄ±¾ÄÚÈİ£º£º£º£º" + node.getText());
+			System.out.println("æ–‡æœ¬å†…å®¹ï¼šï¼šï¼šï¼š" + node.getText());
 		}
 
-		// µ±Ç°½ÚµãÏÂÃæ×Ó½Úµãµü´úÆ÷
+		// å½“å‰èŠ‚ç‚¹ä¸‹é¢å­èŠ‚ç‚¹è¿­ä»£å™¨
 		Iterator<Element> it = node.elementIterator();
-		// ±éÀú
+		// éå†
 		while (it.hasNext()) {
-			// »ñÈ¡Ä³¸ö×Ó½Úµã¶ÔÏó
+			// è·å–æŸä¸ªå­èŠ‚ç‚¹å¯¹è±¡
 			Element e = it.next();
-			// ¶Ô×Ó½Úµã½øĞĞ±éÀú
+			// å¯¹å­èŠ‚ç‚¹è¿›è¡Œéå†
 			listNodes(e);
 		}
 	}
 
 	/**
-	 * ½éÉÜElementÖĞµÄelement·½·¨ºÍelements·½·¨µÄÊ¹ÓÃ
+	 * ä»‹ç»Elementä¸­çš„elementæ–¹æ³•å’Œelementsæ–¹æ³•çš„ä½¿ç”¨
 	 * 
 	 * @param node
 	 */
 	public void elementMethod(Element node) {
-		// »ñÈ¡node½ÚµãÖĞ£¬×Ó½ÚµãµÄÔªËØÃû³ÆÎªÎ÷ÓÎ¼ÇµÄÔªËØ½Úµã¡£
-		Element e = node.element("Î÷ÓÎ¼Ç");
-		// »ñÈ¡Î÷ÓÎ¼ÇÔªËØ½ÚµãÖĞ£¬×Ó½ÚµãÎª×÷ÕßµÄÔªËØ½Úµã(¿ÉÒÔ¿´µ½Ö»ÄÜ»ñÈ¡µÚÒ»¸ö×÷ÕßÔªËØ½Úµã)
-		Element author = e.element("×÷Õß");
+		// è·å–nodeèŠ‚ç‚¹ä¸­ï¼Œå­èŠ‚ç‚¹çš„å…ƒç´ åç§°ä¸ºè¥¿æ¸¸è®°çš„å…ƒç´ èŠ‚ç‚¹ã€‚
+		Element e = node.element("è¥¿æ¸¸è®°");
+		// è·å–è¥¿æ¸¸è®°å…ƒç´ èŠ‚ç‚¹ä¸­ï¼Œå­èŠ‚ç‚¹ä¸ºä½œè€…çš„å…ƒç´ èŠ‚ç‚¹(å¯ä»¥çœ‹åˆ°åªèƒ½è·å–ç¬¬ä¸€ä¸ªä½œè€…å…ƒç´ èŠ‚ç‚¹)
+		Element author = e.element("ä½œè€…");
 
 		System.out.println(e.getName() + "--1--" + author.getText());
 
-		// »ñÈ¡Î÷ÓÎ¼ÇÕâ¸öÔªËØ½Úµã ÖĞ£¬ËùÓĞ×Ó½ÚµãÃû³ÆÎª×÷ÕßÔªËØµÄ½Úµã ¡£
+		// è·å–è¥¿æ¸¸è®°è¿™ä¸ªå…ƒç´ èŠ‚ç‚¹ ä¸­ï¼Œæ‰€æœ‰å­èŠ‚ç‚¹åç§°ä¸ºä½œè€…å…ƒç´ çš„èŠ‚ç‚¹ ã€‚
 
-		List<Element> authors = e.elements("×÷Õß");
+		List<Element> authors = e.elements("ä½œè€…");
 		for (Element aut : authors) {
 			System.out.println(aut.getText());
 		}
 
-		// »ñÈ¡Î÷ÓÎ¼ÇÕâ¸öÔªËØ½Úµã ËùÓĞÔªËØµÄ×Ó½Úµã¡£
+		// è·å–è¥¿æ¸¸è®°è¿™ä¸ªå…ƒç´ èŠ‚ç‚¹ æ‰€æœ‰å…ƒç´ çš„å­èŠ‚ç‚¹ã€‚
 		List<Element> elements = e.elements();
 
 		for (Element el : elements) {
