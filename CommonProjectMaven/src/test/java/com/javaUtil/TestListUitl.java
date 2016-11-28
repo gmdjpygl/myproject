@@ -1,6 +1,7 @@
 package com.javaUtil;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -65,6 +66,8 @@ public class TestListUitl {
 				}
 				l.add(10);
 			}
+			String a []={"11","222"};
+			Arrays.copyOf(a, 5);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
