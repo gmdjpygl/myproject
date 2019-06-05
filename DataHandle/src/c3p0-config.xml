@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<c3p0-config>
+   <!--默认配置-->
+    <default-config>  
+        <property name="initialPoolSize">10</property>  
+        <property name="maxIdleTime">30</property>  
+        <property name="maxPoolSize">100</property>  
+        <property name="minPoolSize">10</property>  
+        <property name="maxStatements">200</property>  
+    </default-config>  
+  
+   <!--配置连接池mysql-->
+    <named-config name="oracle">  
+        <property name="driverClass">oracle.jdbc.driver.OracleDriver</property>  
+        <property name="jdbcUrl">jdbc:oracle:thin:@80.111.6.3:1521:orcl</property>  
+        <property name="user">wsjgxt</property>  
+        <property name="password">wsjgxt</property>  
+        <property name="initialPoolSize">20</property>  
+        <property name="maxIdleTime">30</property>  
+        <property name="maxPoolSize">100</property>  
+        <property name="minPoolSize">20</property>  
+        <property name="maxStatements">200</property>  
+    </named-config>  
+    
+</c3p0-config>
