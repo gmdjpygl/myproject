@@ -17,7 +17,7 @@ public class TestUtil {
 	@Test
 	public void t(){
 		
-		System.out.println("1DC141888839ddFF460111173484754".startsWith("DC"));
+		System.out.println("大".startsWith("DC"));
 		double v = (double)Integer.parseInt("1d89",16);
 		System.out.println(v);
     }
