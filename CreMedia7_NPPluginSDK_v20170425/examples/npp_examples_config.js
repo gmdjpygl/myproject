@@ -8,8 +8,8 @@ var _npc = NPPConfig =
 	connParams : 
 	{
 		// - 登录平台或设备地址
-		path : "61.191.26.2:9866",
-		//path : "123.232.113.249:8866",
+		path : "58.59.43.87:8866",
+
 		// - 登录用户名
 		username : "admin",
 		

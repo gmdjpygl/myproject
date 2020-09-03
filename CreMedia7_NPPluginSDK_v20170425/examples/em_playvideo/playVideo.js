@@ -160,9 +160,8 @@
 			if (_connStruct.connType == NPPILY.Enum.ConnectionType.Server) {
 				rootName = _connStruct.systemName || "网络视频监控系统";
 				
-				while(true) { 分页获取所有设备资源
-
-					//					var operator = NPPILY.ForkResource
+				while(true) { // 分页获取所有设备资源
+					var operator = NPPILY.ForkResource
 					(
 						connectId,
 						NPPILY.Enum.ForkResourceLevel.nppForkPUInfo,
