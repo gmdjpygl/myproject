@@ -1,0 +1,44 @@
+2014-12-26
+
+演示网页：
+	1、参看demo/meetingRoom/index.html
+
+用户上下线事件：
+	
+	1、"EVT_CU_Online" 用户上线
+	
+	主体结构形如：{"event":{"id":"EVT_CU_Online","time":"1419507294","level":"Notify","src_id":"6C15030C@005000100000000001","res_type":"SELF","res_idx":"0","ignore":"0","res_name":"Surveillance system","res_desc":"","desc":[{"Address":"192.168.43.98"},{"CUID":"6C15030C@005000100000000001"},{"ClientType":"Third-party"},{"EPID":"system"},{"Port":"39542"},{"UserID":"admin"},{"ValidationType":"USER"}]}}
+	
+	其中Address为客户端机器地址、Port为客户端机器端口、CUID为用户连接ID、ClientType为客户端类型、EPID为企业ID、UserID为平台用户名、ValidationType
+
+	2、"EVT_CU_Offline" 用户下线
+
+会议室事件：
+	
+	
+	1、"EVT_MR_MeetingRoomCreated"  会议室创建通知
+	主体结构形如：{"event":{"id":"EVT_MR_MeetingRoomCreated","time":"1419510400","level":"Notify","src_id":"009000100000000001","res_type":"SELF","res_idx":"0","ignore":"1","res_name":"DispatchScheduler","res_desc":"","desc":[{"ID":"9:009000100000000001:NTQ5YzAyN2YwMDAwMWE5Yw=="},{"ChID":"3952030C@005000100000000001"},{"Name":"together talking"}]}}
+	
+	其中ID为会议室的ID，ChID为用户连接ID（CUID），Name为会议室名称
+		
+					
+	2、"EVT_MR_MeetingRoomClosed"  会议室关闭通知	
+							
+	3、"EVT_MR_EnterMeetingRoom"　进入会议室
+	主体结构形如：
+		1.如果是一个用户加入会议室：{"event":{"id":"EVT_MR_EnterMeetingRoom","time":"1419508324","level":"Notify","src_id":"045000100000000001","res_type":"SELF","res_idx":"0","ignore":"1","res_name":"","res_desc":"","desc":[{"ChID":"1F1B030C@005000100000000001"},{"ChData":"PENoRGF0YT48VHlwZT5DVTwvVHlwZT48L0NoRGF0YT4="},{"Token":"9:009000100000000001:NTQ5YmY0YzcwMDAwMWE5OQ=="}]}}
+
+		拿ChID与用户上线的信息（需要记录下来）进行比较，得出用户的登录信息，放入会议室列表中
+		
+		2.如果是一个设备加入会议室：{"event":{"id":"EVT_MR_EnterMeetingRoom","time":"1419511573","level":"Notify","src_id":"045000100000000001","res_type":"SELF","res_idx":"0","ignore":"1","res_name":"","res_desc":"","desc":[{"ChID":"151038400788532092:OA:0"},{"ChData":"PFR5cGU+UFU8L1R5cGU+"},{"Token":"9:009000100000000001:NTQ5YzAyN2YwMDAwMWE5Yg=="}]}}
+		
+		ChID拆分结构为设备PUID+资源类型+资源索引，根据PUID查询出设备详细的信息，然后放入会议室列表中
+			
+		
+			
+	4、"EVT_MR_LeaveMeetingRoom" 离开会议室
+		
+	备注：与进入会议室是相反的过程，会议室成员信息列表需要自行实现增删维护
+							
+	5、"EVT_MR_SpeechExcitationNotice" 语音激励触发通知
+	

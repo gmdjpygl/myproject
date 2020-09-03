@@ -1,0 +1,678 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>外接存储查询下载</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <script src="../../js/jquery/jquery-1.9.1.js" type="text/javascript"></script>
+    <script src="../../js/jquery/lib/jquery.cookie.js" type="text/javascript"></script> 
+    <script src="../../js/jquery/lib/jquery.json-2.4.js" type="text/javascript"></script>
+   	
+    <script src="../../js/NPPInterface.js" type="text/javascript"></script> 
+    <script src="../../js/NPPInterlayer.js" type="text/javascript"></script>
+    
+    <script type="text/javascript">
+	<!-- 注册页面加载事件 -->
+	if (typeof jQuery != "undefined") {
+		$(document).ready(function () { WebClient.Load(); WebClient.Resize(); });				
+		$(window).unload(function () { WebClient.UnLoad(); });	
+		$(window).resize(function () { WebClient.Resize(); });	
+	}
+	else {
+		alert("jQuery加载失败或页面不支持~");
+	} 
+    </script>
+    
+    <style type="text/css">
+	body {font-family:"宋体";font-size:12px;background-color:#eaf3fc;}
+    .container {width:800px;height:650px;margin:0px auto;}
+    .box {width:800px;height:130px;margin:10px auto;background-color:#E7F0FF;border:1px solid #CCCCCC;border-top-left-radius:20px;border-top-right-radius:0px;overflow:hidden;}	
+	.box .title {height:25px;line-height:25px;vertical-align:middle;text-indent:20px;background-color:#CCCCCC;border-bottom:1px solid #CCCCCC; }
+	.box .title_over {color:#FFFFFF;background-color:#999999;}
+	.box .title_collapse {color:#FFFFFF;background-color:#999999;}
+	table td {text-align:center;}
+	
+	.rec-datalist {width:90%;height:240px;overflow:auto;margin:5px auto 10px auto;border:1px gray solid;}
+	
+    </style>
+</head>
+<body> 
+	<div class="container">
+    	<!-- Module 1 -->
+    	<div id="box_1" class="box">
+        	<div class="title">加载卸载</div>
+            <div class="content">
+            	<table width="100%" height="100%">
+                	<tr valign="middle">
+                    	<td>
+                        	<input id="box_1_startup" type="button" onclick="WebClient.RecordQR_Startup();" value="加载模块" />
+                        	<input id="box_1_cleanup" type="button" onclick="WebClient.RecordQR_Cleanup();"  value="清理模块" />
+                        </td>
+                    </tr>
+                	<tr valign="middle">
+                    	<td>
+                        	<textarea id="box_1_text" style="width:90%;height:50px;" ></textarea>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    	<!-- Module 2 -->
+    	<div id="box_2" class="box">
+        	<div class="title">设备信息</div>
+            <div class="content">
+            	<table width="100%" height="100%">
+                	<tr valign="middle">
+                    	<td>
+                        	<input type="button" onclick="WebClient.RecordQR_GetDeviceInfo();" value="获取设备信息" />
+                        </td>
+                    </tr>
+                	<tr valign="middle">
+                    	<td>
+                        	<textarea id="box_2_text" style="width:90%;height:50px;" ></textarea>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    	
+    	<!-- Module 3 -->
+    	<div id="box_3" class="box">
+        	<div class="title">录像日期</div>
+            <div class="content">
+            	<table width="100%" height="100%">
+                	<tr valign="middle">
+                    	<td>
+                        	<input type="button" onclick="WebClient.RecordQR_QueryRecordDate();" value="查询录像日期" />
+                        	&nbsp;&nbsp;
+                            <label>视频索引:</label>
+                            <input id="box_3_videoIndex" type="text" title="录像索引" value="0" style="width:50px;" />
+                            <label>分页查询开始索引:</label>
+                            <input id="box_3_offset" type="text" title="分页查询开始索引" value="0" style="width:50px;" />
+                            <label>分页查询条数:</label>
+                            <input id="box_3_count" type="text" title="分页查询条数" value="1000" style="width:50px;" />
+                        </td>
+                    </tr>
+                	<tr valign="middle">
+                    	<td>
+                        	<textarea id="box_3_text" style="width:90%;height:50px;" ></textarea>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        
+    	<!-- Module 4 -->
+    	<div id="box_4" class="box" style="height:auto;">
+        	<div class="title">录像文件</div>
+            <div class="content">
+            	<table width="100%" height="100%">
+                	<tr valign="middle">
+                    	<td title="开始结束时间请根据查询出的具体日期时间自行填入，这里的固定值不保证可查询到文件">
+                        	<input type="button" onclick="WebClient.RecordQR_QueryRecordFiles();" value="查询录像文件" />
+                        	&nbsp;&nbsp;
+                            <label>视频索引:</label>
+                            <input id="box_4_videoIndex" type="text" title="视频索引" value="0" style="width:50px;" />
+                            <label>分页查询开始索引:</label>
+                            <input id="box_4_offset" type="text" title="分页查询开始索引" value="0" style="width:50px;" />
+                            <label>分页查询条数:</label>
+                            <input id="box_4_count" type="text" title="分页查询条数" value="100" style="width:50px;" />
+                            <br />
+							<!-- 开始结束时间请自行填入，这里的固定值不保证可查询到文件 -->
+                            <label>开始时间:</label>
+                            <input id="box_4_bUTCTime" type="text" title="开始时间（UTC秒）" value="1397145600" style="width:100px;" />
+                            <label>结束时间:</label>
+                            <input id="box_4_eUTCTime" type="text" title="结束时间（UTC秒）" value="1397232000" style="width:100px;" />
+                        </td>
+                    </tr>
+                	<tr valign="middle">
+                    	<td>
+                        	<textarea id="box_4_text" style="width:90%;height:110px;" ></textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                    	<td><div id="box_4_copyRecord" class="rec-datalist"></div></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+		
+		<!-- Module 5 -->
+    	<div id="box_5" class="box">
+        	<div class="title">抓图日期</div>
+            <div class="content">
+            	<table width="100%" height="100%">
+                	<tr valign="middle">
+                    	<td>
+                        	<input type="button" onclick="WebClient.RecordQR_QuerySnapshotDate();" value="查询抓图日期" />
+                        	&nbsp;&nbsp;
+                            <label>视频索引:</label>
+                            <input id="box_5_videoIndex" type="text" title="视频索引" value="0" style="width:50px;" />
+                            <label>分页查询开始索引:</label>
+                            <input id="box_5_offset" type="text" title="分页查询开始索引" value="0" style="width:50px;" />
+                            <label>分页查询条数:</label>
+                            <input id="box_5_count" type="text" title="分页查询条数" value="1000" style="width:50px;" />
+                        </td>
+                    </tr>
+                	<tr valign="middle">
+                    	<td>
+                        	<textarea id="box_5_text" style="width:90%;height:50px;" ></textarea>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+		
+    	<!-- Module 6 -->
+    	<div id="box_6" class="box" style="height:auto;">
+        	<div class="title">抓图文件</div>
+            <div class="content">
+            	<table width="100%" height="100%">
+                	<tr valign="middle">
+                    	<td title="开始结束时间请根据查询出的具体日期时间自行填入，这里的固定值不保证可查询到文件">
+                        	<input type="button" onclick="WebClient.RecordQR_QuerySnapshotFiles();" value="查询抓图文件" />
+                        	&nbsp;&nbsp;
+                            <label>视频索引:</label>
+                            <input id="box_6_videoIndex" type="text" title="视频索引" value="0" style="width:50px;" />
+                            <label>分页查询开始索引:</label>
+                            <input id="box_6_offset" type="text" title="分页查询开始索引" value="0" style="width:50px;" />
+                            <label>分页查询条数:</label>
+                            <input id="box_6_count" type="text" title="分页查询条数" value="100" style="width:50px;" />
+                            <br />
+                            <label>开始时间:</label>
+                            <input id="box_6_bUTCTime" type="text" title="开始时间（UTC秒）" value="1397145600" style="width:100px;" />
+                            <label>结束时间:</label>
+                            <input id="box_6_eUTCTime" type="text" title="结束时间（UTC秒）" value="1397232000" style="width:100px;" />
+                        </td>
+                    </tr>
+                	<tr valign="middle">
+                    	<td>
+                        	<textarea id="box_6_text" style="width:90%;height:110px;" ></textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                    	<td><div id="box_6_copySnapshot" class="rec-datalist"></div></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+		
+    </div>
+</body>
+</html>
+
+<script type="text/javascript">
+var WebClient = {
+	Load: function () {
+		try {
+			var fn = "WebClient.Load";
+			
+			$("DIV.title")
+				.attr("title", "点击折叠")
+				.on("click mouseover mouseout", function (event) {
+					switch (event.type) {
+						case "mouseover":
+							if ($(this).attr("collapsing") != 1) {
+								if (!$(this).hasClass("title_over")) $(this).addClass("title_over");
+							}
+							break;
+						case "mouseout":
+							if ($(this).attr("collapsing") != 1) {
+								if ($(this).hasClass("title_over")) $(this).removeClass("title_over");
+							}
+							break;
+						case "click":
+							if ($(this).attr("collapsing") != 1) {
+								$(this)
+									.attr("collapsing", 1)
+									.attr("title", "点击展开");
+								
+								var p = $(this)
+									.parent("DIV.box");
+									
+								if (!p.attr("_height")) {
+									p.attr("_height", p.height());
+								}
+								p.animate({
+									height: "27px"
+								});
+									
+								if ($(this).hasClass("title_over")) {
+									$(this).removeClass("title_over");
+								}
+								if (!$(this).hasClass("title_collapse")) {
+									$(this).addClass("title_collapse");
+								}
+							}
+							else {
+								$(this)
+									.attr("collapsing", 0)
+									.attr("title", "点击折叠");
+								
+								var p = $(this)
+									.parent("DIV.box");
+								
+								p.animate({
+									height: p.attr("_height")
+								});
+									
+								if ($(this).hasClass("title_over")) {
+									$(this).removeClass("title_over");
+								}
+								if ($(this).hasClass("title_collapse")) {
+									$(this).removeClass("title_collapse");
+								}
+							}
+							break;
+					}
+				});
+			
+			
+			// 必须首先初始化
+			var operator = NPPILY.Init();
+			if (operator.rv != 0) {
+				// 初始化不成功，插件加载失败
+				alert(NrcapError.Detail(operator.rv));
+			}
+			else {
+				// 注册外接磁盘存储文件下载信息通知回调
+				NPPILY.NCNotifyManager.Add(NPPILY.Enum.NCObjectNotify.copy_file_notify, function (notify) {
+					WebClient.CopyFileNotify(notify);
+				});
+			}
+		}
+		catch (e) {
+			excep(fn, e);
+		}
+	},
+	
+	// 加载模块
+	RecordQR_Startup: function () {
+		try {
+			var fn = "WebClient.RecordQR_Startup";
+			// 判断插件是否已经加载了，下同
+			if (NPPILY.Plug.inited) {
+				// 开启加载读外接磁盘存储模块（操作外接磁盘必须首先调用此接口）
+				var operator = NPPILY.RecordQR_Startup();
+				$("#box_1_text").val("RecordQR_Startup(" + NrcapError.Detail(operator.rv) + ") -> " + $.toJSON(operator));
+			}
+		}
+		catch (e) {
+			excep(fn, e);
+		}
+	},
+	// 清理模块
+	RecordQR_Cleanup: function () {
+		try {
+			var fn = "WebClient.RecordQR_Cleanup";
+			if (NPPILY.Plug.inited) {
+				// 清理读外接磁盘存储模块（与RecordQR_Startup应一对一调用）
+				var operator = NPPILY.RecordQR_Cleanup();
+				$("#box_1_text").val("RecordQR_Cleanup(" + NrcapError.Detail(operator.rv) + ") -> " + $.toJSON(operator));
+			}
+		}
+		catch (e) {
+			excep(fn, e);
+		}
+	},
+	// 获取设备信息
+	RecordQR_GetDeviceInfo: function () {
+		try {
+			var fn = "WebClient.RecordQR_GetDeviceInfo";
+			if (NPPILY.Plug.inited) {
+				var operator = NPPILY.RecordQR_GetDeviceInfo();
+				$("#box_2_text").val("RecordQR_GetDeviceInfo(" + NrcapError.Detail(operator.rv) + ") -> " + $.toJSON(operator));
+			}
+		}
+		catch (e) {
+			excep(fn, e);
+		}
+	},
+	// 获取录像日期
+	RecordQR_QueryRecordDate: function () {
+		try {
+			var fn = "WebClient.RecordQR_QueryRecordDate";
+			if (NPPILY.Plug.inited) {
+				var operator = NPPILY.RecordQR_QueryRecordDate
+				(
+					$("#box_3_videoIndex").val(),
+					$("#box_3_offset").val(),
+					$("#box_3_count").val()
+				);
+				$("#box_3_text").val("RecordQR_QueryRecordDate(" + NrcapError.Detail(operator.rv) + ") -> " + $.toJSON(operator));
+			}
+		}
+		catch (e) {
+			excep(fn, e);
+		}
+	},
+	// 查询录像文件
+	RecordQR_QueryRecordFiles: function () {
+		try {
+			var fn = "WebClient.RecordQR_QueryRecordFiles";
+			if (NPPILY.Plug.inited) {
+				var operator = NPPILY.RecordQR_QueryRecordFiles
+				(
+					$("#box_4_videoIndex").val(),
+					$("#box_4_offset").val(),
+					$("#box_4_count").val(),
+					$("#box_4_bUTCTime").val(),
+					$("#box_4_eUTCTime").val()
+				);
+				$("#box_4_text").val("RecordQR_QueryRecordFiles(" + NrcapError.Detail(operator.rv) + ") -> " + $.toJSON(operator));
+				
+				// 清空下载列表区域
+				$("#box_4_copyRecord").html("");
+				
+				if (operator.rv == 0) {
+					var html = [],
+						count = 0;
+					html.push('<table style="width:100%;" border="0" cellpadding="0" cellspacing="0">');
+					if (operator.response && $.isArray(operator.response))
+					{
+						var videoIndex = $("#box_4_videoIndex").val();
+						
+						$.each(operator.response, function (index, item) {
+							count++;
+							
+							// 比如item.path = "B:\\0000\\";那么后来查询的时候也必须保正完全一致，像"B:\0000\"、"B:/0000/"之类的下载会出现异常的情况
+							item.path = item.path.replace(/\\/gm, "\\\\");
+							
+							html.push('<tr id="file_content_'+index+'" vi="'+index+'" style="height:30px;line-height:30px;">');
+								html.push('<td style="width:30px;font-size:16px;font-weight:bold;">' + (index+1) + '</td>');
+								html.push('<td>');
+									html.push('<span>'+(item.path + item.name) +',</span>');
+									html.push('<span>'+(item.begin_time + ' - ' + item.end_time) +',</span>');
+									html.push('<span>'+(item.reason.join(":")) +'</span>');
+									html.push('<div>');
+										html.push('&nbsp;&nbsp;');
+										html.push('<input id="file_startCopy_'+index+'" type=button value="开始下载" onclick="WebClient.CopyRecord_Start(this,\''+item.path+'\',\''+item.name+'\');" />');
+										html.push('&nbsp;');
+										html.push('<input id="file_stopCopy_'+index+'" type=button value="停止下载" onclick="WebClient.CopyRecord_Stop(this);" />');
+										html.push('&nbsp;');
+										html.push('<label>下载文件保存地址：</label>');
+										html.push('<input id="file_savePath_'+index+'" value="C://video_' + videoIndex + '_'+item.name+'" style="width:300px;" />');
+									html.push('</div>');
+								html.push('</td>');
+							html.push('</tr>');
+							
+							html.push('<tr id="file_notify_'+index+'" vi="'+index+'">');
+								html.push('<td colspan=2 style="padding-bottom:5px;border-bottom:1px #CCCCCC solid;">');
+									html.push('<textarea id="file_text_left_'+index+'" style="width:30%;height:50px;"></textarea>');
+									html.push('&nbsp;<textarea id="file_text_right_'+index+'" style="width:60%;height:50px;"></textarea>');
+								html.push('</td>');
+							html.push('</tr>');
+						});
+					}
+					html.push('</table>');
+					
+					$("#box_4_copyRecord").html(count > 0? html.join("") : "");
+				}
+			}
+		}
+		catch (e) {
+			excep(fn, e);
+		}
+	},
+	
+	// 开始下载录像
+	CopyRecord_Start: function (obj, remotePath, remoteName) {
+		try {
+			var fn = "WebClient.CopyRecord_Start";
+			
+			var videoIndex = $("#box_4_videoIndex").val();
+			
+			var idSavePath = obj.id.replace("_startCopy_", "_savePath_");
+			var fileSavePath = $("#" + idSavePath).val();
+			
+			var operator = NPPILY.RecordQR_CopyRecord((remotePath + remoteName), fileSavePath);
+			
+			var idFileLeftText = obj.id.replace("_startCopy_", "_text_left_");
+			var idFileRightText = obj.id.replace("_startCopy_", "_text_right_");
+			$("#" + idFileLeftText)
+				.val("RecordQR_CopyRecord(" + NrcapError.Detail(operator.rv) + ") -> " + $.toJSON(operator));
+			$("#" + idFileRightText)
+				.attr("_savePath", fileSavePath);
+			
+			
+		}
+		catch (e) {
+			excep(fn, e);
+		}
+	},
+	// 停止下载
+	CopyRecord_Stop: function (obj) {
+		try {
+			var fn = "WebClient.CopyRecord_Stop";
+			
+			var videoIndex = $("#box_4_videoIndex").val();
+			
+			var idFileLeftText = obj.id.replace("_stopCopy_", "_text_left_");
+			var idFileRightText = obj.id.replace("_stopCopy_", "_text_right_");
+			var fileSavePath = $("#" + idFileRightText).attr("_savePath");
+			
+			if (fileSavePath) {
+				var operator = NPPILY.RecordQR_CancelCopy(fileSavePath);
+				$("#" + idFileLeftText)
+					.val("RecordQR_CancelCopy(" + NrcapError.Detail(operator.rv) + ") -> " + $.toJSON(operator));
+			}
+		}
+		catch (e) {
+			excep(fn, e);
+		}
+	},
+	
+	// 获取抓图日期
+	RecordQR_QuerySnapshotDate: function () {
+		try {
+			var fn = "WebClient.RecordQR_QuerySnapshotDate";
+			if (NPPILY.Plug.inited) {
+				var operator = NPPILY.RecordQR_QuerySnapshotDate
+				(
+					$("#box_5_videoIndex").val(),
+					$("#box_5_offset").val(),
+					$("#box_5_count").val()
+				);
+				$("#box_5_text").val("RecordQR_QuerySnapshotDate(" + NrcapError.Detail(operator.rv) + ") -> " + $.toJSON(operator));
+			}
+		}
+		catch (e) {
+			excep(fn, e);
+		}
+	},
+	// 查询抓图文件
+	RecordQR_QuerySnapshotFiles: function () {
+		try {
+			var fn = "WebClient.RecordQR_QuerySnapshotFiles";
+			if (NPPILY.Plug.inited) {
+				var operator = NPPILY.RecordQR_QuerySnapshotFiles
+				(
+					$("#box_6_videoIndex").val(),
+					$("#box_6_offset").val(),
+					$("#box_6_count").val(),
+					$("#box_6_bUTCTime").val(),
+					$("#box_6_eUTCTime").val()
+				);
+				$("#box_6_text").val("RecordQR_QuerySnapshotFiles(" + NrcapError.Detail(operator.rv) + ") -> " + $.toJSON(operator));
+				
+				// 清空下载列表区域
+				$("#box_6_copySnapshot").html("");
+					
+				if (operator.rv == 0) {
+					var html = [],
+						count = 0;
+					html.push('<table style="width:100%;" border="0" cellpadding="0" cellspacing="0">');
+					if (operator.response && $.isArray(operator.response))
+					{
+						var videoIndex = $("#box_6_videoIndex").val();
+						
+						$.each(operator.response, function (index, item) {
+							count++;
+							
+							// 比如item.path = "B:\\0000\\";那么后来查询的时候也必须保正完全一致，像"B:\0000\"、"B:/0000/"之类的下载会出现异常的情况
+							item.path = item.path.replace(/\\/gm, "\\\\");
+							
+							html.push('<tr id="imgfile_content_'+index+'" vi="'+index+'" style="height:30px;line-height:30px;">');
+								html.push('<td style="width:30px;font-size:16px;font-weight:bold;">' + (index+1) + '</td>');
+								html.push('<td>');
+									html.push('<span>'+(item.path + item.name) +',</span>');
+									html.push('<span>'+(item.begin_time) +',</span>');
+									html.push('<span>'+(item.reason.join(":")) +'</span>');
+									html.push('<div>');
+										html.push('&nbsp;&nbsp;');
+										html.push('<input id="imgfile_startCopy_'+index+'" type=button value="开始下载" onclick="WebClient.CopySnapshot_Start(this,\''+item.path+'\',\''+item.name+'\');" />');
+										html.push('&nbsp;');
+										html.push('<input id="imgfile_stopCopy_'+index+'" type=button value="停止下载" onclick="WebClient.CopySnapshot_Stop(this);" />');
+										html.push('&nbsp;');
+										html.push('<label>下载文件保存地址：</label>');
+										html.push('<input id="imgfile_savePath_'+index+'" value="C://image_' + videoIndex + '_'+item.name+'" style="width:300px;" />');
+									html.push('</div>');
+								html.push('</td>');
+							html.push('</tr>');
+							
+							html.push('<tr id="imgfile_notify_'+index+'" vi="'+index+'">');
+								html.push('<td colspan=2 style="padding-bottom:5px;border-bottom:1px #CCCCCC solid;">');
+									html.push('<textarea id="imgfile_text_left_'+index+'" style="width:30%;height:50px;"></textarea>');
+									html.push('&nbsp;<textarea id="imgfile_text_right_'+index+'" style="width:60%;height:50px;"></textarea>');
+								html.push('</td>');
+							html.push('</tr>');
+						});
+					}
+					html.push('</table>');
+					
+					$("#box_6_copySnapshot").html(count > 0? html.join("") : "");
+				}
+			}
+		}
+		catch (e) {
+			excep(fn, e);
+		}
+	},
+	// 开始下载抓图
+	CopySnapshot_Start: function (obj, remotePath, remoteName) {
+		try {
+			var fn = "WebClient.CopySnapshot_Start";
+			
+			var videoIndex = $("#box_6_videoIndex").val();
+			
+			var idSavePath = obj.id.replace("_startCopy_", "_savePath_");
+			var fileSavePath = $("#" + idSavePath).val();
+			
+			var operator = NPPILY.RecordQR_CopySnapshot((remotePath + remoteName), fileSavePath);
+			
+			var idFileLeftText = obj.id.replace("_startCopy_", "_text_left_");
+			var idFileRightText = obj.id.replace("_startCopy_", "_text_right_");
+			$("#" + idFileLeftText)
+				.val("RecordQR_CopySnapshot(" + NrcapError.Detail(operator.rv) + ") -> " + $.toJSON(operator));
+			$("#" + idFileRightText)
+				.attr("_savePath", fileSavePath);
+			
+			
+		}
+		catch (e) {
+			excep(fn, e);
+		}
+	},
+	// 停止下载
+	CopySnapshot_Stop: function (obj) {
+		try {
+			var fn = "WebClient.CopySnapshot_Stop";
+			
+			var videoIndex = $("#box_6_videoIndex").val();
+			
+			var idFileLeftText = obj.id.replace("_stopCopy_", "_text_left_");
+			var idFileRightText = obj.id.replace("_stopCopy_", "_text_right_");
+			var fileSavePath = $("#" + idFileRightText).attr("_savePath");
+			
+			if (fileSavePath) {
+				var operator = NPPILY.RecordQR_CancelCopy(fileSavePath);
+				$("#" + idFileLeftText)
+					.val("RecordQR_CancelCopy(" + NrcapError.Detail(operator.rv) + ") -> " + $.toJSON(operator));
+			}
+		}
+		catch (e) {
+			excep(fn, e);
+		}
+	},
+	
+	
+	// 外接磁盘存储文件下载信息通知回调
+	CopyFileNotify: function (notify) {
+		try {
+			var fn = "WebClient.CopyFileNotify";
+			
+			if (notify && notify instanceof NPPILY.Struct.NCObjectNotifyStruct) {
+				logger(fn, $.toJSON(notify));
+				
+				if (notify && notify.keyData) {
+					$("textarea[id*=file_text_right_][_savePath]")
+						.each(function (index, dom) {
+							if ($(dom).attr("_savePath") == notify.keyData.localFilePath) {
+								var bytes = notify.keyData.currentBytes, times = notify.keyData.currentTime;
+								if ($(dom).data("last_notify_keyData")) {
+									var last_notify_keyData = $(dom).data("last_notify_keyData");
+									if (last_notify_keyData.localFilePath) {
+										bytes = notify.keyData.currentBytes - last_notify_keyData.currentBytes;
+										times = notify.keyData.currentTime - last_notify_keyData.currentTime;
+									}
+								}
+								var speeding = (bytes/(1024*times)).toFixed(3);
+								if (times == 0) {
+									speeding = 0;
+								}
+								
+								$(dom)
+									.val($.toJSON(notify.keyData) + ", 速率 -> " + speeding + " KBps")  
+									.data("last_notify_keyData", notify.keyData);
+								return false;
+							}
+						});
+				}
+			}
+		}
+		catch (e) {
+			excep(fn, e);
+		}
+	},
+	
+	
+	UnLoad: function () {
+		try {
+			var fn = "WebClient.UnLoad";
+		
+			NPPILY.UnLoad();
+		}
+		catch (e) {
+			excep(fn, e);
+		}
+	},
+	
+	Resize: function () {
+		try {
+			var fn = "WebClient.Resize";
+		
+			
+		}
+		catch (e) {
+			excep(fn, e);
+		}
+	},
+	
+	end: true 
+};
+var excep = function (fn, e) {
+	logger(fn, e.name + "::" + e.message);
+};
+var logger = function (fnStr, log) {
+	try {
+		if (typeof NPPUtils.Log != "undefined") {
+			NPPUtils.Log(fnStr, log);
+		}
+		if (typeof console != "undefined") {
+			console.log(fnStr + " -> " + log);
+		}
+	}
+	catch (e) {
+	}
+};　
+</script>

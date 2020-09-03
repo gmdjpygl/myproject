@@ -1,0 +1,125 @@
+body {
+	margin:0px auto;padding:0px;font-family:宋体;font-size:13px;background-color:#eaf3fc;
+}
+.header {
+	width:100%;height:32px;overflow:hidden;overflow-y:auto;border-bottom:1px solid gray;
+}
+.middle {
+	width:100%;height:300px;overflow:hidden;margin-top:1px;border-top:1px gray solid;border-bottom:1px gray solid;
+}
+.footer {
+	width:100%;height:200px;overflow:hidden;margin-top:1px;border-top:1px solid gray;border-bottom:1px solid gray;
+}
+.loginBox {
+	margin:5px auto;margin-left:10px;
+}
+.resourceTreeBox {
+	float:left;width:285px;height:100%;overflow:hidden;border-right:1px gray solid;
+}
+.deviceManagerBox {
+	float:left;width:500px;height:100%;overflow:hidden;margin-left:1px;border-left:1px gray solid;border-right:0px gray solid;
+}
+.top {
+	width:100%;height:20px;line-height:20px;vertical-align:middle;text-indent:2px;color:brown;background-color:#CCCCCC;
+}
+.bottom_1 {
+	width:100%;overflow:auto;
+}
+.bottom_2 {
+	width:100%;overflow:auto;
+}
+.bottom_3 {
+	width:100%;overflow:auto;
+}
+.alertInBox {
+	width:782px;height:280px;border:0px solid gray;empty-cells:show;margin:5px 0px 0px 5px;margin:5px 0px 0px 5px !important;
+}
+.alertInGuardTimeMap {
+	width:780px;height:210px;border:1px solid gray;margin:1px 0px 0px 5px;margin:1px 0px 0px 5px !important;display:none;
+}
+.alertIn_map {
+	float:left;width:600px;height:168px;border:1px brown solid;margin:20px 0px 0px 20px;margin:20px 0px 0px 20px !important;
+}
+.alertIn_map_control {
+	float:left;width:110px;height:168px;border:0px white solid;margin:20px 0px 0px 20px;margin:20px 0px 0px 20px !important;
+}
+.alertIn_map_control input {
+	margin-top:5px;margin-top:5px !important;text-align:center;
+}
+
+/* - 资源树样式 - */
+.resourceTree{text-align:left;border-left:1px #CCC solid;border-bottom:1px #CCC solid; background-color:#FAFCFC; overflow:auto;border:1px grey solid;}
+
+.resourceTree input{ width:16px; height:16px; line-height:16px; vertical-align:middle; padding:0px; margin:0px;} 
+.resourceTree a{cursor:pointer;color:#151515;text-decoration:none; }
+.resourceTree a:link {text-decoration:none;}
+.resourceTree a:visited{text-decoration:none;} 
+.resourceTree a:hover{ color:#3E43ED; text-decoration:underline;}
+.resourceTree a:active{text-decoration:none;}
+
+.resourceTree .root{ cursor:pointer; width:16px; height:16px; border:0px; background-color:Transparent; background-image:url(../images/icolist.png); background-repeat:no-repeat; background-position:left top;}
+.resourceTree .station{ cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(../images/icolist.png); background-repeat:no-repeat; background-position:-16px top;}
+.resourceTree .gateway{ cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(../images/icolist.png); background-repeat:no-repeat; background-position:-368px top;} 
+
+.resourceTree .inputaudio{ cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(../images/icolist.png); background-repeat:no-repeat; background-position:-64px top;}
+.resourceTree .outputaudio{ cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(../images/icolist.png); background-repeat:no-repeat; background-position:-48px top;}
+.resourceTree .inputvideo{ cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(../images/icolist.png); background-repeat:no-repeat; background-position:-80px top;}
+.resourceTree .outputvideo{ cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(../images/icolist.png); background-repeat:no-repeat; background-position:-96px top;}
+.resourceTree .serialport{cursor:pointer;width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(../images/icolist.png);background-repeat:no-repeat; background-position:-128px top;}
+.resourceTree .ptz{cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(../images/icolist.png);background-repeat:no-repeat; background-position:-160px top;}
+.resourceTree .inputdigitalline{cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(../images/icolist.png);background-repeat:no-repeat; background-position:-192px top;}
+.resourceTree .outputdigitalline{cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(../images/icolist.png);background-repeat:no-repeat; background-position:-208px top;}
+.resourceTree .speaker{cursor:pointer; border:0px; width:16px; height:16px;  background-color:Transparent; background-image:url(../images/icolist.png);background-repeat:no-repeat; background-position:-48px top;}
+.resourceTree .storager{cursor:pointer; width:16px; height:16px; border:0px; background-color:Transparent; background-image:url(../images/icolist.png);background-repeat:no-repeat; background-position:-32px top;}
+.resourceTree .voddate{cursor:pointer; width:16px; height:16px; border:0px; background-color:Transparent; background-image:url(../images/icolist.png);background-repeat:no-repeat; background-position:-208px top;}
+
+.resourceTree .root_disabled{ cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(../images/icolist.png); background-repeat:no-repeat; background-position:-432px top;}
+.resourceTree .station_disabled{ cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(../images/icolist.png); background-repeat:no-repeat; background-position:-464px top;}
+.resourceTree .gateway_disabled{ cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(../images/icolist.png); background-repeat:no-repeat; background-position:-816px top;} 
+
+.resourceTree .inputaudio_disabled{ cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(../images/icolist.png); background-repeat:no-repeat; background-position:-512px top;}
+.resourceTree .outputaudio_disabled{ cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(../images/icolist.png); background-repeat:no-repeat; background-position:-496px top;}
+.resourceTree .inputvideo_disabled{ cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(../images/icolist.png); background-repeat:no-repeat; background-position:-528px top;}
+.resourceTree .outputvideo_disabled{ cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(../images/icolist.png); background-repeat:no-repeat; background-position:-544px top;}
+.resourceTree .serialport_disabled{cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(../images/icolist.png);background-repeat:no-repeat; background-position:-576px top;}
+.resourceTree .ptz_disabled{cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(../images/icolist.png);background-repeat:no-repeat; background-position:-608px top;}
+.resourceTree .inputdigitalline_disabled{cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(../images/icolist.png);background-repeat:no-repeat; background-position:-640px top;}
+.resourceTree .outputdigitalline_disabled{cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(../images/icolist.png);background-repeat:no-repeat; background-position:-656px top;}
+.resourceTree .speaker_disabled{cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(../images/icolist.png);background-repeat:no-repeat; background-position:-496px top;}
+.resourceTree .storager_disabled{cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(../images/icolist.png);background-repeat:no-repeat; background-position:-480px top;}
+.resourceTree .voddate_disabled{cursor:pointer; width:16px; height:16px; border:0px; background-color:Transparent; background-image:url(../images/icolist.png);background-repeat:no-repeat; background-position:-572px top;}
+
+.resourceTree .logic{ cursor:default; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(../images/icolist.png); background-repeat:no-repeat; background-position:-432px top;}
+.resourceTree .plus{ cursor:default; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(../images/outline.png); background-repeat:no-repeat; background-position:left top;}
+.resourceTree .minus{ cursor:default; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(../images/outline.png); background-repeat:no-repeat; background-position:-17px top;}
+.resourceTree .directline{ cursor:pointer; width:16px; border:0px; background-color:Transparent; background-image:url(../images/outline.png); background-repeat:no-repeat; background-position:-104px top;}
+.resourcetree .blankline{cursor:pointer; width:16px; border:0px; background-color:Transparent; background-image:url(../images/outline.png); background-repeat:no-repeat; background-position:-1000px top;}
+.resourceTree .outline{ cursor:pointer; width:16px; border:0px; background-color:Transparent; background-image:url(../images/outline.png); background-repeat:repeat-y; background-position:-49px top;}
+.resourceTree .endline{ cursor:pointer; width:16px; border:0px; background-color:Transparent; background-image:url(../images/outline.png); background-repeat:repeat-y; background-position:-32px top;}
+.resourceTree .stationmodel_expand{ cursor:pointer; width:16px; border:0px; background-color:Transparent; background-image:url(../images/icolist.png); background-repeat:no-repeat; background-position:-432px top;}
+.resourceTree .stationmodel_collapse{ cursor:pointer; width:16px; border:0px; background-color:Transparent; background-image:url(../images/icolist.png); background-repeat:no-repeat; background-position:-432px top;}
+.resourceTree .childresourcebox_directline{ cursor:pointer; width:16px; border:0px; background-color:Transparent; background-image:url(../images/outline.png); background-repeat:repeat-y; background-position:-104px top;}
+.resourcetree .childresourcebox_blankline{cursor:pointer; width:16px; border:0px; background-color:Transparent; background-image:url(../images/outline.png); background-repeat:repeat-y; background-position:-1000px top;}
+
+/* 列表样式 */
+.list_th {
+	width:100%;height:20px;line-height:20px;vertical-align:middle;background-color:#AFAFAF;border-top:1px #EAF3FC solid;border-bottom:1px #AFAFAF solid;
+}
+.list_thtd {
+	float:left;width:5%;color:brown;border-right:1px #EAF3FC solid;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.list_tr {
+	width:100%;height:20px;line-height:20px;vertical-align:middle;background-color:#FAFAFA;border-bottom:1px #ADADAD solid;
+}
+.list_trother {
+	width:100%;height:20px;line-height:20px;vertical-align:middle;background-color:#EFEFEF;border-bottom:1px #ADADAD solid;
+}
+.list_trtd {
+	float:left;width:5%;border-right:1px #ADADAD solid;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.list_tr_over { 
+	background-color:#DBDBDB;
+}
+.list_tr_selected { 
+	background-color:#D3D3D3;
+}

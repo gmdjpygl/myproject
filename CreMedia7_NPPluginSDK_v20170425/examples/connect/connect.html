@@ -1,0 +1,472 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>CreMedia7.0 WebClient Demo</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	
+    <script src="../../js/jquery/jquery-1.9.1.js" type="text/javascript"></script>
+	
+	<script src="../../js/jquery/lib/snippet/jquery.snippet.js" type="text/javascript"></script>
+	
+	<script src="../../js/jquery/lib/jquery.json-2.4.js" type="text/javascript"></script>
+	
+    <script src="../../js/NPPInterface.js" type="text/javascript"></script>
+	
+    <script src="../../js/NPPInterlayer.js" type="text/javascript"></script>
+	
+	<script src="../npp_examples_config.js" type="text/javascript"></script>
+	
+	<link rel="stylesheet" type="text/css" href="../images/pages.css" />
+	
+	<link rel="stylesheet" type="text/css" href="../../js/jquery/lib/snippet/jquery.snippet.css" />
+	
+	<style type="text/css">
+	table,td,tr{
+		border:1px grey solid;
+	}
+	td{
+		width:250px;
+	}
+	.td_b{
+		color:blue;
+	}
+	</style>
+</head>
+<body style="">
+
+	<h1 class="h1A">创建连接 NPPILY.Connect</h1>
+    <div class="content cc">
+		<p style="text-indent: 2em">当页面加载，调用NPPILY.Init接口以成功初始化插件后，就可以进行创建连接了。创建连接可以调用NPPILY.Connect(connParam)函数。参数connParam为NPPILY.Struct.ConnParamStruct结构，应按照结构中传参。连接成功后，连接参数等信息将会记录在全局变量NPPILY.Connections&lt;key, value&gt;(符合NPPUtils.Hash结构)中，其中：key含义为连接ID，value结构为NPPILY.Struct.ConnectionStruct。
+		</p>
+		<p style="text-indent: 2em">注意：同一个页面可以创建多个连接，重复NPPILY.Connect...等过程，断开连接请调用NPPILY.DisConnection接口，参数为每个NPPILY.Connect后返回的连接ID。
+		</p>
+		<p style="text-indent: 2em;padding-top:10px;">
+			<strong>
+				连接服务器或直连设备参数结构 NPPILY.Struct.ConnParamStruct:
+			</strong>
+		</p>
+		<div style="padding-left:25px;padding-top:10px;">
+			<table>
+				<tr>
+					<td>
+						变量
+					</td>
+					<td>
+						类型
+					</td>
+					<td>
+						描述
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						path
+					</td>
+					<td>
+						String NOT NULL
+					</td>
+					<td>
+						连接地址，结构为ip:port（支持域名）
+						<br />
+						例如127.0.0.1:8866、www.crearo.com:8866等
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						epId
+					</td>
+					<td>
+						String NOT NULL
+					</td>
+					<td>
+						企业ID，例如system
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						username
+					</td>
+					<td>
+						String NOT NULL
+					</td>
+					<td>
+						登录用户名，例如admin
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						password
+					</td>
+					<td>
+						String NULL
+					</td>
+					<td>
+						登录密码
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						bFixCUIAddress
+					</td>
+					<td>
+						String NULL
+					</td>
+					<td>
+						是否透过网闸模式(是1/true，否0/false)，默认为否
+					</td>
+				</tr>
+			</table>
+		</div>
+		<p style="text-indent: 2em;padding-top:10px;">
+			<strong>
+				返回值 NPPILY.Struct.ReturnValueStruct
+			</strong>
+		</p>
+		<div style="padding-left:25px;padding-top:10px;">
+			<table>
+				<tr>
+					<td>
+						变量
+					</td>
+					<td>
+						类型
+					</td>
+					<td>
+						描述
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						rv
+					</td>
+					<td>
+						Number
+					</td>
+					<td>
+						错误编码
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						response
+					</td>
+					<td>
+						Object NULL
+					</td>
+					<td>
+						当rv为0时，返回有效的值，否则为NULL;这里response应为connectId
+					</td>
+				</tr>
+			</table>
+		</div>
+		<p style="text-indent: 2em;padding-top:10px;">
+			<strong>
+				连接对象信息结构 NPPILY.Struct.ConnectionStruct
+			</strong>
+		</p>
+		<div style="padding-left:25px;padding-top:10px;">
+			<table>
+				<tr>
+					<td>
+						变量
+					</td>
+					<td>
+						类型
+					</td>
+					<td>
+						描述
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						key
+					</td>
+					<td>
+						String NOT NULL
+					</td>
+					<td>
+						Connect ID创建一个连接后，系统生成的Conenct ID
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						connParam
+					</td>
+					<td>
+						NPPILY.Struct.ConnParamStruct
+					</td>
+					<td>
+						连接登录参数
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						ncName
+					</td>
+					<td>
+						String NOT NULL
+					</td>
+					<td>
+						Connect ID创建一个连接后，系统生成的Conenct ID
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						nc
+					</td>
+					<td>
+						Object NOT NULL
+					</td>
+					<td>
+						NC插件实例
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						connType
+					</td>
+					<td>
+						NPPILY.Enum.ConnectionType
+					</td>
+					<td>
+						连接类型，判断是连接C7平台.Server还是直连设备.Device
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						status
+					</td>
+					<td>
+						NPPILY.Enum.ConnectionStatus
+					</td>
+					<td>
+						连接登陆状态
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						session
+					</td>
+					<td>
+						String NOT NULL
+					</td>
+					<td>
+						NC连接句柄
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						userPriority
+					</td>
+					<td>
+						String NOT NULL
+					</td>
+					<td>
+						用户优先级
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						systemName
+					</td>
+					<td>
+						String NOT NULL
+					</td>
+					<td>
+						登陆C7平台后获取来的C7平台系统名
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						domainRoad
+					</td>
+					<td>
+						Array NULL
+					</td>
+					<td>
+					登陆的是C7平台，才有可能有子域信息（即C7平台为级联的根平台，其他为级联的子域平台），domainRoad为空，表示没有级联的子域平台；例如domainRoad为[“A”, “C”, “B.A”, “D.B.A”]，其中的英文点号“.”表示隶属关系，如“B.A”代表B平台为A的子域平台，A又隶属于此处登录的平台
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						resource
+					</td>
+					<td>
+						Array(NPPILY.Struct.PUNodeStruct) NULL
+					</td>
+					<td>
+						资源信息（保留未启用）
+					</td>
+				</tr>
+			</table>
+		</div>
+		<p style="text-indent: 2em;padding-top:10px;">
+			<strong>
+				示例：
+			</strong>
+		</p>
+		<div style="padding-left:25px;padding-top:10px;">
+			<div style="height:250px;width:790px;border:1px grey solid;overflow:auto;">
+				<div style=""><span>平台地址：</span><input id="path" value=""/></div>
+				<div style=""><span>用户名称：</span><input id="username" value=""/></div>
+				<div style=""><span>用户密码：</span><input id="password" value=""/></div>
+				<div style=""><span>企业ＩＤ：</span><input id="epId" value=""/></div>
+				<div style=""><span>透过网闸：</span><input id="bfix" type="checkbox"/></div>
+				<hr/>
+				<div style=""><input style="width:100px;" type="button" value="reset" onclick="javascript:WebClient.Reset();"/><input style="width:100px;" type="button" value="connect" onclick="javascript:WebClient.Connect();"/></div>
+				<div id="loginMsg" style="line-height:2"></div>
+			</div>
+		</div>
+		<p style="text-indent: 2em;padding-top:10px;">
+			<strong>
+				JavaScript源码：
+			</strong>
+		</p>
+		<div style="padding-left:25px;padding-top:10px;">
+			<pre id="preCode" style="border:0px grey solid;width:790px;">
+	// 登录地址
+	var path = "127.0.0.1:8866";
+	
+	// 登录用户名
+	var username = "admin";
+	
+	// 登录密码
+	var password = "";
+	
+	// 企业ID
+	var epId = "system";
+	
+	// 是否通过网闸模式（1为是，0为否）
+	var bFixCUIAddress = 0;
+	
+	// 创建登录参数结构
+	var connParam = new NPPILY.Struct.ConnParamStruct(path, username, epId, password, bFixCUIAddress);
+	
+	// 创建连接
+	var operator = NPPILY.Connect(connParam);
+	
+	// 返回值
+	if(operator.rv == 0) {
+		// 登录成功，返回connectId
+		var connectId = operator.response;
+		// 得到对应的连接信息，返回值结构为NPPILY.Struct.ConnectionStruct
+		var _connStruct = NPPILY.Connections.get(connectId);
+		// 判断连接类型
+		switch (_connStruct.connType) {
+			case NPPILY.Enum.ConnectionType.Server:
+				// 连接的是C7平台服务器
+				break;
+			case NPPILY.Enum.ConnectionType.Device:
+				// 直连C7设备
+				break;
+		}
+	}
+			</pre>
+		</div>
+	</div>
+</body>
+</html>
+<script type="text/javascript">
+var WebClient = {
+	Load: function() {
+		try {
+			if(!NPPILY.Plug.inited) {
+				$.browser = {};
+				$("#preCode").snippet("javascript", { style: "acid", collapse: true, startCollapsed: false});
+				
+				// 初始化插件
+				var operator = NPPILY.Init(new NPPILY.Struct.InitParamStruct(false, null,null));
+				if(operator.rv != 0) {
+					alert(NrcapError.Detail(operator.rv));
+				}
+				else {
+					$("#path").val(""+_npc.connParams.path+"");
+					$("#username").val(""+_npc.connParams.username+"");
+					$("#password").val(""+_npc.connParams.password+"");
+					$("#epId").val(""+_npc.connParams.epId+"");
+				} 
+			}
+		}
+		catch(e) {
+			alert(e.name + ","+ e.message);
+			return false;
+		}
+	},
+	
+	Connect: function() {
+		if($("#path")[0]) {
+			var path = $("#path").val() || "127.0.0.1:8866";
+		}	
+		if($("#username")[0]) {
+			var username = $("#username").val() || "admin";
+		}	
+		if($("#password")[0]) {
+			var password = $("#password").val() + "" || "";	
+		}
+		if($("#epId")[0]) {
+			var epId = $("#epId").val() || "system";
+		}
+		if($("#bfix")[0]) {
+			var bfix = ($("#bfix")[0].checked == true ? 1 : 0);
+		}
+		
+		var connParam = new NPPILY.Struct.ConnParamStruct(path, username, epId, password, bfix || 0);
+		if($("#loginMsg")[0]) {
+			$("#loginMsg")[0].innerHTML += "<div style=\"padding-left:16px;\"><span>登录参数:</span></br>"+$.toJSON(connParam)+ "</br></div>";
+		}
+		// 建立连接
+		var operator = NPPILY.Connect(connParam);
+		
+		if(operator.rv == 0){
+			if($("#loginMsg")[0]) {
+				$("#loginMsg")[0].innerHTML += "<span>登录成功</span></br>";
+			}
+			
+			// 连接ID，上层需做必要记录
+			var connectId = operator.response; 
+			// NPPILY.Connections保存了连接的信息
+			// 获取此次连接信息，返回值_connStruct结构为NPPILY.Struct.ConnectionStruct
+			var _connStruct = NPPILY.Connections.get(connectId);
+			
+		}
+		else {
+			if($("#loginMsg")[0]) {
+				$("#loginMsg")[0].innerHTML += NrcapError.Detail(operator.rv) + "</br>";
+			}
+		}
+	},
+	
+	Reset: function() {
+		if($("#path")[0]) {
+			$("#path").val("");
+		}	
+		if($("#username")[0]) {
+			$("#username").val("");
+		}	
+		if($("#password")[0]) {
+			$("#password").val("");
+		}
+		if($("#epId")[0]) {
+			$("#epId").val("");
+		}
+		if($("#bfix")[0]) {
+			$("#bfix")[0].checked = false;
+		}
+	},
+	
+	//卸载插件
+	UnLoad: function() {
+		NPPILY.UnLoad();
+	},
+	
+	end:true
+}
+
+// 页面加载卸载
+$(document).ready(function () {
+	WebClient.Load();
+});
+$(window).unload(function () {
+	WebClient.UnLoad();
+});
+</script>

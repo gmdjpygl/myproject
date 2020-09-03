@@ -1,0 +1,62 @@
+body { margin:0;padding:0;font-size:12px;background-color:#eaf3fc; font-family:"宋体"; } 
+textarea { resize: none; }
+.topframe { width:99.5%;height:500px; margin:0px auto; overflow:hidden; border:0px gray solid;} 
+.bottomframe { width:99.5%;height:180px; margin:1px auto; overflow:hidden;border-top:0px gray solid;border-bottom:0px gray solid;} 
+
+/* console bottom tab */
+#console_tab .console_tab-spacer { float: left; height: 135px;}
+.console_tab-bottom .ui-tabs-nav { clear: left; padding: 0 .2em .2em .2em; }
+.console_tab-bottom .ui-tabs-nav li { top: auto; bottom: 0; margin: 0 .2em 1px 0; border-bottom: auto; border-top: 0; }
+.console_tab-bottom .ui-tabs-nav li.ui-tabs-active { margin-top: -1px; padding-top: 1px; }
+#console_tab li._system { float:right; width:70%; text-align:right; padding: 10px 5px 0px 0px;padding: 10px 5px 0px 0px !important;font-weight:normal;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+
+._mousehover { cursor:default;background-color:#9DBDD8; color:#FFFFFF; border-redius:4px; border:1px #D3D3D3 solid !important; }
+._mouseleave { cursor:default;background-color:transparent; color:; border-redius:0px; }
+._mouseclick {  }
+
+/* --- windows box zone --- */
+.windowtitle { color:#15428B;border-top:1px #FFFFFF solid;}
+.windowtitle .title1 { float:left; width: 69%; height:16px;line-height:18px;vertical-align:middle;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.windowtitle .title2 { float:left; width: 30%; height:16px;line-height:18px;vertical-align:middle;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+
+.windowbox1 {float:left; cursor:default;width:1000px;height:500px;margin-top:0px;margin-top:0px !important;margin-left:1px;margin-left:1px !important; background-color:#9BCAF3;border:1px #FFFFFF solid;}
+.windowbox1 .window { height:482px;background-color:#000000; }
+.windowbox1 .windowtitle { }
+
+.windowbox4 { float:left; cursor:default;width:500px;height:245px;margin-top:0px;margin-top:0px !important;margin-left:1px;margin-left:1px !important; background-color:#9BCAF3;border:1px #FFFFFF solid;}
+.windowbox4 .window { height:228px;background-color:#000000; }
+.windowbox4 .windowtitle { }
+
+.windowbox6 { float:left; cursor:default;width:663px;height:322px;margin-top:0px;margin-top:0px !important;margin-left:1px;margin-left:1px !important; background-color:#9BCAF3;border:1px #FFFFFF solid;}
+.windowbox6 .window { height:304px;background-color:#000000; }
+.windowbox6 .windowtitle { }
+
+.windowbox9 { float:left; cursor:default;width:330px;height:160px;margin-top:0px;margin-top:0px !important;margin-left:1px;margin-left:1px !important; background-color:#9BCAF3;border:1px #FFFFFF solid;}
+.windowbox9 .window { height:142px;background-color:#000000; }
+.windowbox9 .windowtitle { }
+
+.windowbox16 { float:left; cursor:default;width:247px;height:97px;margin-top:0px;margin-top:0px !important;margin-left:1px;margin-left:1px !important; background-color:#9BCAF3;border:1px #FFFFFF solid;}
+.windowbox16 .window { height:79px;background-color:#000000; }
+.windowbox16 .windowtitle { }
+
+/* video status */
+.video_readying { float:right;cursor:default;width:16px;height:16px;background-color:transparent;background:url(../images/videostatus.png) no-repeat left center;border:0px gray solid; }
+.video_buffering { float:right;cursor:default;width:16px;height:16px;background-color:transparent;background:url(../images/videostatus.png) no-repeat -16px center;border:0px gray solid; }
+.video_playing { float:right;cursor:default;width:16px;height:16px;background-color:transparent;background:url(../images/videostatus.png) no-repeat -32px center;border:0px gray solid; }
+.video_HD_readying { float:right;cursor:default;width:16px;height:16px;background-color:transparent;background:url(../images/videostatus.png) no-repeat -48px center;border:0px gray solid; }
+.video_HD_buffering { float:right;cursor:default;width:16px;height:16px;background-color:transparent;background:url(../images/videostatus.png) no-repeat -64px center;border:0px gray solid; }
+.video_HD_playing { float:right;cursor:default;width:16px;height:16px;background-color:transparent;background:url(../images/videostatus.png) no-repeat -80px center;border:0px gray solid; }
+.video_conputer { float:right;cursor:default;width:16px;height:16px;background-color:transparent;background:url(../images/videostatus.png) no-repeat -96px center;border:0px gray solid; }
+.video_recording { float:right;cursor:default;width:16px;height:16px;background-color:transparent;background:url(../images/videostatus.png) no-repeat -112px center;border:0px gray solid; }
+.video_playaudioing { float:right;cursor:default;width:16px;height:16px;background-color:transparent;background:url(../images/videostatus.png) no-repeat -128px center;border:0px gray solid; }
+.video_calling { float:right;cursor:default;width:16px;height:16px;background-color:transparent;background:url(../images/videostatus.png) no-repeat -144px center;border:0px gray solid; }
+.video_ddraw_disabled { float:right;cursor:default;width:16px;height:16px;background-color:transparent;background:url(../images/videostatus.png) no-repeat -160px center;border:0px gray solid; }
+.video_ddrawing { float:right;cursor:default;width:16px;height:16px;background-color:transparent;background:url(../images/videostatus.png) no-repeat -178px center;border:0px gray solid; }
+.video_p2p { float:right;cursor:default;width:16px;height:16px;background-color:transparent;background:url(../images/videostatus.png) no-repeat -242px center;border:0px gray solid; }
+
+.oa_calling { float:right;cursor:default;width:16px;height:16px;background-color:transparent;background:url(../images/RibbonVPCategorySmall.png) no-repeat -176px center;border:0px gray solid; }
+.oa_calling_hot { float:right;cursor:default;width:16px;height:16px;background-color:transparent;background:url(../images/RibbonVPCategorySmall.png) no-repeat -192px center;border:0px gray solid; }
+.oa_talking { float:right;cursor:default;width:16px;height:16px;background-color:transparent;background:url(../images/RibbonVPCategorySmall.png) no-repeat -208px center;border:0px gray solid; }
+.oa_talking_hot { float:right;cursor:default;width:16px;height:16px;background-color:transparent;background:url(../images/RibbonVPCategorySmall.png) no-repeat -224px center;border:0px gray solid; }
+
+.window_mask { cursor:pointer;width:32px;height:32px;position:absolute;top:50%;left:50%;background-image:url(../images/RibbonSDCategoryLarge.png);background-repeat:no-repeat;background-position:-224px center;background-color:transparent;border:0px gray solid;}

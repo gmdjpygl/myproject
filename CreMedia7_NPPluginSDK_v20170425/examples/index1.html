@@ -1,0 +1,54 @@
+﻿
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Surveillance 7.0 WebClient 使用帮助</title>
+<link rel="stylesheet" type="text/css" href="images/style.css" />
+<!--[if ie]>
+<style>
+#menubar,#content{ height:100%; top:0; bottom:0; border-top:80px solid #fff; z-index:0}
+</style><![endif]-->
+</head>
+
+<body>
+<div class="header">
+	<h1 class="logo"><a href="index.html">Surveillance 7.0 文档</a></h1>
+</div>
+<div class="companyinfo"><small>Powered by Surveillance 7.0  &copy; 2011-2012 </small><br/><small><a href="../MediaPlugin7.exe">插件下载</a></small></div>
+<div class="space_top"></div>
+<div class="space_bottom"></div>
+<div id="menubar">
+	<div class="menubar">
+		<div class="nav" id="nav">
+			<ul>
+				<li class="current"><a href="directory/index.html" target="contentframe" >目录</a></li>
+				<li><a href="connect/connect.html" target="contentframe" >创建连接</a></li>
+                <li><a href="forkresource/forkresource.html" target="contentframe" >获取资源</a></li>
+                <li><a href="logicGroup/index.html" target="contentframe" >逻辑分组</a></li>
+				<li><a href="em_playvideo/em-playvideo.html" target="contentframe" >播放视频</a></li>
+				<li><a href="multi_playvideo/multi-playvideo.html" target="contentframe" >多窗口播放视频</a></li>
+				<li><a href="window_playvideo/window-playvideo.html" target="contentframe">子窗口连接播放视频</a></li>
+				<li><a href="page_playvideo/page-playvideo.html" target="contentframe">父页面连接弹窗播放</a></li>
+				<li><a href="gps/index.html" target="contentframe">GPS</a></li>
+			</ul>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+var li = document.getElementById("nav");
+var tt = li.getElementsByTagName("li");
+for(i=0; i<tt.length; i++){
+	tt[i].onclick= function(){
+		for(j=0; j<tt.length; j++){
+			tt[j].className = "";
+			this.className  = "current";
+		}
+	}
+}
+</script>
+<div id="content">
+	<div style="float:left;height:100%;width:100%;"><iframe id="iframebox" width="100%" height="100%"  frameborder="0" name="contentframe" src="directory/index.html"></iframe></div>
+</div>
+</body>
+</html>
+

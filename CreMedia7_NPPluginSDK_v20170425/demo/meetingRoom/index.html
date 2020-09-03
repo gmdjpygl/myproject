@@ -1,0 +1,731 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>会议室</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <link href="default.css" rel="stylesheet" type="text/css" />
+    
+    <script src="../../js/jquery/jquery-1.9.1.js" type="text/javascript"></script>
+    <script src="../../js/jquery/lib/jquery.cookie.js" type="text/javascript"></script> 
+    <script src="../../js/jquery/lib/jquery.json-2.4.js" type="text/javascript"></script>
+   	
+    <script src="../../js/NPPInterface.js" type="text/javascript"></script> 
+    <script src="../../js/NPPInterlayer.js" type="text/javascript"></script>
+    
+    <script type="text/javascript">
+	<!-- 注册页面加载事件 -->
+	if (typeof jQuery != "undefined") {
+		$(document).ready(function () { WebClient.Load(); WebClient.Resize(); });				
+		$(window).unload(function () { WebClient.UnLoad(); });	
+		$(window).resize(function () { WebClient.Resize(); });	
+	}
+	else {
+		alert("jQuery加载失败或页面不支持~");
+	} 
+    </script>
+</head>
+<body> 
+<div class="header">
+	<!-- 登录 -->
+    <div id="loginBox" class="loginBox">
+    	<input id="loginButton" type="button" value="登录" onclick="WebClient.Operator('login');" />
+        &nbsp;<label>ip:</label><input id="ip" type="text" value="192.168.42.118" style="width:120px;" />
+        &nbsp;<label>port:</label><input id="port" type="text" value="8866" style="width:50px;" />
+        &nbsp;<label>username:</label><input id="username" type="text" value="admin" style="width:60px;" />
+        &nbsp;<label>epid:</label><input id="epid" type="text" value="system" style="width:60px;" />
+        &nbsp;<label>password:</label><input id="password" type="password" value="" style="width:60px;" />
+        &nbsp;<label>bfix:</label><input id="bfix" type="checkbox" style="width:20px;" />
+    </div>
+</div>
+<div class="middle">
+	
+
+	<hr />
+	
+    <button onclick="WebClient.SP_WriteData();">发送串口数据</button>&nbsp;
+	<label>设备PUID：</label><input id="sp_puid" value="151058971728677913" />
+	<label>资源索引：</label><input id="sp_idx" value="0" style="width:50px;" />
+	<label>发送数据：</label><input id="sp_data" value="10 E A" />
+	<label>发送数据：</label><input id="sp_status" value="" readonly style="width:300px;border:1px gray solid;background-color:#f1f3f2;" />
+	
+
+	<hr />
+	
+    <button onclick="WebClient.MeetingRoom.CreateMeetingRoom();">创建会议室</button>&nbsp;
+	<label>名称：</label><input id="step1_szName" value="together talking" />
+	<label>密码：</label><input id="step1_szPassword" value="" />
+	<label>操作状态：</label><input id="step1_status" value="" readonly style="width:300px;border:1px gray solid;background-color:#f1f3f2;" />
+	
+	<hr />
+	
+    <button onclick="WebClient.MeetingRoom.CloseMeetingRoom();">关闭会议室</button>&nbsp;
+	<label>会议室流句柄：</label><input id="step2_streamHandle" value="" />
+	<label>操作状态：</label><input id="step2_status" value="" readonly style="width:300px;border:1px gray solid;background-color:#f1f3f2;" />
+	
+	<hr />
+	
+    <button onclick="WebClient.MeetingRoom.QueryAllMeetingRoomInfo();">查询所有会议室信息</button>&nbsp;<textarea id="step3_status" value="" style="width:550px;height:100px;"></textarea>
+	
+	<hr />
+	
+    <button onclick="WebClient.MeetingRoom.JoinMeetingRoom();">申请加入会议室</button>&nbsp;
+	<label>会议室ID：</label><input id="step4_szID" value="" />
+	<label>会议室密码：</label><input id="step4_szPassword" value="" />
+	<label>操作状态：</label><input id="step4_status" value="" readonly style="width:300px;border:1px gray solid;background-color:#f1f3f2;" />
+	
+	<hr />
+	
+    <button onclick="WebClient.MeetingRoom.AddPUMeetingRoom();">添加一个设备入会议室</button>&nbsp;
+	<label>会议室流句柄：</label><input id="step5_streamHanle" value="" />
+	<label>PUID：</label><input id="step5_puid" value="151038400788532092" />
+	<label>操作状态：</label><input id="step5_status" value="" readonly style="width:300px;border:1px gray solid;background-color:#f1f3f2;" />
+	
+	<hr />
+	
+    <button onclick="WebClient.MeetingRoom.KickOutMemberPU();">从会议室中删除一个设备</button>&nbsp;
+	<label>会议室流句柄：</label><input id="step6_streamHandle" value="" />
+	<label>PUID：</label><input id="step6_puid" value="151038400788532092" />
+	<label>操作状态：</label><input id="step6_status" value="" readonly style="width:300px;border:1px gray solid;background-color:#f1f3f2;" />
+	
+	<hr />
+	
+    <button onclick="WebClient.MeetingRoom.ModifyMeetingRoomPassword();">修改会议室密码</button>&nbsp;
+	<label>会议室ID：</label><input id="step7_szID" value="" />
+	<label>会议室新密码：</label><input id="step7_szPassword" value="" />
+	<label>操作状态：</label><input id="step7_status" value="" readonly style="width:300px;border:1px gray solid;background-color:#f1f3f2;" />
+	
+	
+	<hr />
+	
+    <button onclick="WebClient.MeetingRoom.KickOutMemberCU();">从会议室中删除一个用户</button>&nbsp;
+	<label>会议室流句柄：</label><input id="step8_streamHandle" value="" />
+	<label>用户CUID：</label><input id="step8_szCUID" value="" />
+	<label>操作状态：</label><input id="step8_status" value="" readonly style="width:300px;border:1px gray solid;background-color:#f1f3f2;" />
+	
+	<hr />
+	
+    <button onclick="WebClient.MeetingRoom.ExitMeetingRoom();">退出会议室</button>&nbsp;
+	<label>会议室流句柄：</label><input id="step9_streamHandle" value="" />
+	<label>操作状态：</label><input id="step9_status" value="" readonly style="width:300px;border:1px gray solid;background-color:#f1f3f2;" />
+	
+	<hr />
+	
+	<label>侦测事件，接收到的会议室用户信息：</label>
+	<br />
+	&nbsp;<textarea id="rm_cu_users" value="" wrap="off" style="width:750px;height:150px;"></textarea>
+	
+	<hr />
+	
+	
+</div>
+
+</body>
+</html>
+
+<script type="text/javascript">
+var WebClient = 
+{
+	version: "v2014.12.25",
+	
+	connectId: null,
+	
+	// - 是否开启调试
+	debug: true,
+	// - 语言风格
+	language: "zh_CN",
+	// - 插件文件路径
+	pluginFile: "../../MediaPlugin7.exe",
+	
+	Load: function () {
+		try {
+			var fn = "WebClient.Load";
+			
+			// - 初始化信息对象 
+			var ips = new NPPILY.Struct.InitParamStruct
+			(
+				WebClient.debug, // - 打开调试后使用logger(...)才有效
+				function (msgStruct) {
+					if (typeof console != "undefined") {
+						console.log($.toJSON(msgStruct));	
+					}	
+				},
+				{
+					language: WebClient.language,
+					warmTip : {
+						active : true,
+						pluginFile : WebClient.pluginFile
+					}
+				}
+			);
+			
+			// - 初始化NPPILY对象
+			var operator = NPPILY.Init(ips);
+			if (operator.rv == 0) {
+				// - 立刻登录
+				WebClient.Operator("login");
+			} 
+		}
+		catch (e) {
+			logger(fn, e.message + "::" + e.name);
+		}
+	},
+	UnLoad: function () {
+		try {
+			var fn = "WebClient.UnLoad";
+			
+			WebClient.Operator("logout");
+						
+			// - 卸载NPPILY对象
+			NPPILY.UnLoad(); 
+		}
+		catch (e) {
+			logger(fn, e.message + "::" + e.name);
+		}
+	},
+	
+	Operator: function (action) {
+		try {
+			var fn = "WebClient.Operator";
+			
+			if (action != "login" && action != "logout")
+			{
+				if (!WebClient.connectId || !NPPILY.Connections.get(WebClient.connectId))
+				{
+					if (confirm("请先登录，立即操作？"))
+					{
+						$("#loginButton")[0].onclick();
+					}
+					else 
+					{
+						if (action != "logout")
+						{
+							return false;
+						}
+					}
+				}
+			}
+			
+			var _args = [];
+			for (var i = 1; i < arguments.length; i++)
+			{
+				_args.push(arguments[i]);
+			}
+			
+			switch (action)
+			{
+				case "login":
+					var connParam = new NPPILY.Struct.ConnParamStruct
+					(
+						(($("#ip").val() || "127.0.0.1") + ":" + ($("#port").val()|| 8866)),
+						$("#username").val(),
+						$("#epid").val(),
+						$("#password").val(),
+						($("#bfix").attr("checked") ? 1 : 0) 
+					);
+					logger(fn, connParam);
+					
+					// - 连接
+					var operator = NPPILY.Connect(connParam);
+					
+					if (operator.rv == 0) {
+						WebClient.connectId = operator.response;
+					
+						$("#loginButton")
+							.val("退出")
+							.css({
+								"color": "brown",
+								"border": "1px brown solid"
+							});
+						$("#loginButton")[0].onclick = function () {
+							WebClient.Operator("logout");
+						};
+						
+						// - 注册事件通知回调
+						WebClient.NCEvent.RegisterNotifyCallback();
+						// - 设备管理
+						WebClient.DeviceManager.Init();
+					}
+					else {
+						alert("登录不成功【" + NrcapError.Detail(operator.rv) + "】，可稍候再试~");
+					}
+					break;
+				case "logout":
+					// - 断开连接
+					var operator = NPPILY.DisConnection(WebClient.connectId);
+					
+					if (operator.rv == 0) {
+						$("#loginButton")
+							.val("登录")
+							.css({
+								"color": "",
+								"border": "1px #000000 solid"
+							});
+						$("#loginButton")[0].onclick = function () {
+							WebClient.Operator("login");
+						};
+						
+						if ($("#resourceTreeBox .bottom_1")[0]) {
+							$("#resourceTreeBox .bottom_1").html("");
+						}
+						if ($("#deviceManagerBox .bottom_2")[0]) {
+							$("#deviceManagerBox .bottom_2").html("");
+						}
+						if ($(".footer .bottom_3")[0]) {
+							$(".footer .bottom_3").html("");
+						}
+						
+						WebClient.connectId = null;
+						
+						WebClient.OnlineUsersInfo = new NPPUtils.Hash();
+						
+						WebClient.MeetingRoom.Clear();
+					}
+					break;
+			}
+		}
+		catch (e) {
+		
+		}   
+	},
+	
+	// 发送串口数据
+	SP_WriteData: function () {
+		try {
+			var fn = "WebClient.SP_WriteData";
+		
+			var operator = NPPILY.SP_WriteDataStr
+			(
+				WebClient.connectId, 
+				$("#sp_puid").val(), 
+				$("#sp_idx").val(),
+				$("#sp_data").val()
+				// [30, 31, 32, 33, 34, 255]
+			);
+			$("#sp_status").val($.toJSON(operator)+"||"+NrcapError.Detail(operator.rv));
+		}
+		catch (e) {
+			logger(fn, e.name + "," + e.message);
+		}
+	},
+	
+	// 上线用户信息
+	OnlineUsersInfo: new NPPUtils.Hash(),
+	
+	// 会议室
+	MeetingRoom:
+	{
+		// 清除会议室相关
+		Clear: function ()
+		{
+			try
+			{
+				var fn = "WebClient.MeetingRoom.Clear";
+				
+				this.CloseMeetingRoom();
+				this.ExitMeetingRoom();
+			}
+			catch (e)
+			{
+				logger(fn, e.name + "," + e.message);
+			}
+		},
+		
+		// 创建会议室
+		CreateMeetingRoom: function ()
+		{
+			var operator = NPPILY.CreateMeetingRoom
+			(
+				WebClient.connectId, 
+				$("#step1_szName").val(), 
+				$("#step1_szPassword").val()
+			);
+			$("#step1_status").val($.toJSON(operator)+"||"+NrcapError.Detail(operator.rv));
+		},
+		// 关闭会议室
+		CloseMeetingRoom: function ()
+		{
+			var operator = NPPILY.CloseOrExitMeetingRoom
+			(
+				WebClient.connectId,
+				$("#step2_streamHandle").val()
+			);
+			$("#step2_status").val($.toJSON(operator)+"||"+NrcapError.Detail(operator.rv));
+		},
+		// 查询所有会议室信息
+		QueryAllMeetingRoomInfo: function ()
+		{
+			try
+			{
+				var fn = "WebClient.QueryAllMeetingRoomInfo";
+				var operator = NPPILY.QueryAllMeetingRoomInfo
+				(
+					WebClient.connectId
+				);
+				$("#step3_status").val($.toJSON(operator)+"||"+NrcapError.Detail(operator.rv));
+				this.info.allMR = operator.response;
+			}
+			catch (e)
+			{
+				logger(fn, e.name + "," + e.message);
+			}
+		},
+		// 申请加入会议室
+		JoinMeetingRoom: function ()
+		{
+			try
+			{
+				var fn = "WebClient.JoinMeetingRoom";
+				var operator = NPPILY.JoinMeetingRoom
+				(
+					WebClient.connectId,
+					$("#step4_szID").val(),
+					$("#step4_szPassword").val()
+				);
+				$("#step4_status").val($.toJSON(operator)+"||"+NrcapError.Detail(operator.rv));
+			}
+			catch (e)
+			{
+				logger(fn, e.name + "," + e.message);
+			}
+		},
+		// 添加一个设备入会议室
+		AddPUMeetingRoom: function ()
+		{
+			try
+			{
+				var fn = "WebClient.AddPUMeetingRoom";
+				var operator = NPPILY.AddPUMeetingRoom
+				(
+					WebClient.connectId,
+					$("#step5_streamHanle").val(),
+					$("#step5_puid").val()
+				);
+				$("#step5_status").val($.toJSON(operator)+"||"+NrcapError.Detail(operator.rv));
+			}
+			catch (e)
+			{
+				logger(fn, e.name + "," + e.message);
+			}
+		},
+		// 从会议室中删除一个设备
+		KickOutMemberPU: function ()
+		{
+			try
+			{
+				var fn = "WebClient.KickOutMemberPU";
+				var operator = NPPILY.KickOutMemberPU
+				(
+					WebClient.connectId,
+					$("#step6_streamHandle").val(),
+					$("#step6_puid").val()
+				);
+				$("#step6_status").val($.toJSON(operator)+"||"+NrcapError.Detail(operator.rv));
+			}
+			catch (e)
+			{
+				logger(fn, e.name + "," + e.message);
+			}
+		},
+		// 修改会议室密码
+		ModifyMeetingRoomPassword: function ()
+		{
+			try
+			{
+				var fn = "WebClient.ModifyMeetingRoomPassword";
+				var operator = NPPILY.ModifyMeetingRoomPassword
+				(
+					WebClient.connectId,
+					$("#step7_szID").val(),
+					$("#step7_szPassword").val()
+				);
+				$("#step7_status").val($.toJSON(operator)+"||"+NrcapError.Detail(operator.rv));
+			}
+			catch (e)
+			{
+				logger(fn, e.name + "," + e.message);
+			}
+		},
+		// 从会议室中删除一个用户
+		KickOutMemberCU: function ()
+		{
+			try
+			{
+				var fn = "WebClient.KickOutMemberCU";
+				
+				var operator = NPPILY.KickOutMemberCU
+				(
+					WebClient.connectId,
+					$("#step8_streamHandle").val(),
+					$("#step8_szCUID").val()
+				);
+				$("#step8_status").val($.toJSON(operator)+"||"+NrcapError.Detail(operator.rv));
+			}
+			catch (e)
+			{
+				logger(fn, e.name + "," + e.message);
+			}
+		},
+		
+		// 退出会议室
+		ExitMeetingRoom: function ()
+		{
+			var operator = NPPILY.CloseOrExitMeetingRoom
+			(
+				WebClient.connectId,
+				$("#step9_streamHandle").val()
+			);
+			$("#step9_status").val($.toJSON(operator)+"||"+NrcapError.Detail(operator.rv));
+			if (operator.rv == 0) {
+				this.joinRM.streamHandle = null;
+			}
+		},
+		
+		end: true
+	},
+	
+	NCEvent: 
+	{
+		// - 累计行计数
+		lineNumber: 0, 
+		// - 最多显示行数
+		maxDisplayLine: 300,
+		
+		// - 注册事件通知回调
+		RegisterNotifyCallback: function () {
+			try {
+				var fn = "WebClient.NCEvent.RegisterNotifyCallback";
+				
+				var connectId = WebClient.connectId;
+				
+				NPPILY.NCNotifyManager.Add
+				(
+					NPPILY.Enum.NCObjectNotify.stream_status_notify, 
+					function (notify) 
+					{
+						// 接收到的流状态信息，侦测会议室流句柄对应的的status为-1时，就应该调用关闭或退出会议室接口
+						logger(fn, $.toJSON(notify));
+						
+					}
+				);
+				
+				if(connectId && NPPILY.Connections.get(connectId)) {
+					NPPILY.NCNotifyManager.Add
+					(
+						NPPILY.Enum.NCObjectNotify.event_notify, 
+						function (notify) 
+						{
+							logger(fn, notify);
+							
+							if (notify && typeof notify.eventName != "undefined") {
+								if (notify.errorCode == 0) {
+									WebClient.NCEvent.AnalysisNotify(notify);
+								}
+								else { 
+									alert("连接已断开！");
+									$("#loginButton").click();		
+								}
+							}
+						}	
+					);
+				} 
+			}
+			catch (e) {
+				logger(fn, e.message + "::" + e.name);
+			}
+		},
+		
+		AnalysisNotify: function (notify) {
+			try {
+				var fn = "WebClient.NCEvent.AnalysisNotify";
+				if (notify instanceof NPPILY.Struct.NCObjectNotifyStruct && typeof notify.keyData == "object" && typeof notify.keyData.event != "undefined") {
+					
+					logger(fn, $.toJSON(notify.keyData.event));
+				
+					var _EVENT = notify.keyData.event,
+						ID = _EVENT.id,
+						TIME = _EVENT.time,
+						SRCID = _EVENT.src_id,
+						SRCTYPE = _EVENT.res_type,
+						SRCIDX = _EVENT.res_idx,
+						SRCNAME = NPPUtils.UTF8toUnicode(_EVENT.res_name),
+						_DESC = _EVENT.desc || [],
+						PUNAME = (function () {
+							if (_DESC == "" || _DESC.length <= 0 || typeof _DESC == "undefined") {
+								return (SRCNAME || "");
+							}
+							else {
+								return typeof _DESC[0].PUName != "undefined" ? NPPUtils.UTF8toUnicode(_DESC[0].PUName) : (SRCNAME || "");
+							} 
+						})(),
+						MODE = "",
+						DESC = "";
+					 
+					switch (ID)
+					{
+						case "EVT_CU_Online": // 用户上线信息需要记录
+						
+							// {"event":{"id":"EVT_CU_Online","time":"1419507294","level":"Notify","src_id":"6C15030C@005000100000000001","res_type":"SELF","res_idx":"0","ignore":"0","res_name":"Surveillance system","res_desc":"","desc":[{"Address":"192.168.43.98"},{"CUID":"6C15030C@005000100000000001"},{"ClientType":"Third-party"},{"EPID":"system"},{"Port":"39542"},{"UserID":"admin"},{"ValidationType":"USER"}]}}
+							
+							WebClient.OnlineUsersInfo.set(_EVENT.desc[1].CUID, {
+								CUID: _EVENT.desc[1].CUID,
+								path: _EVENT.desc[0].Address + ":" + _EVENT.desc[4].Port, 
+								clientType: _EVENT.desc[2].ClientType,
+								epId: _EVENT.desc[3].ClientType,
+								userID: _EVENT.desc[5].UserID,
+								validationType: _EVENT.desc[6].ValidationType,
+								// 是否创建会议室
+								createRM: null,
+								// 是否加入会议室标识
+								joinRM: null
+							});
+							
+							break;
+						case "EVT_CU_Offline":
+							WebClient.OnlineUsersInfo.each(function (item) {
+								if (item.value.joinRM && item.value.joinRM.streamHandle != null) {
+									// 剔除用户
+								}
+							});
+						
+							break;
+						case "EVT_MR_MeetingRoomCreated": // 会议室创建通知
+							// {"event":{"id":"EVT_MR_MeetingRoomCreated","time":"1419510400","level":"Notify","src_id":"009000100000000001","res_type":"SELF","res_idx":"0","ignore":"1","res_name":"DispatchScheduler","res_desc":"","desc":[{"ID":"9:009000100000000001:NTQ5YzAyN2YwMDAwMWE5Yw=="},{"ChID":"3952030C@005000100000000001"},{"Name":"together talking"}]}}
+							WebClient.OnlineUsersInfo.each(function (item) {
+								if (item.key == _EVENT.desc[1].ChID) {
+									item.value.createRM = {
+										CUID: _EVENT.desc[1].ChID,
+										rmID: _EVENT.desc[0].ID,
+										rmName: _EVENT.desc[2].Name
+									};
+									
+									// 加入到会议室列表中或者是获取存在的所有会议室信息然后列表 
+									
+								}
+							});
+							
+							
+							$("#rm_cu_users").prepend($.toJSON(_EVENT) + "\r\n");
+							
+							break;
+						case "EVT_MR_MeetingRoomClosed": // 会议室关闭通知
+							WebClient.OnlineUsersInfo.each(function (item) {
+								if (item.key == _EVENT.desc[1].ChID) {
+									item.value.createRM = null;
+								}
+							});
+							break;
+						case "EVT_MR_EnterMeetingRoom": // 进入会议室
+							// 用户加入： {"event":{"id":"EVT_MR_EnterMeetingRoom","time":"1419508324","level":"Notify","src_id":"045000100000000001","res_type":"SELF","res_idx":"0","ignore":"1","res_name":"","res_desc":"","desc":[{"ChID":"1F1B030C@005000100000000001"},{"ChData":"PENoRGF0YT48VHlwZT5DVTwvVHlwZT48L0NoRGF0YT4="},{"Token":"9:009000100000000001:NTQ5YmY0YzcwMDAwMWE5OQ=="}]}}
+							
+							WebClient.OnlineUsersInfo.each(function (item) {
+								if (item.key == _EVENT.desc[0].ChID) {
+									item.value.joinRM = {
+										CUID: _EVENT.desc[0].ChID,
+										ChData: _EVENT.desc[1].ChData,
+										Token: _EVENT.desc[2].Token
+									};
+									// (?貌似有不正确)根据Token匹配会议室ID，找到相应的会议室，然后加入会话列表中
+									
+									// $("#rm_cu_users").prepend($.toJSON(item.value) + "\r\n");
+								}
+							});
+							
+							// 设备加入：{"event":{"id":"EVT_MR_EnterMeetingRoom","time":"1419511573","level":"Notify","src_id":"045000100000000001","res_type":"SELF","res_idx":"0","ignore":"1","res_name":"","res_desc":"","desc":[{"ChID":"151038400788532092:OA:0"},{"ChData":"PFR5cGU+UFU8L1R5cGU+"},{"Token":"9:009000100000000001:NTQ5YzAyN2YwMDAwMWE5Yg=="}]}}
+							// _EVENT.desc[0].ChID：151038400788532092:OA:0为设备PUID+资源类型+资源索引
+							// 直接对_EVENT.desc[2].Token匹配会议室ID，找到相应的会议室，然后加入会话列表中
+							
+							$("#rm_cu_users").prepend($.toJSON(_EVENT) + "\r\n");
+							
+							break;
+						case "EVT_MR_LeaveMeetingRoom": // 离开会议室
+							WebClient.OnlineUsersInfo.each(function (item) {
+								if (item.key == _EVENT.desc[0].ChID) {
+									// 根据Token匹配会议室ID，找到相应的会议室，然后从会话列表中移出
+									
+									item.value.joinRM = null;
+								}
+							});
+							break;
+						case "EVT_MR_SpeechExcitationNotice": // 语音激励触发通知
+						
+							break;
+					}
+					
+							
+				}
+			}
+			catch (e) {
+				logger(fn, e.message + "::" + e.name);
+			}
+		},
+		
+		end: true
+	},
+	Expandsion: function (objTitle, objBox, objIco) {
+		try {
+			var fn = "WebClient.Expandsion";
+			if (objTitle && objBox) {
+				if (objBox.style.display != "none") {
+					objBox.style.display = "none";
+					objTitle.className = "plus";
+					
+					if (objIco) {
+						objIco.className = "stationmodel_collapse";
+					}
+				}
+				else {
+					if (objBox.innerHTML == "") {
+						return false;
+					}
+					
+					objBox.style.display = "block";
+					objTitle.className = "minus";
+					
+					if (objIco) {
+						objIco.className = "stationmodel_expand";
+					}
+				}
+			}
+		}
+		catch (e) {
+			logger(fn, e.message + "::" + e.name);
+		}
+	},
+	
+	Resize: function () {
+		try {
+			var fn = "WebClient.Resize";
+			
+			var dimen_width = $(window).width(),
+				dimen_height = $(window).height();
+			
+			var _height = dimen_height - $(".header").height() - 7;
+				
+			$(".middle").css({
+				height: _height + "px"
+			});
+		}
+		catch (e) {
+			logger(fn, e.message + "::" + e.name);
+		}
+	},
+	
+	end: true
+};
+// - 调试输出快捷函数
+var logger = function (fnStr, log) {
+	try {
+		if (WebClient.debug == true) {
+			if (NPPUtils && typeof NPPUtils.Log == "function") {
+				NPPUtils.Log(fnStr, log);	
+			}
+		}
+	}
+	catch (e) {
+	}
+	finally {	
+		return true;	
+	}
+};
+</script>

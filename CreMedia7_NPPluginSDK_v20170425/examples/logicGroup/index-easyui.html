@@ -1,0 +1,781 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>CreMedia7.0 NPPluginSDK Demo</title>
+	
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+	
+	<link rel="stylesheet" type="text/css" href="../images/pages.css" />
+	<link rel="stylesheet" type="text/css" href="../../js/jquery/lib/snippet/jquery.snippet.css" />
+	
+	<script src="../../js/jquery/jquery-1.9.1.js" type="text/javascript"></script>
+	<script src="../../js/jquery/lib/jquery.json-2.4.js" type="text/javascript"></script> 
+	<script src="../../js/jquery/lib/snippet/jquery.snippet.js" type="text/javascript"></script>
+	
+	<link rel="stylesheet" type="text/css" href="../../js/jquery/easyui/themes/default/easyui.css" />
+	<link rel="stylesheet" type="text/css" href="../../js/jquery/easyui/themes/icon.css" />
+	<script type="text/javascript" src="../../js/jquery/easyui/jquery.easyui.min.js"></script>
+	<script type="text/javascript" src="../../js/jquery/easyui/locale/easyui-lang-zh_CN.js"></script>
+	
+	<script src="../npp_examples_config.js" type="text/javascript"></script>
+    <script src="../../js/NPPInterface.js" type="text/javascript"></script> 
+    <script src="../../js/NPPInterlayer.js" type="text/javascript"></script>
+	
+	<script src="crtree-easyui.js" type="text/javascript"></script>
+	
+	<style type="text/css">
+		table, tr, td {
+			border:1px grey solid;
+		}
+		td {
+			width:250px;
+		}
+		.td_b {
+			color:blue;
+		}
+		input, button { width:80px; margin-bottom:3px; height:22px;}
+		
+		.blank-node { width:0px;height:0px; }
+	</style>
+</head>
+<body>
+	<h1 class="h1A">获取逻辑分组NPPILY.GetLogicGroups</h1>
+	<div class="content cc">
+		<p style="text-indent: 2em">1、当连接成功后，获取逻辑分组可以调用NPPILY.GetLogicGroups(connectId)函数。参数应按照以下参数要求传参。
+		</p>
+		<div style="padding-left:25px;padding-top:10px;">
+			<table>
+				<tr>
+					<td>
+						变量
+					</td>
+					<td>
+						类型
+					</td>
+					<td>
+						描述
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						connectId
+					</td>
+					<td>
+						String NOT NULL
+					</td>
+					<td>
+						连接ID，由登录成功后返回连接唯一标识
+					</td>
+				</tr>
+			</table>
+		</div>
+		<p style="text-indent: 2em;padding-top:10px;">
+			<strong>
+				返回值中rv=0时，response节点结构为Array(NPPILY.Struct.LogicGroupStruct)，NPPILY.Struct.LogicGroupStruct如下：
+			</strong>
+		</p>
+		<div style="padding-left:25px;padding-top:10px;">
+			<table>
+				<tr>
+					<td>
+						变量
+					</td>
+					<td>
+						类型
+					</td>
+					<td>
+						描述
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						index
+					</td>
+					<td>
+						Unit NOT NULL
+					</td>
+					<td>
+						逻辑分组索引
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						name
+					</td>
+					<td>
+						String NOT NULL
+					</td>
+					<td>
+						逻辑分组名称
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						lastRefreshTime
+					</td>
+					<td>
+						String NULL
+					</td>
+					<td>
+						最新刷新时间
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						refreshInterval
+					</td>
+					<td>
+						String NULL
+					</td>
+					<td>
+						刷新时间间隔
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						childResource
+					</td>
+					<td>
+						Array(NPPILY.Struct.LogicGroupNodeStruct) NULL
+					</td>
+					<td>
+						子节点或资源（保留属性）
+					</td>
+				</tr>
+			</table>
+		</div>
+		
+		<br />
+		<p style="text-indent: 2em">2、获取逻辑分组的节点或者节点的节点（子孙节点）可以调用NPPILY.GetLogicGroupNodes(connectId, options)函数。参数应按照以下参数要求传参。
+		</p>
+		<div style="padding-left:25px;padding-top:10px;">
+			<table>
+				<tr>
+					<td>
+						变量
+					</td>
+					<td>
+						类型
+					</td>
+					<td>
+						描述
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						connectId
+					</td>
+					<td>
+						String NOT NULL
+					</td>
+					<td>
+						连接ID，由登录成功后返回连接唯一标识
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						options
+					</td>
+					<td>
+						Object NOT NULL
+					</td>
+					<td>
+						可选参数，结构如下（带*号的为必选项）：
+						<p>{</p>
+							<p>logicGroupIndex(uint<NPPILY.Struct.LogicGroupStruct:index>) * 逻辑分组索引</p>
+							<p>logicGroupNodeIndex(uint) 逻辑分组节点索引，缺省为0</p>
+							<p>offset(uint) 分页查询开始条数，缺省为0</p>
+							<p>count(uint) 分页查询最大条数，缺省为4294967295（一个较大的数值）</p>
+							<p>fetchMode(string) 获取模式，缺省为step（递归分部获取） | once（一次性获取全部节点）</p>
+						<p>}</p>
+						<p>注意：</p>
+						<p>1、logicGroupNodeIndex表示当前节点（父节点），根节点的父节点索引为0，即缺省获取逻辑分组直接子节点</p>
+						<p>2、fetchMode = 'step'时，如果logicGroupNodeIndex属性存在，就获取这个节点下面的节点，不递归。如果不存在此属性，则获取所有节点</p>
+						<p>3、fetchMode = 'once'时，无论logicGroupNodeIndex存不存在，则获取logicGroupIndex下面的所有节点</p>
+						<p>4、count 默认为一个足够大的数，但是如果节点过大的话，建议配合offset进行分页获取</p>
+					</td>
+				</tr>
+			</table>
+		</div>
+		<p style="text-indent: 2em;padding-top:10px;">
+			<strong>
+				返回值中rv=0时，response节点结构为Array(NPPILY.Struct.LogicGroupNodeStruct)，NPPILY.Struct.LogicGroupNodeStruct如下：
+			</strong>
+		</p>
+		<div style="padding-left:25px;padding-top:10px;">
+			<table>
+				<tr>
+					<td>
+						变量
+					</td>
+					<td>
+						类型
+					</td>
+					<td>
+						描述
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						index
+					</td>
+					<td>
+						Unit NOT NULL
+					</td>
+					<td>
+						逻辑分组节点索引
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						name
+					</td>
+					<td>
+						String NOT NULL
+					</td>
+					<td>
+						逻辑分组节点名称
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						parentNode_Index
+					</td>
+					<td>
+						Unit NOT NULL
+					</td>
+					<td>
+						逻辑分组节点上级索引，根节点上级为0
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						childResource
+					</td>
+					<td>
+						Array(NPPILY.Struct.LogicGroupNodeStruct|NPPILY.Struct.LogicGroupResourceStruct) NULL
+					</td>
+					<td>
+						子节点或资源（保留属性）
+					</td>
+				</tr>
+			</table>
+		</div>
+		
+		<br />
+		<p style="text-indent: 2em">3、获取逻辑分组节点下资源可以调用NPPILY.GetLogicGroupResource(connectId, options)函数。参数应按照以下参数要求传参。
+		</p>
+		<div style="padding-left:25px;padding-top:10px;">
+			<table>
+				<tr>
+					<td>
+						变量
+					</td>
+					<td>
+						类型
+					</td>
+					<td>
+						描述
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						connectId
+					</td>
+					<td>
+						String NOT NULL
+					</td>
+					<td>
+						连接ID，由登录成功后返回连接唯一标识
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						options
+					</td>
+					<td>
+						Object NOT NULL
+					</td>
+					<td>
+						可选参数，结构如下（带*号的为必选项）：
+						<p>{</p>
+							<p>logicGroupIndex(uint<NPPILY.Struct.LogicGroupStruct:index>) * 逻辑分组索引</p>
+							<p>logicGroupNodeIndex(uint) 逻辑分组节点索引，缺省为0</p>
+							<p>offset(uint) 分页查询开始条数，缺省为0</p>
+							<p>count(uint) 分页查询最大条数，缺省为4294967295（一个较大的数值）</p>
+							<p>fetchMode(string) 获取模式，缺省为step（递归分部获取） | once（一次性获取全部节点）</p>
+						<p>}</p>
+						<p>注意：</p>
+						<p>1、logicGroupNodeIndex表示当前节点（父节点），根节点的父节点索引为0，即缺省获取逻辑分组直接子节点</p>
+						<p>2、fetchMode = 'step'时，如果logicGroupNodeIndex属性存在，就获取这个节点下面的节点，不递归。如果不存在此属性，则获取所有节点</p>
+						<p>3、fetchMode = 'once'时，无论logicGroupNodeIndex存不存在，则获取logicGroupIndex下面的所有节点</p>
+						<p>4、count 默认为一个足够大的数，但是如果节点过大的话，建议配合offset进行分页获取</p>
+					</td>
+				</tr>
+			</table>
+		</div>
+		<p style="text-indent: 2em;padding-top:10px;">
+			<strong>
+				返回值中rv=0时，response节点结构为Array(NPPILY.Struct.LogicGroupResourceStruct)，NPPILY.Struct.LogicGroupResourceStruct如下：
+			</strong>
+		</p>
+		<div style="padding-left:25px;padding-top:10px;">
+			<table>
+				<tr>
+					<td>
+						变量
+					</td>
+					<td>
+						类型
+					</td>
+					<td>
+						描述
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						puid
+					</td>
+					<td>
+						String NOT NULL
+					</td>
+					<td>
+						设备PUID
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						idx
+					</td>
+					<td>
+						Unit NOT NULL
+					</td>
+					<td>
+						（视频）资源索引
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						type
+					</td>
+					<td>
+						String NOT NULL
+					</td>
+					<td>
+						（视频）资源类型，一般为NPPILY.Enum.PuResourceType.VideoIn
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						name
+					</td>
+					<td>
+						String NOT NULL
+					</td>
+					<td>
+						（视频）资源名称
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						description
+					</td>
+					<td>
+						String NOT NULL
+					</td>
+					<td>
+						（视频）资源描述
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						enable
+					</td>
+					<td>
+						Unit NOT NULL
+					</td>
+					<td>
+						（视频）资源是否使能
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						parentNode_Index
+					</td>
+					<td>
+						Unit NOT NULL
+					</td>
+					<td>
+						逻辑分组节点资源上级节点索引
+					</td>
+				</tr>
+			</table>
+		</div>
+		
+		<br />
+		<p style="text-indent: 2em">
+		示例：
+		</p>
+		<div style="float:left;width:320px;padding-top:10px;padding-left:25px;overflow:auto;">
+			<div>
+				<input type="button" value="获取逻辑分组资源" onclick="WebClient.FetchLogicGroup();" style="width:130px;" />
+			</div>
+			<div id="resourceTree" class="resourceTree" style="width:300px;height:350px;">
+			</div>
+		</div>
+		<div style="float:left;width:320px;padding-top:10px;padding-left:25px;overflow:auto;">
+			<div>
+				<input type="button" value="获取资源" onclick="WebClient.FetchResource();" style="width:130px;" />
+			</div>
+			<div id="resourceTree_other" class="resourceTree" style="width:300px;height:350px;">
+			</div>
+		</div>
+	</div>
+    
+    <div class="content cc">
+		<p style="text-indent: 2em;padding-top:10px;">
+			<strong>
+				JavaScript源码：
+			</strong>
+		</p>
+		<div style="padding-left:25px;padding-top:10px;overflow:auto;">
+			<pre id="preCode" style="border:0px grey solid;width:790px;">
+				<code>
+// 获取逻辑分组
+var operator = NPPILY.GetLogicGroups(connectId);
+
+// 获取逻辑分组节点或子节点
+var node_operator = NPPILY.GetLogicGroupNodes (
+    connectId, {
+        logicGroupIndex: logicGroupIndex, // 逻辑分组的索引
+        logicGroupNodeIndex: (nodeIndex || 0), // 逻辑分组节点或子节点的索引
+        fetchMode: "step" // 获取模式，缺省为step（递归分步获取） | once（一次性获取属于logicGroupIndex下的全部节点及子节点信息）
+    }
+);
+// 获取逻辑分组节点或子节点的资源
+var res_operator = NPPILY.GetLogicGroupResource (
+    connectId, {
+        logicGroupIndex: logicGroupIndex, // 逻辑分组的索引
+        logicGroupNodeIndex: (nodeIndex || 0), // 逻辑分组节点或子节点的索引
+        fetchMode: "step" // 获取模式，缺省为step（递归分步获取） | once（一次性获取属于logicGroupIndex下的全部节点及子节点资源信息）
+    }
+);
+            	</code>
+            </pre>
+       	</div>
+	</div>
+
+</body>
+</html>
+
+<script type="text/javascript">
+var WebClient = {
+	connectId: null, // 连接ID
+	lgResource: new NPPUtils.Hash(), // 逻辑分组总资源
+	
+	Load: function () {
+		try {
+			$.browser = {};
+			$("#preCode").snippet("javascript", { style: "acid", collapse: true, startCollapsed: false});
+			
+			// 插件初始化
+			var operator = NPPILY.Init();
+			if (operator.rv == 0) {
+				// 建立连接
+				WebClient.Connect();
+			}
+			else {
+				alert(NrcapError.Detail(operator.rv));
+			}
+		}
+		catch (e) {
+			alert("excep error -> " + e.name + "::" + e.message);
+			return false;
+		}
+	},
+	
+	// - 创建连接，连接信息记录在NPPILY.Connections全局变量中
+	Connect: function() {
+		var path = _npc.connParams.path || "127.0.0.1:8866";
+		var username = _npc.connParams.username || "admin";
+		var password = _npc.connParams.password || "";
+		var epId = _npc.connParams.epId || "system"; //登陆参数：企业id
+		var bfix = _npc.connParams.bfix || 0;
+		
+		// 调用建立连接函数
+		var operator = NPPILY.Connect
+		(
+			new NPPILY.Struct.ConnParamStruct
+			(
+				path,
+				username,
+				epId,
+				password,
+				bfix
+			)　
+		);
+		if (operator.rv == 0) {
+			// 此即是当前连接ID，记录下来
+			WebClient.connectId = operator.response;
+			
+			// 注册绑定NC事件回调
+			WebClient.NCEvent.Init();　
+		}
+		else {
+			if ($("#loginMsg").get(0)) {
+				$("#loginMsg").html(NrcapError.Detail(operator.rv) + "<br />");
+			}
+		}
+	},
+	// NC事件处理
+	NCEvent: 
+	{
+		Init: function () {
+			try {
+				var fn = "WebClient.NCEvent.Init";
+				
+				// 注册回调处理
+				NPPILY.NCNotifyManager.Add (
+					NPPILY.Enum.NCObjectNotify.event_notify	, 
+					function (notify) {
+						WebClient.NCEvent.EventNotify(notify);
+					}	
+				);
+			}
+			catch (e) {
+				alert("excep error -> " + e.name + "::" + e.message);
+				return false;	
+			} 	
+		},
+		
+		// - 事件通知
+		EventNotify: function (notify) {
+			try {
+				var fn = "WebClient.NCEvent.EventNotify";
+				
+				// alert($.toJSON(notify));
+				if (notify && notify instanceof NPPILY.Struct.NCObjectNotifyStruct) {
+					if (notify.errorCode == 0) {
+						switch (notify.keyData.event.id) {
+							case "EVT_PU_Online":
+							case "EVT_PU_Offline":
+								// 变更上下线状态（所有资源树全都改变）
+								t.UpdateTreeIconClass(WebClient.connectId, notify.keyData.event.src_id);
+								break;
+						}
+					}
+					else {
+						// 移除根节点
+						t.RemoveLogicGroupTree("resourceTree", WebClient.connectId);
+						// 清除逻辑分组资源树
+						$("#resourceTree").html("");
+						// 移除根节点
+						t.RemoveResourceTreeRoot("resourceTree_other", WebClient.connectId);
+						// 清除主资源树
+						$("#resourceTree_other").html("");
+						// 断开连接
+						NPPILY.DisConnection(WebClient.connectId);
+						WebClient.connectId = null;
+						
+						alert("连接已断开,请刷新页面重试..."); 	
+					}
+				} 
+			}
+			catch (e) {
+				alert("excep error -> " + e.name + "::" + e.message);
+				return false;
+			}
+		},
+		
+		end: true
+	},
+
+	UnLoad: function () {
+		try {
+			NPPILY.UnLoad();
+		}
+		catch (e) {
+			alert("excep error -> " + e.name + "::" + e.message);
+			return false;
+		}
+	},
+	
+	// 获取逻辑分组
+	FetchLogicGroup: function () {
+		try {
+			// 清空资源
+			WebClient.lgResource.clear();
+			
+			// 创建逻辑分组资源
+			var T1 = t.CreateLogicGroup({
+				container: "resourceTree",
+				connectId: WebClient.connectId,
+				checkbox: false,
+				click: function (node) {
+					// 连接ID
+					var connectId = node.connectId;
+					switch (node.type) {
+						case "root": // 根节点
+							
+							break;
+						case "lg": // 节点及子节点
+							
+							break;
+						case "resource": // 资源节点（叶子节点）
+							alert($.toJSON(node.attributes));
+							break;
+					}
+				},
+				dblclick: function (node) {}, // alert($.toJSON(node));
+				beforecheck: function (node) {},
+				check: function (node) {}
+			});
+			
+			WebClient.T1 = T1;
+			
+			/*
+			// 兼容多个平台登录，显示在同一个资源树容器中
+			var operator = NPPILY.Connect
+			(
+				new NPPILY.Struct.ConnParamStruct
+				(
+					"192.168.42.118:8866",
+					"admin",
+					"system",
+					"",
+					1
+				)　
+			);
+			if (operator.rv == 0) {
+				// 此即是当前连接ID，记录下来
+				WebClient._connectId = operator.response;
+				 
+				var T1 = t.CreateLogicGroup({
+					connectId: WebClient._connectId,
+					container: "resourceTree",
+				});
+				
+				setTimeout(function () {
+					// 移除根节点
+					t.RemoveLogicGroupTree("resourceTree", WebClient._connectId);
+				}, 10000);
+			}
+			*/
+			
+			/*
+			var T2 = t.CreateLogicGroup({
+				connectId: WebClient.connectId,
+				container: "resourceTree_other",
+				checkbox: false,
+				click: function (node) {alert($.toJSON(node));},
+				dblclick: function (node) {alert($.toJSON(node));},
+				beforecheck: function (node) {alert($.toJSON(node));},
+				check: function (node) {alert($.toJSON(node));}
+			});
+			*/
+		}
+		catch (e) {
+			alert("excep error -> " + e.name + "::" + e.message);
+			return false;
+		}
+	}, 
+	
+	// 获取资源
+	FetchResource: function () {
+		try {
+			// 创建资源
+			var T = t.CreateResource({
+				container: "resourceTree_other",
+				connectId: WebClient.connectId,
+				checkbox: false,
+				enableCascade: true, // 是否允许列级联平台资源，默认是
+				loadCascadeAsync: false, // 是否异步加载子域资源，默认是
+				modelType: null, // 为[]列所有类型的，为null列默认类型的，即有线无线编码器[NPPILY.Enum.PuModelType.ENC, NPPILY.Enum.PuModelType.WENC]
+				resType: [], // 为[]列所有类型的，为null列默认类型的，即视频资源[NPPILY.Enum.PuResourceType.VideoIn]
+				click: function (node) {
+					// 连接ID
+					var connectId = node.connectId;
+					switch (node.type) {
+						case "pu": // 设备节点
+						case "dr_pu": // 子域设备节点
+							
+							break;
+						case "pures": // 叶子节点
+							alert($.toJSON(node));
+							break;
+					}
+				},
+				dblclick: function (node) {}, // alert($.toJSON(node));
+				beforecheck: function (node) {},
+				check: function (node) {}
+			});
+			
+			WebClient.T = T;
+			
+		/*	var operator = NPPILY.Connect
+			(
+				new NPPILY.Struct.ConnParamStruct
+				(
+					"192.168.31.56:8866",
+					"admin",
+					"system",
+					"",
+					1
+				)　
+			);
+			if (operator.rv == 0) {
+				// 此即是当前连接ID，记录下来
+				WebClient._connectId = operator.response;
+				 
+				var T1 = t.CreateResource({
+					connectId: WebClient._connectId,
+					container: "resourceTree_other",
+					modelType: null,
+					resType: [],
+				});
+				
+				setTimeout(function () {
+					// 移除根节点
+					t.RemoveResourceTreeRoot("resourceTree_other", WebClient._connectId);
+				}, 10000);
+			}
+			
+			*/
+			
+		}
+		catch (e) {
+			alert("excep error -> " + e.name + "::" + e.message);
+			return false;
+		}
+	},
+	
+	//资源树控制
+	Expandsion: function (obj, title, ico) {
+		if (obj) {
+			if (obj.style.display == "none") {
+				if (obj.innerHTML == "") return;
+				obj.style.display = "block";
+				if (title) title.className = "minus";
+				if (ico) {
+					ico.className = "stationmodel_expand";
+				}
+			}
+			else {
+				obj.style.display = "none";
+				if (title) title.className = "plus";
+				if (ico) {
+					ico.className = "stationmodel_collapse";
+				}
+			}
+		}
+	},
+	
+	end: true
+};
+$(document).ready(function () {
+	WebClient.Load();
+});
+$(window).unload(function () {
+	WebClient.UnLoad();
+});
+</script>
