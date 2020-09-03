@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body style="width:10px; margin:0 auto;">
+</body>
+<script type="text/javascript">
+
+	function openWin(){
+		var iHeight= window.screen.availWidth-100;
+		if(iHeight>1000){
+			iHeight=1000;
+		}
+		var iWidth = (480/640)*iHeight;
+		var iTop = (window.screen.availHeight - 30 - iHeight) / 2; 
+        var iLeft = (window.screen.availWidth - 10 - iWidth) / 2; 
+        
+        window.opener=null;
+		window.moveTo(window.screen.availWidth/2,window.screen.availHeight/2)
+		//top.resizeTo(10,10)
+		window.open('','_self');
+        var pathname = window.location.pathname;
+        var addr = window.location.host+"/"+pathname.substring(1,pathname.indexOf("/",1));
+    	addr="file:///D:/github/myproject/C8_NPPluginSDK_20191216/examples/em_playvideo/playVideo.html?puid=151038401211524732&name=单兵";
+        var newWindow=window.open(addr,"_blank","height="+iHeight+",px width="+iWidth+"px, top="+iTop+"px, left="+iLeft+"px,"+
+                                    "toolbar=no, menubar=no,scrollbars=no, resizable=yes, location=no, status=no");
+		//window.close();
+	}
+	openWin();
+
+</script>
+</html>
