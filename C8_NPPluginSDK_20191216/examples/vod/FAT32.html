@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>前端FAT32格式录像播放示例</title>
+
+<link type="text/css" rel="stylesheet" href="../../js/jquery/easyui/themes/default/easyui.css" />
+
+<link type="text/css" rel="stylesheet" href="../../js/jquery/easyui/themes/icon.css" />
+
+<script type="text/javascript" src="../../js/jquery/jquery-1.9.1.js"></script>
+	
+<script type="text/javascript" src="../../js/jquery/lib/jquery.json-2.4.js"></script>
+
+<script type="text/javascript" src="../../js/jquery/easyui/jquery.easyui.min.js"></script>
+
+<script type="text/javascript" src="../../js/jquery/easyui/locale/easyui-lang-zh_CN.js"></script>
+
+<script type="text/javascript" src="../../js/NPPInterface.js"></script>
+
+<script type="text/javascript" src="../../js/NPPInterlayer.js"></script>
+   
+<script type="text/javascript" src="../npp_examples_config.js"></script>
+
+<style type="text/css">
+body {
+	background: #eaf3fc;
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+}
+
+.vod-window-container {
+	border: 1px #eaf3fc solid;
+}
+.vod-window {
+	background: #1A1A1A;
+}
+.vod-window-statusbar {
+	height: 90px;
+	margin: 0px 10px 0px 10px;	
+	margin: 0px 10px 0px 10px !important;
+}
+.vod-window-slider {
+}
+.vod-window-statusbar .line {
+	width: 100%;
+	height: 32px;
+	text-align: center;
+}
+
+/* 重写框架样式，解决IE9等按钮背景显示缺失问题 */
+.l-btn {
+	filter: none;
+}
+.l-btn-disabled,.l-btn-disabled:hover {
+	filter: alpha(opacity=60);
+}
+/* 改变linkbutton文字大小 */
+.l-btn-text {
+	font-size: 14px;
+}
+.vod-window-statusbar .btn {
+	width: 55px;
+	height: 25px;
+	line-height: 25px;
+	vertical-align: middle;
+	color: #E0E0E0;
+	background: #0099CD;
+	margin: 3px 3px;	
+	margin: 3px 3px !important;	
+}
+.vod-window-statusbar .btn-medium {
+	width: 65px;
+}
+.vod-window-statusbar .btn-large {
+	width: 85px;
+}
+.vod-window-statusbar .btn-hover {
+	color: #FFFFFF;	
+	background: #0087B3;	
+}
+.vod-window-statusbar .btn-pressed {
+	color: #FFFFFF;	
+	background: #0081AF;	
+}
+
+</style>
+
+<script type="text/javascript">
+	
+// 暂时固定平台下的单一设备参数查询
+var PU = {
+	PUID: '151038401107322492', // 设备ＰＵＩＤ（唯一标识）
+	ivIndex: 0, // 摄像头索引
+	beginTimeStr: '2019-12-02 15:00:00', // 起始查询时间
+	endTimeStr: '2019-12-02 16:00:00', // 结束查询时间
+	pageOffset: 0, // 分页查询起始量
+	pageCount: 10, // 分页查询条数
+	
+	end: true
+};	
+	
+var VP = VodReplay = {
+	connectId: null,
+	
+	// 加载
+	Load: function () {
+		try {
+			var fn = 'VP.Load';
+			
+			jQuery('body')
+				.undelegate('.btn')
+				.delegate('.btn', 'mouseover mouseout', function (event) {
+					try {
+						event.stopPropagation();
+						event.preventDefault();
+						
+						switch (event.type) {
+						case 'mouseover':
+							if (!jQuery(this).is('.l-btn-disabled')) {
+								jQuery(this).addClass('btn-hover');
+							}
+							break;
+						case 'mouseout':
+							jQuery(this).removeClass('btn-hover');
+							break;
+						}
+					}
+					catch (e) {
+					}
+					return false;
+				});
+				
+			// 视频控制拖动条
+			jQuery('#vod-window-slider').slider({
+				disabled: true
+			});
+			jQuery('.btn').linkbutton({
+				disabled: true
+			});
+			
+			var operator = NPPILY.Init();
+			if (operator.rv == NrcapError.NRCAP_SUCCESS)
+			{
+				VP.Connect();
+			}
+			else
+			{
+				//alert('Nrcap初始化失败 -> ' + NrcapError.Detail(operator.rv));
+				switch(operator.rv){
+					case NrcapError.NRCAP_ERROR_NC_NOT_LAST_VERSION:
+					case NrcapError.NRCAP_ERROR_INITIALIZED:
+					case NrcapError.NRCAP_ERROR_UNINITIALIZED:
+					case NrcapError.NRCAP_ERROR_INIT_NRCAPPLUG_FAILED:
+					case NrcapError.NRCAP_ERROR_INIT_NRCAPPLUG_THREAD:
+					case NrcapError.NRCAP_ERROR_UNLOAD_NRCAPPLUG_FAILED:
+					case NrcapError.NRCAP_ERROR_LOADPLUG_NC:
+					case NrcapError.NRCAP_ERROR_LOADPLUG_WND:
+					case NrcapError.NRCAP_ERROR_LOADPLUG_WA:
+						alert("插件安装失败");
+						break;
+					default:
+						alert("初始化失败 -> " + NrcapError.Detail(operator.rv))
+				}
+				
+				logger(fn, 'NPPILY.Init error -> ' + NrcapError.Detail(operator.rv));
+				return false;
+			}
+		}
+		catch (e) {
+			excep(fn, e)
+		}
+	},
+	// 卸载
+	UnLoad: function () {
+		try {
+			var fn = 'VP.UnLoad';
+			
+			if (VP.connectId != null) {
+				VP.Disconnect();
+			}
+			
+			NPPILY.UnLoad();
+		}
+		catch (e) {
+			excep(fn, e)
+		}
+	},
+	// 改变大小
+	Resize: function () {
+		try {
+			var fn = 'VP.Resize';
+			
+			var dimen = {
+				width: jQuery(window).width(),
+				height: jQuery(window).height()
+			};
+			
+			jQuery('#vod-window-container').css({
+				width: dimen.width - 2,
+				height: dimen.height - 2
+			});
+			jQuery('#vod-window').css({
+				width: dimen.width - 2,
+				height: dimen.height - 90
+			});
+			jQuery('#vod-window-statusbar').css({
+				width: dimen.width - 25
+			});
+		}
+		catch (e) {
+			excep(fn, e)
+		}
+	},
+	
+	// 连接平台
+	Connect: function () {
+		try {
+			var fn = 'VP.Connect';
+			
+			var cpm = new NPPILY.Struct.ConnParamStruct();
+			cpm.path = _npc.connParams.path;
+			cpm.username = _npc.connParams.username;
+			cpm.password = _npc.connParams.password;
+			cpm.epId = _npc.connParams.epId;
+			cpm.bFixCUIAddress = _npc.connParams.bfix;
+			
+			var operator = NPPILY.Connect(cpm);
+			if (operator.rv == NrcapError.NRCAP_SUCCESS)
+			{
+				// 连接成功
+				VP.connectId = operator.response;
+				
+				// 注册NC事件通知信息回调
+				VP.NCNotify.Init();
+				
+				// 查询录像
+				VP.QueryRecord();
+			}
+			else
+			{
+
+				alert('平台登录失败 -> ' + NrcapError.Detail(operator.rv));
+				
+				logger(fn, 'connect failed, error -> ' + NrcapError.Detail(operator.rv));
+				return false;
+			}
+		}
+		catch (e) {
+			excep(fn, e)
+		}
+	},
+	
+	// 断开连接
+	Disconnect: function () {
+		try {
+			var fn = 'VP.Disconnect';
+
+			VP.PlayControl.Clear(); // 清除播放
+			
+			var operator = NPPILY.DisConnection(VP.connectId);
+			if (operator.rv == NrcapError.NRCAP_SUCCESS)
+			{
+				VP.connectId = null;
+			}
+		}
+		catch (e) {
+			excep(fn, e)
+		}
+	},
+	
+	// NC事件通知信息功能管理
+	NCNotify: {
+		// 句柄与响应函数映射，为了快速查找相应处理函数
+		__HANDLE_FUNC_MAP__: {},
+	 	
+		// 清除所有映射
+		ClearAll: function () {
+			this.__HANDLE_FUNC_MAP__ = {};
+		},
+		
+		// 注册映射
+		Register: function (__HANDLE__, __FUNC__) {
+			if (__HANDLE__ && typeof __FUNC__ == 'function') {
+				this.__HANDLE_FUNC_MAP__[__HANDLE__] = __FUNC__;
+			}
+		},	
+		// 撤销映射
+		UnRegister: function (__HANDLE__) {
+			if (typeof this.__HANDLE_FUNC_MAP__[__HANDLE__] != 'undefined') {
+				this.__HANDLE_FUNC_MAP__[__HANDLE__] = null;
+				delete this.__HANDLE_FUNC_MAP__[__HANDLE__];
+			}
+		},
+		
+		// 调用
+		Call: function (notify) {
+			if (notify && notify._HANDLE) {
+				if (typeof VP.NCNotify.__HANDLE_FUNC_MAP__[notify._HANDLE] == 'function') {
+					VP.NCNotify.__HANDLE_FUNC_MAP__[notify._HANDLE](notify);
+				}
+			}
+		},
+		
+		Init: function () {
+			try {
+				var fn = 'VP.NCNotify.Init';
+				
+				// 只需要全局注册一次回调即可！！
+				
+				// 注册事件通知
+				NPPILY.NCNotifyManager.Add(NPPILY.Enum.NCObjectNotify.event_notify, VP.NCNotify.ResponseEventNotify); 
+				
+				// 数据流通道状态回调
+				NPPILY.NCNotifyManager.Add(NPPILY.Enum.NCObjectNotify.stream_status_notify, function (notify) {
+					VP.NCNotify.Call(notify);
+				}); 
+				
+			}
+			catch (e) {
+				excep(fn, e);
+				return false;
+			}
+		},	
+		
+		// 特殊处理平台事件
+		ResponseEventNotify: function (notify) {
+			try {
+				var fn = 'VP.NCNotify.ResponseEventNotify';
+				
+				if (notify instanceof NPPILY.Struct.NCObjectNotifyStruct) {
+					
+					if (notify.errorCode != 0) {
+						alert('断开与平台的连接了，请重新登录平台');
+						
+						logger(fn, 'connection has broken, please login again');
+						
+						VP.Disconnect();
+						
+						return false;
+					}
+					else {
+						if (typeof notify.keyData == "object" && typeof notify.keyData.event != "undefined") {
+							var _EVENT = notify.keyData.event,
+								ID = _EVENT.id,
+								TIME = _EVENT.time,
+								SRCID = _EVENT.src_id,
+								SRCTYPE = _EVENT.res_type,
+								SRCIDX = _EVENT.res_idx,
+								SRCNAME = NPPUtils.UTF8toUnicode(_EVENT.res_name),
+								_DESC = _EVENT.desc || [],
+								PUNAME = (function () {
+									if (_DESC == "" || _DESC.length <= 0 || typeof _DESC == "undefined") {
+										return (SRCNAME || "");
+									}
+									else {
+										return typeof _DESC[0].PUName != "undefined" ? NPPUtils.UTF8toUnicode(_DESC[0].PUName) : (SRCNAME || "");
+									} 
+								})(),
+								MODE = "",
+								DESC = "";
+							
+							switch (ID) {
+								// 设备上线事件
+								case 'EVT_PU_Online':
+									
+									break;
+								// 设备下线事件
+								case 'EVT_PU_Offline':
+									
+									break;
+							}
+						}
+					} 
+				}
+			}
+			catch (e) {
+				excep(fn, e);
+				return false;
+			}
+		},
+		
+		end: true
+	},
+	
+	// 查询录像
+	QueryRecord: function () {
+		try {
+			var fn = 'VP.QueryRecord';
+
+			// 时间字符串转成时间戳秒表示查询
+			var beginTime = parseInt(new Date(PU.beginTimeStr.replace(/\-/g,'/')).getTime() / 1000);
+			var endTime = parseInt(new Date(PU.endTimeStr.replace(/\-/g,'/')).getTime() / 1000);
+			
+			// 查询设备前端FAT32格式录像
+			var operator = NPPILY.SG_FAT32QueryFiles
+			(
+				VP.connectId,
+				PU.PUID, 
+				0,
+				PU.ivIndex,
+				beginTime,
+				endTime,
+				NPPILY.Enum.NrcapStreamType.STORAGE,
+				(PU.pageOffset || 0),
+				(PU.pageCount || 0)
+			);
+			
+			if (operator.rv == NrcapError.NRCAP_SUCCESS)
+			{
+				 /*
+					// 日志输出示例
+					operator.response =>
+					[{
+						"name":"20191121_092554.mp4",
+						"path":"/storage/1F57-15E5/TerminalHelmet/Storage/Record/",
+						"reasons":"本地录像",
+						"size":78238790,
+						"begin_time":1574299554,
+						"end_time":1574300148
+					},{
+						"name":"20191121_093548.mp4",
+						"path":"/storage/1F57-15E5/TerminalHelmet/Storage/Record/",
+						"reasons":"本地录像",
+						"size":78232732,
+						"begin_time":1574300148,
+						"end_time":1574300743
+					},{
+						"name":"20191121_094543.mp4",
+						"path":"/storage/1F57-15E5/TerminalHelmet/Storage/Record/",
+						"reasons":"本地录像",
+						"size":78250729,
+						"begin_time":1574300743,
+						"end_time":1574301339
+					}]
+				*/
+				logger(fn, 'operator.response => ' + jQuery.toJSON(operator.response)); 
+
+				VP.PlayControl.Init(operator.response);
+			}
+			else
+			{
+				 alert('查询前端FAT32格式存储录像失败 -> ' + NrcapError.Detail(operator.rv));
+				
+				 logger(fn, 'query failed, error -> ' + NrcapError.Detail(operator.rv));
+				 return false;
+			}
+		}
+		catch (e) {
+			excep(fn, e)
+		}
+	},
+	
+	// 点播控制
+	PlayControl: {
+		records: [], // 录像查询结果
+		
+		__CURRENT_INDEX__: -1, // 当前播放的录像文件索引，__CURRENT_INDEX__ < records.length
+		
+		__CURRENT_SPEED__: 0, // 当前播放速度，0:正常，1:两倍速，2:四倍速　
+		
+		Clear: function () {
+			try {
+				var fn = 'VP.PlayControl.Clear';
+				
+				this.StreamBreakRestore.ClearAll();
+				
+				this.Stop();
+				this.records = [];
+				this.__CURRENT_INDEX__ = -1;
+				
+				this.SetBtnStatus();
+			}
+			catch (e) {
+				excep(fn, e)
+			}
+		},
+		
+		Init: function (records) {
+			try {
+				var fn = 'VP.PlayControl.Init';
+				
+				jQuery('#vod-window-slider').slider({
+					onComplete: function (value) {
+						VP.PlayControl.JumpPlay(value);
+					}
+				});
+				
+				// 先清除所有播放
+				this.Clear();
+					
+				// 保存录像查询结果
+				this.records = records || [];
+				
+				// 开始播放
+				this.SwitchNextVod();
+			}
+			catch (e) {
+				excep(fn, e)
+			}
+		},
+		
+		// 控制操作
+		OperationStart: function () {
+			VP.PlayControl.SwitchNextVod();
+		},
+		OperationStop: function () {
+			VP.PlayControl.Stop();
+			
+			VP.PlayControl.__CURRENT_INDEX__ = -1;
+		},
+		OperationPause: function () {
+			VP.PlayControl.Pause();
+		},
+		OperationContinue: function () {
+			VP.PlayControl.Continue();
+		},
+		OperationSetSpeed: function (speed, btnDom) {
+			VP.PlayControl.SetSpeed(speed);
+			jQuery('.btn[id*=-speed_]').removeClass('btn-pressed');
+			jQuery(btnDom).addClass('btn-pressed');
+		},
+		
+		// 点播回放
+		Play: function (record, jumpToTime) {
+			try {
+				var fn = 'VP.PlayControl.Play';
+				
+				if (!record) return false;
+				
+				var jumpToTime = jumpToTime || 0;
+
+				logger(fn, 'start replay record => ' + jQuery.toJSON(record)); 
+				
+				// 保存窗口信息对象，创建的窗口也可自定义记录
+				if (!NPPILY.WindowContainers.get('vod-window')) {
+					NPPILY.WindowContainers.set(
+						'vod-window', 
+						new NPPILY.Struct.WindowContainerStruct(
+							jQuery('#vod-window')[0],
+							NPPILY.Enum.WindowType.VOD,
+							true,
+							null, // 刚开始窗口为空，待创建窗口时记录
+							null
+						)
+					);
+				}
+				
+				NPPILY.WindowContainers.each(function (item) {
+					if (item.key == 'vod-window') {
+						
+						var winNode = item.value;
+						
+						if (winNode.window == null) {
+							// 视频窗口事件，单击、云台控制、菜单等，这里默认不展示
+							var windowEvent = new NPPILY.Struct.WindowEventStruct();
+							
+							// 窗口不存在，创建一个视频窗口
+							var operator = NPPILY.CreateWindow(
+								VP.connectId, 
+								item.key, 
+								NPPILY.Enum.WindowType.VOD, 
+								windowEvent, 
+								jQuery.extend({}, record) // 自定义参数		
+							);
+							if (operator.rv == NrcapError.NRCAP_SUCCESS) {
+								
+								winNode.window = operator.response;
+							}
+							else {
+								logger(fn, 'create vod window error -> ' + NrcapError.Detail(operator.rv));
+								return true;
+							}
+						}
+						
+						if (winNode.window) {
+							// 如果正在播放，那么就关闭
+							if (winNode.window.status.playvoding) {
+								VP.PlayControl.Stop();
+							}
+							
+							winNode.window.customParams = jQuery.extend({
+								puid: PU.PUID,
+								idx: PU.ivIndex
+							}, record, {
+								jumpToTime: jumpToTime,
+								ispausing: false
+							});
+							
+							// 点播前端存储录像
+							var play_operator = NPPILY.PlayVod(
+								VP.connectId,
+								winNode.window, {
+									type: NPPILY.Enum.StorageFileType.FAT32,
+									sgIndex: 0,
+									puid: PU.PUID,
+									fileFullPath: record.path + '/' + record.name, 
+									speed: VP.PlayControl.__CURRENT_SPEED__,
+									relativeStartTime: jumpToTime
+								} 
+							);
+							
+							if (play_operator.rv == NrcapError.NRCAP_SUCCESS) {
+								
+								logger(fn, 'start replay vod...');
+								
+								jQuery('#vod-window-slider').slider('enable');
+								
+								VP.PlayControl.SetBtnStatus();
+								
+								// 改变窗口插件大小
+								NPPILY.ResizeWindowDimension(winNode.window, '100%', '100%');
+
+								// 注册接收流状态通知
+								VP.NCNotify.Register(winNode.window.params.ivStreamHandle, function (notify) {
+									/*
+										// 流状态通知信息示例
+										stream status cb => 
+											winkey: vod-window, 
+											notify: {
+												"eventName":"stream_status_notify",
+												"_HANDLE":"1381E430",
+												"status":1, // 状态为-1时，说明流已经断开，需要关闭播放，并重新申请播放
+												"statusDesc":"正在播放",
+												"errorCode":"0",
+												"keyData":{
+													"bit_rate":"0", // 码率 bps
+													"frame_rate":"0", // 帧率
+													"total_time":"0", // 总时长，单位毫秒
+													"play_time":"87" // 已经播放时长，单位秒
+												}
+											}
+									*/
+									
+									logger(fn, 'stream status cb => winkey: ' + item.key + ', notify: ' + jQuery.toJSON(notify));
+									
+									VP.PlayControl.VodStreamNotify(item.key, notify);
+								});
+							}
+							else {
+								switch (play_operator.rv) {
+									case NrcapError.NRCAP_ERROR_PLAYVIDEO_FAILED:
+										alert("播放失败");
+										break;
+									case NrcapError.NRCAP_ERROR_WINDOW_NOPLAY:
+										alert("窗口没有播放");
+										break;
+									case NrcapError.NRCAP_ERROR_PU_OFFLINE:
+										alert("设备不在线");
+										break;
+									case NrcapError.NRCAP_ERROR_HANDLE_NOTEXIST:
+										alert("资源句柄不存在");
+										break;
+									case NrcapError.NRCAP_ERROR_HANDLE_ERROR:
+										alert("资源句柄错误");
+										break;
+									default :
+										alert("播放视频失败 -> " + NrcapError.Detail(play_operator.rv))
+								}
+								logger(fn, 'replay vod error -> ' + NrcapError.Detail(play_operator.rv));
+								return true;
+							}
+						}
+					}
+				});
+				
+			}
+			catch (e) {
+				excep(fn, e)
+			}
+		},
+		
+		// 跳播
+		JumpPlay: function (sliderValue) {
+			try {
+				var fn = 'VP.PlayControl.JumpPlay';
+				
+				NPPILY.WindowContainers.each(function (item) {
+					if (item.key == 'vod-window') {
+						var winNode = item.value;
+						
+						if (winNode.window) {
+							var record = winNode.window.customParams || {};
+							
+							if (record) {
+								var total_time = parseInt(record.end_time) - parseInt(record.begin_time);
+								var percent = sliderValue;
+								var jumpToTime = Math.round(percent * total_time / 100);
+								VP.PlayControl.Play(record, jumpToTime);
+							}
+						}
+					}
+				});
+			}
+			catch (e) {
+				excep(fn, e)
+			}
+		},
+		
+		// 设置按钮状态
+		SetBtnStatus: function () {
+			try {
+				var fn = 'VP.PlayControl.SetBtnStatus';
+
+				jQuery('.btn').linkbutton('disable');
+				
+				NPPILY.WindowContainers.each(function (item) {
+					if (item.key == 'vod-window') {
+						var winNode = item.value;
+						
+						if (winNode.window) {
+							if (winNode.window.status.playvoding) {
+								jQuery('.btn[id*=-stop]').linkbutton('enable');
+								jQuery('.btn[id*=-pause]').linkbutton('enable');
+								jQuery('.btn[id*=-speed]').linkbutton('enable');
+								
+								var speed = '';
+								switch (winNode.window.params.speed) {
+								case 1:
+									speed = '1';
+									break;
+								case 2:
+									speed = '2';
+									break;
+								case 3:
+									speed = '3';
+									break;
+								default:
+									speed = 'restore';
+									break;
+								}
+								jQuery('.btn[id*=-speed]').removeClass('btn-pressed');
+								jQuery('.btn[id*=-speed_' + speed).addClass('btn-pressed');
+							}
+							else {
+								var cps = winNode.window.customParams || {};
+								
+								if (cps.ispausing) {
+									jQuery('.btn[id*=-stop]').linkbutton('enable');
+									jQuery('.btn[id*=-continue]').linkbutton('enable');
+								}
+								else {
+									jQuery('.btn[id*=-start]').linkbutton('enable');
+								}
+							}
+						}
+						else {
+							if (VP.PlayControl.records.length > 0) {
+								jQuery('.btn[id*=-start]').linkbutton('enable');
+							}
+						}
+					}
+				});
+			}
+			catch (e) {
+				excep(fn, e)
+			}
+		},
+		
+		// 点播状态通知
+		VodStreamNotify: function (winkey, notify) {
+			try {
+				var fn = 'VP.PlayControl.VodStreamNotify';
+
+				NPPILY.WindowContainers.each(function (item) {
+					if (item.key == winkey) {
+						
+						var winNode = item.value;
+						var record = winNode.window.customParams;
+						
+						if (notify.keyData) {
+							// ！如果无播放时长，可以用对应录像起始时间计算一下（毫秒单位）
+							if (parseInt(notify.keyData.total_time) == 0) {
+								notify.keyData.total_time = (parseInt(record.end_time) - parseInt(record.begin_time)) * 1000;
+							}	
+						}
+						
+						if (notify.status === -1) {
+							// 状态为-1时，说明流已经断开，需要关闭播放，并重新申请播放
+							
+							var last_notify = jQuery('#vod-window-statusbar').data('last_notify');
+
+							if (last_notify && last_notify.status != -1) {
+								var last_kd = last_notify.keyData;
+								var last_play_time = record.jumpToTime + parseInt(last_kd.play_time);
+								var last_total_time = parseInt(last_kd.total_time/1000);
+								
+								// 状态通知上可能不是那么精准，所以靠的近，认为已经播放完成了
+								if (Math.abs(last_total_time - last_play_time) < 2) {
+									// 跳到下一个播放
+									VP.PlayControl.SwitchNextVod();
+									return true;
+								}
+							}
+							
+							if (typeof last_play_time == 'undefined' || !last_play_time) {
+								last_play_time = record.jumpToTime;
+							}
+							
+							// 禁用slider
+							jQuery('#vod-window-slider').slider('disable');
+							
+							VP.PlayControl.StreamBreakRestore.Register(jQuery.extend(record, {jumpToTime: last_play_time}));
+							
+							
+							return true;
+						}
+						
+						var kd = notify.keyData;
+						var play_time = record.jumpToTime + parseInt(kd.play_time); // 加上相对开始时间才是真实的已播放时长
+						var total_time = parseInt(kd.total_time/1000);
+						
+						var percent = Number(((play_time / total_time) * 100).toFixed(2));
+						
+						if (percent <= 0) percent = 0;
+						if (percent >= 100) percent = 100;
+						
+						jQuery('#vod-window-slider').slider('setValue', percent);
+						
+						var play_timeStr = VP.__TIMETOSTR__(play_time);
+						var total_timeStr = VP.__TIMETOSTR__(total_time);
+						
+						var tip = "录像名称：" + record.name + 
+								  "\r\n状态：" + notify.statusDesc +
+								  "（帧率=" + kd.frame_rate + 
+								  ",码率=" + Math.ceil(parseInt(kd.bit_rate) / 1000) + "kb" +
+								  "）\r\n播放进度：" + play_timeStr + "/" + total_timeStr;
+						
+						jQuery('#vod-window-statusbar')
+							.attr('title', tip)
+							.data('last_notify', notify);
+						
+						if (percent == 100) {
+							// 跳到下一个播放
+							VP.PlayControl.SwitchNextVod();
+						}
+					}
+				});
+			}
+			catch (e) {
+				excep(fn, e)
+			}
+		},
+		
+		// 切换下一个播放
+		SwitchNextVod: function () {
+			try {
+				var fn = 'VP.PlayControl.SwitchNextVod';
+
+				if (this.records.length > 0 && this.__CURRENT_INDEX__ < this.records.length) {
+					this.Play(this.records[++this.__CURRENT_INDEX__]);
+				}
+				else {
+					if (this.records.length <= 0) {
+						logger(fn, 'records null');
+						
+						alert('此时间段内查询不到录像数据！');
+					}
+					else {
+						logger(fn, 'all records had beed replayed');
+						
+						// 重新播放
+						 
+						this.__CURRENT_INDEX__ = -1;
+						
+						this.SwitchNextVod();
+					} 
+				}
+			}
+			catch (e) {
+				excep(fn, e)
+			}
+		},
+		
+		// 关闭点播
+		Stop: function () {
+			try {
+				var fn = 'VP.PlayControl.Stop';
+
+				NPPILY.WindowContainers.each(function (item) {
+					if (item.key == 'vod-window') {
+						
+						var winNode = item.value;
+					
+						if (winNode.window && winNode.window.status.playvoding) {
+							var ivStreamHandle = winNode.window.params.ivStreamHandle;
+							
+							var record = winNode.window.customParams || {};
+							
+							var operator = NPPILY.StopVod(winNode.window);
+							
+							if (operator.rv == NrcapError.NRCAP_SUCCESS) {
+								logger(fn, 'stop vod success, file -> ' + record.path + '' + record.name);
+								
+								// 移除此流状态回调通知
+								VP.NCNotify.UnRegister(ivStreamHandle);
+								
+								// 改变窗口插件大小
+								NPPILY.ResizeWindowDimension(winNode.window, 0, 0);
+								
+								jQuery('#vod-window-slider').slider('disable').slider('setValue', 0);
+								
+								VP.PlayControl.SetBtnStatus();
+							}
+							else {
+								logger(fn, 'stop vod error -> ' + NrcapError.Detail(operator.rv));
+								return true;
+							}
+						}
+						else {
+							if (winNode.window && winNode.window.customParams) {
+								
+								winNode.window.customParams = {};
+
+								// 改变窗口插件大小
+								NPPILY.ResizeWindowDimension(winNode.window, 0, 0);
+								
+								jQuery('#vod-window-slider').slider('disable').slider('setValue', 0);
+
+								VP.PlayControl.SetBtnStatus();
+							}
+						}
+					}
+				});
+			}
+			catch (e) {
+				excep(fn, e)
+			}
+		},
+		
+		// 暂停播放
+		Pause: function () {
+			try {
+				var fn = 'VP.PlayControl.Pause';
+
+				NPPILY.WindowContainers.each(function (item) {
+					if (item.key == 'vod-window') {
+						
+						var winNode = item.value;
+					
+						if (winNode.window && winNode.window.status.playvoding) {
+							var ivStreamHandle = winNode.window.params.ivStreamHandle;
+							
+							var record = jQuery.extend({}, winNode.window.customParams);
+							
+							var operator = NPPILY.StopVod(winNode.window);
+							
+							if (operator.rv == NrcapError.NRCAP_SUCCESS) {
+								record.ispausing = true; // 暂停标志
+								
+								winNode.window.customParams = record;
+								
+								logger(fn, 'pause stop vod success, file -> ' + record.path + '' + record.name);
+								
+								// 移除此流状态回调通知
+								VP.NCNotify.UnRegister(ivStreamHandle);
+								
+								// 改变窗口插件大小
+								NPPILY.ResizeWindowDimension(winNode.window, '100%', '100%');
+								
+								// 不可保留当前位置
+								// jQuery('#vod-window-slider').slider('disable');
+								
+								VP.PlayControl.SetBtnStatus();
+							}
+							else {
+								logger(fn, 'pause stop vod error -> ' + NrcapError.Detail(operator.rv));
+								return true;
+							}
+						} 
+					}
+				});
+			}
+			catch (e) {
+				excep(fn, e)
+			}
+		},
+		
+		// 恢复播放
+		Continue: function () {
+			try {
+				var fn = 'VP.PlayControl.Continue';
+
+				NPPILY.WindowContainers.each(function (item) {
+					if (item.key == 'vod-window') {
+						var winNode = item.value;
+						
+						var record = winNode.window.customParams || {};
+						
+						if (record.ispausing === true) {
+							
+							var total_time = parseInt(record.end_time) - parseInt(record.begin_time);
+							var percent = jQuery('#vod-window-slider').slider('getValue') || 0;
+							var jumpToTime = Math.round(percent * total_time / 100);
+							
+							VP.PlayControl.Play(record, jumpToTime);
+							
+							return true;
+						}
+
+					}
+				});
+			}
+			catch (e) {
+				excep(fn, e)
+			}
+		},
+		
+		SetSpeed: function (value) {
+			try {
+				var fn = 'VP.PlayControl.SetSpeed';
+				
+				NPPILY.WindowContainers.each(function (item) {
+					if (item.key == 'vod-window') {
+						var winNode = item.value;
+						
+						if (winNode.window) {
+							var record = winNode.window.customParams || {};
+							
+							if (record) {
+								VP.PlayControl.__CURRENT_SPEED__ = value || 0;
+							
+								var total_time = parseInt(record.end_time) - parseInt(record.begin_time);
+								var percent = jQuery('#vod-window-slider').slider('getValue') || 0;
+								var jumpToTime = Math.round(percent * total_time / 100);
+								
+								VP.PlayControl.Play(record, jumpToTime);
+							}
+						}
+					}
+				});
+			}
+			catch (e) {
+				excep(fn, e)
+			}
+		},
+		
+		// 流断开需要重连
+		StreamBreakRestore: {
+			hashStore: new NPPUtils.Hash(),
+		
+			interval: 3000,
+			
+			ClearAll: function () {
+				this.hashStore = new NPPUtils.Hash();
+			},
+			
+			Init: function () {
+				try { 
+					var fn = 'VP.PlayControl.StreamBreakRestore.Init';
+					
+					var SELF = this; 
+					
+					// 注册轮询函数
+					NPPUtils.Timer.Start();
+					if (!NPPUtils.Timer.ContainsKey('stream', 'break-restore')) {
+						NPPUtils.Timer.Set('stream', {
+							name: 'break-restore',
+							fu: function () {
+								
+								if (SELF.hashStore) {
+									SELF.hashStore.each(function (item) {
+										logger(fn, 'restore play vod -> ' + item.key + ", file -> " + item.value.name);
+										
+										VP.PlayControl.Play(item.value, item.value.jumpToTime);
+										
+										NPPILY.WindowContainers.each(function (winItem) {
+											if (winItem.key == 'vod-window') {
+												var winNode = winItem.value;
+												if (winNode.window && winNode.window.status.playvoding) {
+													SELF.UnRegister(item.value.puid, item.value.idx);
+													return true;
+												}
+											}
+										});
+									}); 
+								}
+								
+							},
+							interval: SELF.interval
+						});
+					}
+				}
+				catch (e) {
+					excep(fn, e);
+				}
+			},
+			
+			Register: function (record) {
+				try { 
+					var fn = 'VP.PlayControl.StreamBreakRestore.Register';
+					
+					var SELF = this;
+					
+					SELF.Init();
+					
+					var key = record.puid + "_" + record.idx;
+					
+					SELF.hashStore.set(key, record);
+				}
+				catch (e) {
+					excep(fn, e);
+				}
+			},
+			
+			UnRegister: function (puid, ivIndex) {
+				try { 
+					var fn = 'VP.PlayControl.StreamBreakRestore.UnRegister';
+					
+					var SELF = this;
+					
+					var key = puid + '_' + ivIndex;
+					
+					if (SELF.hashStore.containsKey(key)) {
+						SELF.hashStore.unset(key);
+					}
+				}
+				catch (e) {
+					excep(fn, e);
+				}
+			},
+			
+			end: true
+		},
+		
+		end: true 
+	},
+	
+	__TIMETOSTR__: function(_TIME) {
+		if(!_TIME || typeof _TIME == "undefined") { return "00:00:00"; } 
+		var AttachZero = function(_T) { if(!_T) return "00"; else if(typeof _T != "string") return _T; else return (_T.length == 1 ? "0" + _T : _T); };
+		var _Hours = Math.floor(_TIME/3600).toFixed(0).toString(); 
+		var _Minutes = Math.floor((_TIME - _Hours * 3600)/60).toFixed(0).toString(); 
+		var _Seconds = Math.floor(_TIME - _Hours * 3600 - _Minutes * 60).toFixed(0).toString(); 
+		return AttachZero(_Hours) + ":" + AttachZero(_Minutes) + ":" + AttachZero(_Seconds); 
+	},
+	
+	end: true
+};	
+
+if (jQuery) {
+	
+	jQuery.noConflict();
+
+	jQuery(document).ready(function () {
+		VP.Load();
+		VP.Resize();
+	});
+	jQuery(window).unload(function () {
+		VP.UnLoad();
+	});
+	jQuery(window).resize(function () {
+		VP.Resize();
+	});
+}
+else {
+	alert('Your browser may not support jQuery object!');
+}
+
+function logger(fnStr, log) {
+	var outputStr = '['+fnStr+']' + log;
+	if (typeof console != "undefined") {
+		console.log(outputStr);
+	}
+	else {
+		alert(outputStr)
+	}
+}
+function excep(fnStr, e) {
+	logger(fnStr, 'excep error -> ' + e.name + "," + e.message);
+}
+
+</script>
+
+</head>
+<body>
+	<div id="vod-window-container" class="vod-window-container">
+		<div id="vod-window" class="vod-window"></div>
+		<div id="vod-window-statusbar" class="vod-window-statusbar">
+			<div id="vod-window-slider" class="vod-window-slider easyui-slider"></div>
+			
+			<div class="line">
+				<span id="vod-play-start" class="btn btn-large" onclick="VP.PlayControl.OperationStart();">开始播放</span>
+				<span id="vod-play-stop" class="btn btn-large" onclick="VP.PlayControl.OperationStop();">停止播放</span>
+				<span id="vod-play-pause" class="btn btn-large" onclick="VP.PlayControl.OperationPause();">暂停播放</span>
+				<span id="vod-play-continue" class="btn btn-large" onclick="VP.PlayControl.OperationContinue();">继续播放</span>
+			</div>
+			<div class="line">
+				<span id="vod-play-speed_1" class="btn btn-medium" onclick="VP.PlayControl.OperationSetSpeed(1, this);">两倍速</span>
+				<span id="vod-play-speed_2" class="btn btn-medium" onclick="VP.PlayControl.OperationSetSpeed(2, this);">四倍速</span>
+				<!-- 可能是不支持的倍速 -->
+				<!-- <span id="vod-play-speed_3" class="btn btn-medium" onclick="VP.PlayControl.OperationSetSpeed(3, this);">八倍速</span> -->
+				<span id="vod-play-speed_restore" class="btn" onclick="VP.PlayControl.OperationSetSpeed(0, this);">恢复</span>
+			</div>
+			
+		</div>
+	</div>
+</body>
+</html>

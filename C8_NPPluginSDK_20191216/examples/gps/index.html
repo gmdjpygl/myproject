@@ -1,0 +1,1479 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>Demo</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	
+	<script type="text/javascript" src="http://api.map.baidu.com/api?v=1.4"></script>
+	<script type="text/javascript" src="http://developer.baidu.com/map/jsdemo/demo/convertor.js"></script>
+	
+    <script src="../../js/jquery/jquery-1.9.1.js" type="text/javascript"></script> 
+	<script src="../../js/jquery/lib/snippet/jquery.snippet.js" type="text/javascript"></script>
+	<script src="../../js/jquery/lib/jquery.json-2.4.js" type="text/javascript"></script> 
+	
+    <script src="../../js/NPPInterface.js" type="text/javascript"></script> 
+    <script src="../../js/NPPInterlayer.js" type="text/javascript"></script>
+	<script src="../npp_examples_config.js" type="text/javascript"></script>
+	<link rel="stylesheet" type="text/css" href="../images/pages.css" />	
+	<link rel="stylesheet" type="text/css" href="../../js/jquery/lib/snippet/jquery.snippet.css" />
+	<style>
+		table,td,tr{
+			border:1px grey solid;
+		}
+		td{
+			width:250px;
+		}
+		.td_b{
+			color:blue;
+		}
+		input,button{ width:80px;margin-bottom:3px; height:22px;}
+	</style>
+</head>
+<body>
+	<h1 class="h1A">GPS Demo</h1>
+    <div class="content cc">
+		<p style="text-indent: 2em;font-size:120%">
+        页面加载完成后，首先使用NPPILY.ForkResource接口获取设备的资源（包括获取子资源），然后过滤出在线的设备，在遍历子资源根据资源类型为NPPILY.Enum.PuResourceType.GPS的资源找出具有GPS功能的模块。
+        </p>
+        <p style="text-indent: 2em;font-size:120%">
+        一、绑定GPS数据回调函数NPPILY.NCNotifyManager.Add(eventName&lt;NPPILY.Enum.NCObjectNotify&gt;, CALLBACK&lt;Function(NPPILY.Struct.NCObjectNotifyStruct)&gt;) 其中eventName这里应为NPPILY.Enum.NCObjectNotify.gps_data_notify，只需要在NPPILY.Init初始化加载成功后注册一次回调即可，回调函数CALLBACK具有一个参数，结构为NPPILY.Struct.NCObjectNotifyStruct
+        </p>
+        <p style="text-indent: 2em;font-size:120%">
+        二、调用var operator = NPPILY.StartGPSStream(...)打开每个具有GPS功能模块设备的GPS数据接收通道（一个GPS模块对应一个），返回值operator.rv == 0时，operator.response为GPS模块资源句柄（很重要）
+        </p>
+        <p style="text-indent: 2em;font-size:120%">
+        三、上面的CALLBACK如果有回调，假设参数为_ncnStruct，那么就根据_ncnStruct._HANDLE（对应的就是GPS资源句柄）去甄别此次GPS数据归属于哪个设备
+        </p>
+        <p style="text-indent: 2em;font-size:120%">
+        四、如果需要关闭某个设备GPS模块接收通道，那么就调用NPPILY.StopGPSStream
+        </p>
+        <p style="text-indent: 2em;font-size:120%">
+        五、在地图上显示GPS坐标位置，添加百度或谷歌的地图API脚本，创建地图实例，将接收到的GPS数据经纬度信息在地图上进行标记并实时刷新坐标显示
+        </p>
+		</p>
+		<p style="text-indent: 2em;padding-top:10px;">
+			<strong>
+				前端GPS数据信息结构NPPILY.Struct.CEFSGPSDataStruct:
+			</strong>
+		</p>
+		<div style="padding-left:25px;padding-top:10px;">
+			<table>
+		 	<tr>
+				<td>
+					变量
+				</td>
+				<td>
+					类型
+				</td>
+				<td>
+					描述
+				</td>
+			</tr>
+			<tr>
+				<td class="td_b">
+					latitude
+				</td>
+				<td>
+					String NOT NULL
+				</td>
+				<td>
+					纬度,浮点型字符串
+				</td>
+			</tr>
+			<tr>
+				<td class="td_b">
+					longitude
+				</td>
+				<td>
+					String NOT NULL
+				</td>
+				<td>
+					经度,浮点型字符串
+				</td>
+			</tr>
+			<tr>
+				<td class="td_b">
+					bearing
+				</td>
+				<td>
+					String NOT NULL
+				</td>
+				<td>
+					方向,浮点型字符串
+				</td>
+			</tr>
+				<tr>
+					<td class="td_b">
+						speed
+					</td>
+					<td>
+						Uint NOT NULL
+					</td>
+					<td>
+						速度,浮点型字符串,单位km/h
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						altitude
+					</td>
+					<td>
+						Uint NOT NULL
+					</td>
+					<td>
+						海拔,浮点型字符串,单位m
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						utc
+					</td>
+					<td>
+						UTC timestamp NOT NULL
+					</td>
+					<td>
+						产生时间
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						offline_flag
+					</td>
+					<td>
+						Uint NOT NULL
+					</td>
+					<td>
+						离线标识
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						gps_status
+					</td>
+					<td>
+						Uint NOT NULL
+					</td>
+					<td>
+						GPS状态
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						max_speed
+					</td>
+					<td>
+						Uint NOT NULL
+					</td>
+					<td>
+						最高限速,单位km/h
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						min_speed
+					</td>
+					<td>
+						Uint NOT NULL
+					</td>
+					<td>
+						最低限速,单位km/h
+					</td>
+				</tr>
+			</table>
+		
+		</div>
+		<p style="text-indent: 2em;padding-top:10px;">
+			<strong>
+				示例：
+			</strong>
+		</p>
+		<div style="padding-left:25px;padding-top:10px;overflow:auto;width:1085px;border:0px red solid;">
+			<div><input type="button" value="获取资源" onClick="WebClient.FetchResource();" style="width:auto;padding:2px 5px;" /></div>
+			<div><input type="button" value="打开所有GPS接收通道" onClick="WebClient.OpenAllGPS();" style="width:auto;padding:2px 5px;" /></div>
+			<div><input type="button" value="关闭所有GPS接收通道" onClick="WebClient.CloseAllGPS();" style="width:auto;padding:2px 5px;" /></div>
+			<div style="float:left;border:0px red solid;"><div id="resourceTree" class="resourceTree" ></div></div>
+			<div id = "gpslist" style="float:left;border:1px grey solid;width:750px;min-height:20px;height:auto;margin-left:5px;"></div>
+		</div>
+		<div style="padding-left:25px;padding-top:10px;overflow:auto;width:1085px;border:0px red solid;">
+			<div style="float:left;border:0px red solid;"> 
+				<div style="border:0px red solid;">百度地图：</div>
+				<div id = "gpsBmap" style="border:1px grey solid;width:750px;height:550px;"></div>
+			</div>
+		</div>
+		
+		<p style="text-indent: 2em;padding-top:10px;">
+			<strong>
+				JavaScript源码：
+			</strong>
+		</p>
+		<div style="padding-left:25px;padding-top:10px;overflow:auto;">
+			<pre id="preCode" style="border:0px grey solid;width:790px;">
+			<code>
+	//根据设备的PUID获取设备下子资源,返回子资源		
+	var rv = NPPILY.ForkResource(connectId,NPPILY.Enum.ForkResourceLevel.nppForkPUResourceInfo,0,	200,null,{PUID:puid});
+	//判断设备子资源中带有GPS功能的资源索引
+	if(childRes.type == NPPILY.Enum.PuResourceType.GPS){
+		//获取GPS资源索引
+	}
+	
+	//绑定事件,通过绑定的回调函数callback获取gps信息 
+	NPPILY. NCNotifyManager.Add(NPPILY.Enum.NCObjectNotify.gps_data_notify, Function callback)
+	
+	//开启设备的GPS信息接收通道,返回GPS资源句柄，通过句柄获取gps信息
+	//gpsIndex为GPS模块资源索引
+	//PUID为设备PUID
+	NPPILY.StartGPSStream(connectId, puid, gpsIndex);
+	
+    //停止设备的GPS信息接收通道
+	NPPILY.StopGPSStream( connectId,puid,gpsIndex);			
+	
+	// - 百度地图
+	var map = new BMap.Map("divID");            // 创建Map实例
+	map.enableScrollWheelZoom();          //启用滚轮放大缩小          
+	map.addControl(new BMap.NavigationControl());  //添加平移缩放控件  
+	map.addControl(new BMap.OverviewMapControl());  //添加地图缩略图控件 
+	map.centerAndZoom("城市名", 地图等级);            //设置百度地图中心和等级 
+	
+	//真实经纬度转成百度坐标，需额外引入convertor.js
+	BMap.Convertor.translate(gpsPoint,0,translateCallback);
+	
+	map.addOverlay(marker);						//添加标记点
+	map.removeOverlay(marker);				//溢出标记点
+	map.setCenter(标记点,地图等级);					  //将point坐标设置为地图中心，并设置地图显示等级
+	</code>
+			</pre>
+		</div>
+	</div>
+</body>
+</html>
+
+<script type="text/javascript">
+
+var WebClient = {
+	enableFocusMarker: false, // 标记更新坐标位置，是否允许设为地图中心点
+	
+	enableOpenGpsLogined: true, // 登录后是否允许加载资源后操作一次全部打开GPS通道
+	
+	connectId: null,
+	map: null,
+	resource: new NPPUtils.Hash(),
+	gpsHashStore: new NPPUtils.Hash(),
+	
+	Load: function() {
+		try{
+			if(!NPPILY.Plug.inited) {
+				// JavaScript源码
+				$("#preCode").snippet("javascript", { style: "acid", collapse: true, startCollapsed: false});	
+				
+				// 初始化
+				var operator = NPPILY.Init(new NPPILY.Struct.InitParamStruct(false, null, null));
+				
+				if(operator.rv != NrcapError.NRCAP_SUCCESS) {
+					alert('错误码【'+operator.rv+'】，描述【'+NrcapError.Detail(operator.rv)+'】');
+				}
+				
+				WebClient.Connect();
+			}
+		}
+		catch(e){
+			alert('excep error -> ' + e.name + ',' + e.message);
+			return false;
+		}
+	},
+	
+	// 创建连接
+	Connect: function() {
+		
+		// 创建百度地图实例
+		var map = new BMap.Map("gpsBmap");				// 创建Map实例
+		WebClient.map = map;
+		map.enableScrollWheelZoom();          			// 启用滚轮放大缩小          
+		map.addControl(new BMap.NavigationControl());  	// 添加平移缩放控件  
+		map.addControl(new BMap.OverviewMapControl());  // 添加地图缩略图控件 
+		map.centerAndZoom("合肥", 7);
+		
+		// 连接登录平台
+		var path = _npc.connParams.path || "127.0.0.1:8866";
+		var username = _npc.connParams.username || "admin";
+		var password = _npc.connParams.password || "";
+		var epId = _npc.connParams.epId || "system";
+		var bfix = _npc.connParams.bfix || 0;
+		
+		var param = new NPPIF.Struct.ConnParamStruct(path, username, epId, password, bfix);
+		
+		var operator = NPPILY.Connect(param);
+		
+		if(operator.rv == NrcapError.NRCAP_SUCCESS) {
+			WebClient.connectId = operator.response;
+		
+			// 注册事件通知、GPS数据通知等回调
+			WebClient.NCNotify.Init();
+		
+		}
+		else {
+			if($("#loginMsg")[0]) {
+				$("#loginMsg")[0].innerHTML += NrcapError.Detail(operator.rv) + "</br>";
+			}
+		}
+	},
+	
+	// 通知管理
+	NCNotify: {
+		// 句柄与响应函数映射，为了快速查找相应处理函数
+		__HANDLE_FUNC_MAP__: {},
+	 	
+		// 清除所有映射
+		ClearAll: function () {
+			this.__HANDLE_FUNC_MAP__ = {};
+		},
+		
+		// 注册映射
+		Register: function (__HANDLE__, __FUNC__) {
+			if (__HANDLE__ && typeof __FUNC__ == 'function') {
+				this.__HANDLE_FUNC_MAP__[__HANDLE__] = __FUNC__;
+			}
+		},	
+		// 撤销映射
+		UnRegister: function (__HANDLE__) {
+			if (typeof this.__HANDLE_FUNC_MAP__[__HANDLE__] != 'undefined') {
+				this.__HANDLE_FUNC_MAP__[__HANDLE__] = null;
+				delete this.__HANDLE_FUNC_MAP__[__HANDLE__];
+			}
+		},
+		
+		// 调用
+		Call: function (notify) {
+			if (notify && notify._HANDLE) {
+				if (typeof WebClient.NCNotify.__HANDLE_FUNC_MAP__[notify._HANDLE] == 'function') {
+					WebClient.NCNotify.__HANDLE_FUNC_MAP__[notify._HANDLE](notify);
+				}
+			}
+		},
+		
+		Init: function () {
+			try {
+				
+				// 只需要全局注册一次回调即可！！
+				
+				// 注册事件通知
+				NPPILY.NCNotifyManager.Add(NPPILY.Enum.NCObjectNotify.event_notify, WebClient.NCNotify.ResponseEventNotify); 
+				 
+				// 注册GPS数据通知回调
+				NPPILY.NCNotifyManager.Add(NPPILY.Enum.NCObjectNotify.gps_data_notify, function (notify) {
+					if (console) console.log(jQuery.toJSON(notify));
+					
+					WebClient.NCNotify.Call(notify);
+				}); 
+				
+				// 数据流通道状态回调
+				NPPILY.NCNotifyManager.Add(NPPILY.Enum.NCObjectNotify.stream_status_notify, function (notify) {
+					if (console) console.log(jQuery.toJSON(notify));
+					
+					WebClient.NCNotify.Call(notify);
+				}); 
+				
+			}
+			catch (e) {
+				alert('excep error -> ' + e.name + ',' + e.message);
+				return false;
+			}
+		},	
+		
+		// 特殊处理平台事件
+		ResponseEventNotify: function (notify) {
+			try {
+				// alert(jQuery.toJSON(notify));
+				
+				if (notify instanceof NPPILY.Struct.NCObjectNotifyStruct) {
+					
+					if (notify.errorCode != 0) {
+						alert('断开与平台的连接了，请重新登录平台');
+						return false;
+					}
+					else {
+						if (typeof notify.keyData == "object" && typeof notify.keyData.event != "undefined") {
+							var _EVENT = notify.keyData.event,
+								ID = _EVENT.id,
+								TIME = _EVENT.time,
+								SRCID = _EVENT.src_id,
+								SRCTYPE = _EVENT.res_type,
+								SRCIDX = _EVENT.res_idx,
+								SRCNAME = NPPUtils.UTF8toUnicode(_EVENT.res_name),
+								_DESC = _EVENT.desc || [],
+								PUNAME = (function () {
+									if (_DESC == "" || _DESC.length <= 0 || typeof _DESC == "undefined") {
+										return (SRCNAME || "");
+									}
+									else {
+										return typeof _DESC[0].PUName != "undefined" ? NPPUtils.UTF8toUnicode(_DESC[0].PUName) : (SRCNAME || "");
+									} 
+								})(),
+								MODE = "",
+								DESC = "";
+							
+							switch (ID) {
+								// 设备上线事件
+								case 'EVT_PU_Online':
+									
+									var puNode = WebClient.resource.get(SRCID);
+									
+									if (!puNode) {
+										// 获取新的设备信息
+										var operator = NPPILY.ForkResource(
+											WebClient.connectId,
+											NPPILY.Enum.ForkResourceLevel.nppForkOnePUInfo,
+											null,
+											null,
+											null, {
+												PUID: SRCID
+											}
+										); 
+										if (operator.rv == NrcapError.NRCAP_SUCCESS) {
+											WebClient.resource.set(operator.response.puid, operator.response);
+										}
+									}
+									
+									var puNode = WebClient.resource.get(SRCID);
+									
+									if (puNode) {
+									
+										puNode.online = 1;
+										
+										// 在资源树中添加显示此设备
+										var clsname = "station";
+										if (puNode.modelType == NPPILY.Enum.PuModelType.WENC) {
+											clsname = "gateway";
+										}
+										
+										var html = [];
+										html.push('<div id="'+puNode.puid+'_container" style="white-space:nowrap;">');
+										html.push('<input type=button id="'+puNode.puid+'_title" class="plus" onfocus="this.blur();" onclick="WebClient.CreatePUChildResourceTree(\''+puNode.puid+'\');" />');
+										html.push('<input type=button id="'+puNode.puid+'_ico" class="'+clsname+'" onfocus="this.blur();" onclick="WebClient.CreatePUChildResourceTree(\''+puNode.puid+'\');" />');
+										html.push('<a id="'+puNode.puid+'_href" href="javascript:void(0);" onclick="WebClient.CreatePUChildResourceTree(\''+puNode.puid+'\');">' + (PUNAME || "") + '</a>');
+										html.push('</div>'); 
+										html.push('<div id="'+puNode.puid+'_childresourcebox" class="childresourcebox_directline" style="padding-left:15px;display:none;">'); 
+										html.push('</div>');
+										
+										jQuery('#root_childresourcebox')
+											.prepend(html.join(''))
+											.find('div[id$=_childresourcebox]:last')
+											.attr('class', 'childresourcebox_blankline');
+										
+										if (true) {
+											WebClient.CreatePUChildResourceTree(puNode.puid);
+											
+											var idChildTitle = puNode.puid + "_title",
+												idChildBox = puNode.puid + "_childresourcebox";
+											
+											if (!jQuery('#' + idChildBox).is(':visible')) {
+												WebClient.Expandsion($("#" + idChildTitle)[0], $("#" + idChildBox)[0]);
+											}
+										}
+										
+										// 打开接收GPS通道
+										if (puNode.childResource && puNode.childResource.length > 0) {
+											jQuery.each(puNode.childResource, function (i, __ITEM__) {
+												// 过滤非GPS资源
+												if (__ITEM__.type != NPPILY.Enum.PuResourceType.GPS) {
+													return true;
+												}
+												
+												// 打开GPS通道
+												WebClient.StartGPS(puNode.puid, __ITEM__.type, __ITEM__.idx, puNode.name);
+											});
+										}
+									}
+									
+									break;
+								// 设备下线事件
+								case 'EVT_PU_Offline':
+									var puNode = WebClient.resource.get(SRCID);
+									
+									if (puNode) {
+										puNode.online = 0;
+										
+										// 检测是否在接收GPS，如果在接收GPS，就关闭接收，移除显示
+										WebClient.gpsHashStore.each(function (item) {
+											var node = item.value;
+											if (node.puid == puNode.puid) {
+												WebClient.CloseGPS(node.puid, node.gpsIndex);
+												
+												// 流断开需要重连移除
+												WebClient.StreamBreakRestore.UnRegister(node.puid, node.gpsIndex);
+											}
+										});
+										
+										// 从资源树中移除此显示
+										if (jQuery('#' + puNode.puid + '_container')[0]) {
+											jQuery('#' + puNode.puid + '_container').remove();
+										}
+										if (jQuery('#' + puNode.puid + '_childresourcebox')[0]) {
+											jQuery('#' + puNode.puid + '_childresourcebox').remove();
+										}
+										
+										jQuery('#root_childresourcebox')
+											.find('div[id$=_childresourcebox]:last')
+											.attr('class', 'childresourcebox_blankline');
+									}
+									
+									break;
+							}
+						}
+					} 
+				}
+				
+			}
+			catch (e) {
+				alert('excep error -> ' + e.name + ',' + e.message);
+				return false;
+			}
+		},
+		
+		end: true
+	},
+	
+	FetchResource: function () {
+		try {
+			
+			var offset = 0,
+				count = 200;
+			
+			while(true) {
+				// 只分页获取主平台下的资源
+				var operator = NPPILY.ForkResource
+				(
+					WebClient.connectId,
+					NPPILY.Enum.ForkResourceLevel.nppForkPUInfo,
+					offset,
+					count
+				);
+				if (operator.rv == NrcapError.NRCAP_SUCCESS) {
+					
+					if (typeof operator.response == "object") {
+						// - 直连设备时，只会含一个设备资源节点信息
+						if (operator.response.constructor != Array) {
+							operator.response = [operator.response];
+						}
+						jQuery.each(operator.response, function (i, item) {
+							WebClient.resource.set(item.puid, item);
+						});
+							
+						if (operator.response.length < count) {
+							break;
+						}
+						offset = offset + count;
+					}
+					else {
+						break;
+					}
+				}
+				else {
+					break;
+				}
+			}
+			
+			// alert(jQuery.toJSON(WebClient.resource.inf()));
+			
+			// 显示为资源树
+			WebClient.ListResourceTree(); 
+			
+			// 一上来先打开调用一次所有的
+			if (WebClient.enableOpenGpsLogined) {
+				WebClient.OpenAllGPS();
+			}
+		}
+		catch (e) {
+			alert('excep error -> ' + e.name + ',' + e.message);
+			return false;
+		}
+	},
+	
+	// 创建资源树
+	ListResourceTree: function () {
+		try {
+			var connectId = WebClient.connectId;
+			if (!connectId || !NPPILY.Connections.get(connectId)) {
+				logger(fn, "connectId error~");
+				return false;
+			}
+			var cs = NPPILY.Connections.get(connectId);
+			
+			var html = [], lastnode = null;
+			
+			var rootName = (cs.systemName || "NVS");
+			
+			if (cs.connType == NPPILY.Enum.ConnectionType.Device) {
+				rootName = "直连设备";
+			}
+					
+			html.push('<div style="padding-left:5px;white-space:nowrap;margin-top:5px;">');
+			html.push('<input type=button id="root_title" class="minus" onfocus="this.blur();" onclick="WebClient.Expandsion($(\'#root_title\')[0], $(\'#root_childresourcebox\')[0]);" />');
+			html.push('<input type=button id="root_ico" class="root" onfocus="this.blur();" onclick="WebClient.Expandsion($(\'#root_title\')[0], $(\'#root_childresourcebox\')[0]);" />');
+			html.push('<a id="root_href" href="javascript:void(0);" onclick="WebClient.Expandsion($(\'#root_title\')[0], $(\'#root_childresourcebox\')[0]);">' + rootName + '</a>');
+			html.push('</div>');
+			
+			html.push('<div id="root_childresourcebox" class="childresourcebox_blankline" style="padding-left:20px;">');
+			
+			WebClient.resource.each
+			(
+				function (item)
+				{
+					var node = item.value;
+					
+					if (cs.connType != NPPILY.Enum.ConnectionType.Device) {
+						if (node.modelType != NPPILY.Enum.PuModelType.ENC && node.modelType != NPPILY.Enum.PuModelType.WENC) {
+							return false;
+						}
+					} 
+					
+					// 过滤掉不在线的设备
+					if (node.online != 1) {
+						return false;
+					}
+					
+					var clsname = "station", sfx = "_disabled";
+					if (node.modelType == NPPILY.Enum.PuModelType.WENC) {
+						clsname = "gateway";
+					}
+					if (node.online == "1" && node.enable == "1") {
+						sfx = "";
+					}
+					clsname += sfx;
+					
+					html.push('<div id="'+node.puid+'_container" style="white-space:nowrap;">');
+					html.push('<input type=button id="'+node.puid+'_title" class="plus" onfocus="this.blur();" onclick="WebClient.CreatePUChildResourceTree(\''+node.puid+'\');" />');
+					html.push('<input type=button id="'+node.puid+'_ico" class="'+clsname+'" onfocus="this.blur();" onclick="WebClient.CreatePUChildResourceTree(\''+node.puid+'\');" />');
+					html.push('<a id="'+node.puid+'_href" href="javascript:void(0);" onclick="WebClient.CreatePUChildResourceTree(\''+node.puid+'\');">' + (node.name || "") + '</a>');
+					html.push('</div>'); 
+					
+					html.push('<div id="'+node.puid+'_childresourcebox" class="childresourcebox_directline" style="padding-left:15px;display:none;">'); 
+					html.push('</div>');
+					
+					lastnode = node.puid+"_childresourcebox";
+				}
+			);
+				
+			html.push('</div>');
+			
+			jQuery("#resourceTree")
+				.html(html.join(""))
+				.find("#"+lastnode)
+				.attr("class", "childresourcebox_blankline");
+		}
+		catch (e) {
+			alert('excep error -> ' + e.name + ',' + e.message);
+			return false;
+		}
+	},
+	
+	// 创建子模块资源
+	CreatePUChildResourceTree: function (puid) {
+		try {
+			var idChildTitle = puid + "_title",
+				idChildBox = puid + "_childresourcebox";
+				
+			if (puid && $("#" + idChildTitle)[0] && $("#" + idChildBox)[0]) {
+				// 子资源树为空，获取子资源并列出来
+				if ($("#" + idChildBox).html() == "") {
+					if (WebClient.resource.get(puid)) {
+						var pu = WebClient.resource.get(puid);
+						if (typeof pu.childResource == "undefined" 
+							|| !$.isArray(pu.childResource) 
+							|| pu.childResource.length <= 0)
+						{
+							var operator = NPPILY.ForkResource
+							(
+								WebClient.connectId,
+								NPPILY.Enum.ForkResourceLevel.nppForkPUResourceInfo,
+								0,
+								0,
+								"",
+								{
+									PUID: puid
+								}
+							);
+							if (operator.rv == NrcapError.NRCAP_SUCCESS) {
+								if (typeof operator.response == "object" && operator.response.constructor == Array && operator.response.length > 0) {
+									pu.childResource = operator.response;
+								}
+							}
+						} // end pu
+						
+						var html = [], lastnode = null;
+						
+						jQuery.each(pu.childResource, function (i, item) {
+							// 过滤非GPS资源
+							if (item.type != NPPILY.Enum.PuResourceType.GPS) {
+								return true;
+							}
+							var clsname = "gps", sfx = "_disabled";
+							if (pu.online == "1" && pu.enable == "1" && item.enable == "1") {
+								sfx = "";
+							}
+							clsname += sfx;
+							
+							html.push('<div style="white-space:nowrap;">');
+							html.push('<input type=button id="'+puid+'_'+item.idx+'_title" class="outline" onfocus="this.blur();" onclick="WebClient.StartGPS(\''+puid+'\', \''+item.type+'\', \''+item.idx+'\', \''+pu.name+'\');" />');
+							html.push('<input type=button id="'+puid+'_'+item.idx+'_ico" class="'+clsname+'" onfocus="this.blur();" onclick="WebClient.StartGPS(\''+puid+'\', \''+item.type+'\', \''+item.idx+'\', \''+pu.name+'\');" />');
+							html.push('<a id="'+puid+'_'+item.idx+'_href" href="javascript:void(0);" onclick="WebClient.StartGPS(\''+puid+'\', \''+item.type+'\', \''+item.idx+'\', \''+pu.name+'\');">' + (item.name || "") + '</a>');
+							html.push('</div>'); 
+							
+							lastnode = puid + "_" + item.idx + "_title";
+						});
+						
+						if (html.length <= 0) {
+							html.push('<div style="white-space:nowrap;">');
+							html.push('<input type=button id="'+puid+'_none_title" class="endline" onfocus="this.blur();" />');
+							html.push('<a id="'+puid+'_none_href" href="javascript:void(0);" style="color:brown;font-style:italic;" >（无GPS资源）</a>');
+							html.push('</div>'); 
+						}
+						
+						jQuery("#" + idChildBox)
+							.html(html.join(""))
+							.find('[id="'+lastnode+'"][class=outline]')
+							.attr("class", "endline");
+							
+					} // end if resource
+					
+				} // end empty
+				
+				WebClient.Expandsion($("#" + idChildTitle)[0], $("#" + idChildBox)[0]);
+			}
+		}
+		catch (e) {
+			alert('excep error -> ' + e.name + ',' + e.message);
+		}
+	},
+	 
+	// 打开所有GPS接收通道
+	OpenAllGPS: function () {
+		try {
+			var cs = NPPILY.Connections.get(WebClient.connectId);
+			
+			if (cs) {
+				WebClient.resource.each(function (item, index) {
+				
+					var node = item.value;
+					
+					if (cs.connType != NPPILY.Enum.ConnectionType.Device) {
+						if (node.modelType != NPPILY.Enum.PuModelType.ENC && node.modelType != NPPILY.Enum.PuModelType.WENC) {
+							return false;
+						}
+					} 
+					
+					// 过滤掉不在线的设备
+					if (node.online != 1) {
+						return false;
+					}
+					
+					// 展开处理（或者直接获取子资源）
+					if (true) {
+						WebClient.CreatePUChildResourceTree(node.puid);
+						
+						var idChildTitle = node.puid + "_title",
+							idChildBox = node.puid + "_childresourcebox";
+						
+						if (!jQuery('#' + idChildBox).is(':visible')) {
+							WebClient.Expandsion($("#" + idChildTitle)[0], $("#" + idChildBox)[0]);
+						}
+					}
+						
+					if (node.childResource && node.childResource.length > 0) {
+						jQuery.each(node.childResource, function (i, __ITEM__) {
+							// 过滤非GPS资源
+							if (__ITEM__.type != NPPILY.Enum.PuResourceType.GPS) {
+								return true;
+							}
+							
+							// 打开GPS通道
+							WebClient.StartGPS(node.puid, __ITEM__.type, __ITEM__.idx, node.name);	
+						});
+					}
+				
+				});
+			}
+			else {
+				alert('连接信息不存在！');
+			}
+			
+		}
+		catch (e) {
+			alert('excep error -> ' + e.name + ',' + e.message);
+		}
+	},
+	
+	// 关闭所有GPS接收通道
+	CloseAllGPS: function () {
+		try {
+			// 从打开的信息中关闭即可
+			if (WebClient.gpsHashStore) {
+				
+				var keys = WebClient.gpsHashStore.keys();
+				
+				jQuery.each(keys, function (index, item) {
+					var puid = item.split('_')[0];
+					var gpsIndex = item.split('_')[1];
+					
+					WebClient.CloseGPS(puid, gpsIndex);
+				});
+			}
+		}
+		catch (e) {
+			alert('excep error -> ' + e.name + ',' + e.message);
+		}
+	},
+	
+	// 打开GPS通道
+	StartGPS: function (puid, resType, gpsIndex, puName) {
+		try {
+			// gpsHashStore
+			
+			var cs = NPPILY.Connections.get(WebClient.connectId);
+			
+			if (cs) {
+				
+				var operator = NPPILY.StartGPSStream(WebClient.connectId, puid, gpsIndex);
+				if (operator.rv == NrcapError.NRCAP_SUCCESS) {
+					
+					var __KEY__ = puid + '_' + gpsIndex;
+					
+					var __HANDLE__ = operator.response;
+					
+					if (!WebClient.gpsHashStore.containsKey(__KEY__)) {
+						
+						WebClient.gpsHashStore.set(
+							__KEY__, {
+								__KEY__: __KEY__,
+								connectId: WebClient.connectId,
+								puid: puid,
+								resType: resType,
+								gpsIndex: gpsIndex,
+								puName: puName,
+								gpsHandle: __HANDLE__,
+								marker: null,  // 记录地图中标记
+								current: null, // 记录当前最新一条数据
+								data: []
+							}
+						);
+						
+						// 注册GPS数据接收句柄回调映射
+						WebClient.NCNotify.Register(
+							__HANDLE__, 
+							function (notify) {
+								WebClient.ResponseGPSNotify(__KEY__, notify); 
+							}
+						);
+						
+						// 流断开需要重连移除
+						WebClient.StreamBreakRestore.UnRegister(puid, gpsIndex);
+						 
+					}
+				}
+					
+			}
+			else {
+				alert('连接信息不存在！');
+			}
+			
+		}
+		catch (e) {
+			alert('excep error -> ' + e.name + ',' + e.message);
+		}
+	},
+	
+	// 关闭GPS通道
+	CloseGPS: function (puid, gpsIndex) {
+		try {
+			
+			var __KEY__ = puid + '_' + gpsIndex;
+			
+			if (WebClient.gpsHashStore.get(__KEY__)) {
+				var node = WebClient.gpsHashStore.get(__KEY__);
+				
+				var operator = NPPILY.StopGPSStream(WebClient.connectId, puid, gpsIndex);
+			
+				if (operator.rv == NrcapError.NRCAP_SUCCESS) {
+					
+					// 移除地图标记点
+					if (node.marker != null) {
+						node.marker.setMap(null);
+						node.marker = null;
+					}
+					
+					if (jQuery('#gpslist_' + __KEY__)[0]) {
+						jQuery('#gpslist_' + __KEY__).remove();
+					}
+					
+					// 移除句柄回调映射
+					WebClient.NCNotify.UnRegister(node.gpsHandle);
+					
+					WebClient.gpsHashStore.unset(__KEY__);
+				}
+			}
+		}
+		catch (e) {
+			alert('excep error -> ' + e.name + ',' + e.message);
+		}
+	},
+	
+	// 流断开需要重连
+	StreamBreakRestore: {
+		hashStore: new NPPUtils.Hash(),
+	
+		interval: 3000,
+		
+		ClearAll: function () {
+			this.hashStore = new NPPUtils.Hash();
+		},
+		
+		Init: function () {
+			try { 
+				var SELF = this; 
+				
+				// 注册轮询函数
+				NPPUtils.Timer.Start();
+				if (!NPPUtils.Timer.ContainsKey('stream', 'break-restore')) {
+					NPPUtils.Timer.Set('stream', {
+						name: 'break-restore',
+						fu: function () {
+							
+							if (SELF.hashStore) {
+								SELF.hashStore.each(function (item) {
+									if (console) {
+										console.log('重新申请 >> ' + item.key);
+									}
+								
+									// 打开GPS通道
+									WebClient.StartGPS(
+										item.value.puid, 
+										item.value.resType,
+										item.value.gpsIndex,
+										item.value.puName
+									);
+								}); 
+							}
+							
+						},
+						interval: SELF.interval
+					});
+				}
+			}
+			catch (e) {
+				alert('sbr :: excep error -> ' + e.name + ',' + e.message);
+			}
+		},
+		
+		Register: function (puid, resType, gpsIndex, puName) {
+			try { 
+				var SELF = this;
+				
+				WebClient.StreamBreakRestore.Init();
+				
+				var key = puid + '_' + gpsIndex;
+				
+				SELF.hashStore.set(key, {
+					key: key,
+					puid: puid,
+					resType: resType,
+					gpsIndex: gpsIndex,
+					puName: puName,
+					UTC: parseInt(new Date().getTime() / 1000),
+					status: false
+				});
+			}
+			catch (e) {
+				alert('excep error -> ' + e.name + ',' + e.message);
+			}
+		},
+		
+		UnRegister: function (puid, gpsIndex) {
+			try { 
+				var SELF = this;
+				
+				var key = puid + '_' + gpsIndex;
+				
+				if (SELF.hashStore.containsKey(key)) {
+					SELF.hashStore.unset(key);
+				}
+			}
+			catch (e) {
+				alert('excep error -> ' + e.name + ',' + e.message);
+			}
+		},
+		
+		end: true
+	},
+	
+	// 响应GPS数据通知
+	ResponseGPSNotify: function (__KEY__, notify) {
+		try { 
+			
+			var node = WebClient.gpsHashStore.get(__KEY__);
+			
+			if (node && notify) {
+				
+				if (notify.status == -1) {
+					// 关闭GPS通道
+					WebClient.CloseGPS(node.puid, node.gpsIndex);
+				
+					// 流状态通知，状态为-1说明流通道断开，需要有个重连机制
+					WebClient.StreamBreakRestore.Register(node.puid, node.resType, node.gpsIndex, node.puName);
+					
+					return false;
+				}
+				
+				var kd = notify.keyData;
+				
+				// ！！！特别注意，如果此设备为单兵MPU，那么gps_status = 3 | 4时，不需要坐标转换，为3用作高德地图，为4用作百度地图
+				
+				var needTranslate = true;
+				
+				if (kd.gps_status == 3) {
+					// 此为百度地图展示，抛弃高德地图的坐标
+					return false;
+				}
+				
+				if (kd.gps_status == 4) {
+					needTranslate = false;
+				}
+				
+				kd.longitude = Number(kd.longitude).toFixed(6);
+				kd.latitude = Number(kd.latitude).toFixed(6);
+				 
+				var gpsPoint = new BMap.Point(kd.longitude, kd.latitude);
+			
+				var cb = '__cr_bmap_cb_' + __KEY__ + '_' + kd.utc;
+				if (!window[cb]) {
+					// 坐标全局回调
+					window[cb] = function (point) {
+						
+						kd.real_latitude = Number(point.lat).toFixed(6);
+						kd.real_longitude = Number(point.lng).toFixed(6);
+						
+						node.current = kd;
+						node.data.push(kd);
+						
+						if (node.data.length > 200) {
+							// 每次清除固定条数
+							node.data.splice(0, 100);
+						}
+						
+						var statusDesc = '';
+						switch (Number(kd.gps_status)) {
+							case 0:
+							case 3:
+							case 4:
+								statusDesc = '正常';
+								break;
+							case 1:
+								statusDesc = '无信号';
+								break;
+							case 2:
+								statusDesc = '无模块';
+								break;
+						}
+						 
+						var timeStr = NPPUtils.DateFormat("yyyy-MM-dd HH:mm:ss",  new Date(parseInt(kd.utc)* 1000));
+						
+						// 标记信息框中内容
+						var infoWindowHtml = [];
+						infoWindowHtml.push('<div>设备名称：' + node.puName + '</div>');
+						infoWindowHtml.push('<div>状态：' + statusDesc + '</div>');
+						infoWindowHtml.push('<div>经度：' + kd.real_longitude + '</div>');
+						infoWindowHtml.push('<div>纬度：' + kd.real_latitude + '</div>');
+						infoWindowHtml.push('<div>速度：' + Number(kd.speed).toFixed(6) + '</div>');
+						infoWindowHtml.push('<div>时间：' + timeStr + '</div>');
+						
+						// 标记图标路径
+						var iconUrl = WebClient.GetIconUrl(kd.bearing);
+						
+						// 标记不存在就创建一个
+						if (node.marker == null) {
+							
+							node.marker = new WebClient.CustomMarkerStruct({
+								puid: node.puid,
+								gpsIndex: node.gpsIndex,
+								puName: node.puName,
+								iconUrl: iconUrl,
+								mkPoint: point,
+								map: WebClient.map,
+								infoWindowHtml: infoWindowHtml
+							});
+						}
+						else {
+							// 更新坐标、图标之类的
+							node.marker.setIcon(iconUrl);
+							// 设置信息面板内容
+							node.marker.setInfoWindow(infoWindowHtml.join(''));
+									
+							// 移动标记点
+							node.marker.move(point.lat, point.lng, WebClient.enableFocusMarker ? true : false);
+						} 
+						
+						// 页面中刷新数据显示
+						if (!jQuery('#gpslist_header')[0]) {
+							
+							var html = [];
+							
+							html.push('<table id="gpslist_table" style="text-align:center;width:100%;">');
+								html.push('<tr id="gpslist_header">');
+									html.push('<td style="width:20%;">名称</td>'); 
+									html.push('<td style="width:10%;">状态</td>'); 
+									html.push('<td style="width:15%;">经度</td>'); 
+									html.push('<td style="width:15%;">纬度</td>'); 
+									html.push('<td style="width:15%;">速度(km/h)</td>'); 
+									html.push('<td style="width:20%;">时间</td>'); 
+								html.push('</tr>');
+							html.push('</table>');
+							
+							jQuery('#gpslist').html(html.join(''));
+						}
+
+						// 设备列表容器不存在就创建一个
+						var listId = 'gpslist_' + __KEY__;
+						if (!jQuery('#' + listId)[0]) {
+							var html = [];
+							
+							html.push('<tr id="'+listId+'">');
+								html.push('<td for="name" style="width:20%;">'+node.puName+'</td>'); 
+								html.push('<td for="status" style="width:10%;">'+statusDesc+'</td>'); 
+								html.push('<td for="lng" style="width:15%;">'+kd.real_longitude+'</td>'); 
+								html.push('<td for="lat" style="width:15%;">'+kd.real_latitude+'</td>'); 
+								html.push('<td for="speed" style="width:15%;">'+Number(kd.speed).toFixed(6)+'</td>'); 
+								html.push('<td for="time" style="width:20%;">'+timeStr+'</td>'); 
+							html.push('</tr>');
+							
+							jQuery('#gpslist_table').append(html.join(''));
+						}
+						else {
+							jQuery('#' + listId + ' td[for=name]').html(node.puName);
+							jQuery('#' + listId + ' td[for=status]').html(statusDesc);
+							jQuery('#' + listId + ' td[for=lng]').html(kd.real_longitude);
+							jQuery('#' + listId + ' td[for=lat]').html(kd.real_latitude);
+							jQuery('#' + listId + ' td[for=speed]').html(Number(kd.speed).toFixed(6));
+							jQuery('#' + listId + ' td[for=time]').html(timeStr);
+							
+						}
+						
+					};
+				}
+			
+				if (needTranslate == true) {
+					// 转成百度坐标
+					if (BMap && BMap.Convertor && typeof BMap.Convertor.translate == "function") {
+						BMap.Convertor.translate(gpsPoint, 0, window[cb]);
+					}
+				}
+				else {
+					window[cb](gpsPoint);
+				}
+			}
+		}
+		catch (e) {
+			alert('excep error -> ' + e.name + ',' + e.message);
+		}
+	},
+	
+	// 自定义标记对象方法类
+	CustomMarkerStruct: function (options) {
+		try {
+			
+			var SELF = this;
+			
+			var options = options || {};
+			
+			var offsetw = options.offsetw || 32, 
+				offseth = options.offseth || 32,
+				iconsize = new BMap.Size(offsetw, offseth),
+				labelsize = new BMap.Size((0 - 3 * offsetw / 5), offseth),
+				icon = new BMap.Icon(options.iconUrl, iconsize),
+				label = new BMap.Label(options.puName, {
+					offset: labelsize,
+					position: options.mkPoint
+				});
+			
+			label.setTitle(options.puName);
+			
+			// 地图实例对象
+			this.map = options.map;
+			
+			this.icon = icon;
+			this.lebel = label;
+			
+			this.html = options.infoWindowHtml;
+			this.infoWindow = new BMap.InfoWindow(
+				options.infoWindowHtml, {
+					enableAutoPan: false,
+					maxWidth: 300 
+				}
+			);  
+			
+			this.marker = new BMap.Marker(
+				options.mkPoint, {
+					icon: icon,
+					title: options.puName
+				}
+			);
+			this.marker.setLabel(label);
+
+			this.marker.addEventListener("click", function () {
+				SELF.infoWindow.setContent(SELF.html);
+				this.openInfoWindow(SELF.infoWindow);  
+			});
+		
+			// 地图叠加标记物
+			this.map.addOverlay(this.marker);
+			
+			// - 设置文字标记内容
+			this.setLabel = function (label) {
+				if (SELF.label) {
+					SELF.label.setContent(label);	
+				}
+				else {
+					SELF.label = new BMap.Label(
+						label, {
+							offset: options.labelsize,
+							position: options.position
+						}
+					);	
+				}
+				SELF.label.setTitle(label);
+			};
+			// - 设置图标
+			this.setIcon = function (icon) {
+				if (!SELF.icon) {
+					SELF.icon = new BMap.Icon(icon, options.iconsize); 
+				}
+				else {
+					SELF.icon.setImageUrl(icon);	
+				}
+				SELF.marker.setIcon(SELF.icon);
+			};
+			// - 移动位置
+			this.move = function (lat, lng, ifSetCenter) {
+				if (typeof lat != "undefined" && typeof lng != "undefined") {
+					var point = new BMap.Point(lng, lat);
+					SELF.marker.setPosition(point);
+					if (ifSetCenter) SELF.map.setCenter(point);
+					// - 是否在最上显示
+					SELF.marker.setTop(ifSetCenter || false);
+				}
+			};
+			// - 当前位置显示为地图中心位置
+			this.showCenter = function () {
+				if (SELF.map) {
+					SELF.map.setCenter(SELF.marker.getPosition());	
+				}
+			};
+			// - 设置所属地图
+			this.setMap = function (map) {
+				if (SELF.marker) {
+					if (!map) {
+						SELF.marker.getMap().removeOverlay(SELF.marker);
+					}
+					else {
+						if (SELF.marker.getMap()) {
+							SELF.marker.getMap().removerOverlay(SELF.marker);	
+						}
+						map.addOverlay(SELF.marker);
+						SELF.map = map;
+					}
+				}
+			};
+			// - 设置显示级别
+			this.setZIndex = function(v) {
+				if(SELF.marker){
+					SELF.marker.setZIndex((v || 1000));	
+				}
+			};
+			// - 设置显示级别
+			this.setInfoWindow = function(html) {  
+				SELF.html = html || SELF.html;
+				SELF.infoWindow.setContent(SELF.html);
+				if(SELF.infoWindowOpened == true){
+					SELF.marker.openInfoWindow(SELF.infoWindow);
+				}
+			};
+		}
+		catch (e) {
+		}
+	},
+	
+	// 获取对应图标
+	GetIconUrl: function(bearing) {
+		try {
+			var icon_prefix = "emap",
+				icon_name = "01.png";
+			
+			var bearing = parseFloat(bearing) || 0; 
+			  
+			if(typeof bearing != "undefined" && !isNaN(bearing))
+			{
+				if ((bearing >= 0 && bearing < 22.5 ) || (bearing >= 337.5  && bearing <= 360))
+				{
+					icon_name = "01.png";
+				}
+				else if (bearing >= 22.5 && bearing < 67.5)
+				{
+					icon_name = "02.png";
+				}
+				else if (bearing >= 67.5 && bearing < 112.5)
+				{
+					icon_name = "03.png";
+				}
+				else if (bearing >= 112.5 && bearing < 157.5)
+				{
+					icon_name = "04.png";
+				}
+				else if (bearing >= 157.5 && bearing < 202.5)
+				{
+					icon_name = "05.png";
+				}
+				else if (bearing >= 202.5 && bearing < 247.5)
+				{
+					icon_name = "06.png";
+				}
+				else if (bearing >= 247.5 && bearing < 292.5)
+				{
+					icon_name = "07.png";
+				}
+				else if (bearing >= 292.5 && bearing < 337.5)
+				{
+					icon_name = "08.png";
+				}   
+			}
+			return icon_prefix + "/" + icon_name;  
+		}
+		catch(e) {
+			return "emap/01.png";
+		}
+	},
+	// 根据角度对应方向描述
+	BearingDetail: function(bearing) {
+		try {
+			var description = "";
+		
+			var bearing = parseFloat(bearing) || 0; 
+				
+			var bearingStr = {
+				north: "正北（方向角：{0}）",
+				east_north: "东北（方向角：{0}）",
+				east: "正东（方向角：{0}）",
+				east_south: "东南（方向角：{0}）",
+				south: "正南（方向角：{0}）",
+				west_south: "西南（方向角：{0}）",
+				west: "正西（方向角：{0}）",
+				west_north: "西北（方向角：{0}）"
+			};
+				
+			if(typeof bearing != "undefined" && !isNaN(bearing)) {
+				if((bearing >= 0 && bearing < 22.5) || 
+					(bearing >= 337.5 && bearing <= 360))
+				{
+					description = bearingStr.north;
+				}
+				else if (bearing >= 22.5 && bearing < 67.5)
+				{
+					description = bearingStr.east_north;
+				}
+				else if (bearing >= 67.5 && bearing < 112.5)
+				{
+					description = bearingStr.east;
+				}
+				else if (bearing >= 112.5 && bearing < 157.5)
+				{
+					description = bearingStr.east_south;
+				}
+				else if (bearing >= 157.5 && bearing < 202.5)
+				{
+					description = bearingStr.south;
+				}
+				else if (bearing >= 202.5 && bearing < 247.5)
+				{
+					description = bearingStr.west_south;
+				}
+				else if (bearing >= 247.5 && bearing < 292.5)
+				{
+					description = bearingStr.west;
+				}
+				else if (bearing >= 292.5 && bearing < 337.5)
+				{
+					description = bearingStr.west_north;
+				}
+				description = description.replace('{0}', bearing.toFixed(2));
+			} 
+			else {
+				description = bearing;
+			}
+			return description;	
+		}
+		catch (e) {
+			return bearing;
+		}
+	}, 
+	
+	// 资源树节点折叠或展开
+	Expandsion: function (objTitle, objBox, objIco) {
+		try {
+			var fn = "WebClient.Expandsion";
+			if (objTitle && objBox) {
+				if (objBox.style.display != "none") {
+					objBox.style.display = "none";
+					objTitle.className = "plus";
+					
+					if (objIco) {
+						objIco.className = "stationmodel_collapse";
+					}
+				}
+				else {
+					if (objBox.innerHTML == "") {
+						return false;
+					}
+					
+					objBox.style.display = "block";
+					objTitle.className = "minus";
+					
+					if (objIco) {
+						objIco.className = "stationmodel_expand";
+					}
+				}
+			}
+		}
+		catch (e) {
+			alert('excep error -> ' + e.name + ',' + e.message);
+		}
+	},
+	
+	// 卸载插件
+	UnLoad: function() {
+		WebClient.StreamBreakRestore.ClearAll();
+	
+		WebClient.CloseAllGPS();
+	
+		NPPILY.UnLoad();
+		
+		WebClient.connectId = null;
+		
+		WebClient.resource = new NPPUtils.Hash();
+		
+		WebClient.gpsHashStore = new NPPUtils.Hash();
+	},
+	
+	end:true
+}
+
+if (jQuery) {
+	// 完成加载页面
+	jQuery(document).ready(function () {
+		WebClient.Load();
+	});
+	// 卸载页面
+	jQuery(window).unload(function () {
+		WebClient.UnLoad();
+	});
+}
+else {
+	alert('页面未加载jQuery对象！！');
+}
+
+</script>

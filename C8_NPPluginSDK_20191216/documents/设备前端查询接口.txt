@@ -1,0 +1,69 @@
+﻿1、查询前端有录像存储的日期
+
+var operator = NPPILY.SG_QueryCEFSRecordDate(connectId, puid, sgIndex, ivIndex); 
+
+备注：
+	参数：
+	  connectId 登录平台连接ID（NPPILY.Connect建立）
+	  puid 设备PUID
+	  sgIndex 设备的前端存储器索引（资源类型为SG），一般取值0
+	  ivIndex 需要查询的摄像头
+	  
+	返回值：
+		
+		operator.rv == NrcapError.NRCAP_SUCCESS 成功
+		operator.response 为时间戳（UTC秒表示）对象数组，例如 [{"date":"1519833600"},{"date":"1520352000"}]
+		
+2、查询前端有图片存储的日期
+
+var operator = NPPILY.SG_QueryCEFSSnapshotDate(connectId, puid, sgIndex, ivIndex); 
+
+
+3、高级查询前端存储文件
+var operator = NPPILY.SG_CEFSQueryFilesEx (connectId, puid, sgIndex, ivIndex, intBeginTime, intEndTime, intReason, streamType);
+
+备注：
+	参数：intBeginTime 开始时间戳，比如1526054400
+	      intEndTime 结束时间戳，比如1526054400
+	      intReason 查询原因 
+			
+			比较特殊，可简单看成由拼接二进制数（基本五位"00000"，由高到低位排序4、3、2、1、0五位）转十进制而来
+			
+			查录像，0 位	前端计划录像		
+				1 位	手动录像				
+				2 位	联动录像(发生报警)		
+				3 位	联动录像(侦测到移动)	
+				4 位	联动录像(视频信号丢失)	
+			
+				示例：
+				
+					1、查询计划录像+手动录像，对应位上取1，其他为0，则 intReason = parseInt('00011', 2); => intReason = 3
+					2、查所有，那么intReason = parseInt('11111', 2); => intReason = 31
+				
+				返回值：operator.response  示例
+					[{"DiskLetter":"A","name":"180511161315.avi","path":"","reasons":"Schedule","size":"230400000","begin_time":"1526026395","end_time":"1526027295"},{"DiskLetter":"A","name":"180511162815.avi","path":"","reasons":"Schedule","size":"188160000","begin_time":"1526027295","end_time":"1526028030"},{"DiskLetter":"A","name":"180512084230.avi","path":"","reasons":"Schedule","size":"230400000","begin_time":"1526085750","end_time":"1526086650"},{"DiskLetter":"A","name":"180512085730.avi","path":"","reasons":"Schedule","size":"230400000","begin_time":"1526086650","end_time":"1526087550"},{"DiskLetter":"A","name":"180512091230.avi","path":"","reasons":"Schedule","size":"230400000","begin_time":"1526087550","end_time":"1526088450"},{"DiskLetter":"A","name":"180512092730.avi","path":"","reasons":"Schedule","size":"230400000","begin_time":"1526088450","end_time":"1526089350"}] 
+					
+				其中，注意属性size单位字节，reasons值定义参考NPPILY.Enum.CEFSRecordReason为录像原因，可能多个（会有分隔符），对应
+				
+				'Manual' 手动录像
+				'Schedule' 前端计划录像
+				'Alert' 发生报警
+				'MoveDetect' 侦测到移动
+				'SignalLost' 视频信号丢失
+					
+				如果一次没有查询所有录像，那么operator.response最后一个节点出现next_time（时间戳，表示下一次查询作为开始时间intBeginTime）
+				
+			
+			查图片，0 位	前端计划抓拍			
+				1 位	手动抓拍				
+				2 位	联动抓拍(发生报警)	
+				3 位	联动抓拍(侦测到移动)
+				4 位	联动抓拍(视频信号丢失)	
+		
+				返回值：operator.response 示例
+					 [{"name": "?", "path": "?", "reasons": "?", "size": "?", "time": "?", "no": "?"}, ...]； 示例[{"name": "140429170502.jpg", "path": "", "reasons": "Schedule", "size": "32", "time": "1398762302", "no": "0"}, {"name": "140429170502.jpg", "path": "", "reasons": "Schedule", "size": "32", "time": "1398762302", "no": "1"}, {"name": "140429170503.jpg", "path": "", "reasons": "Schedule", "size": "32", "time": "1398762303", "no": "0"}]注意属性time抓拍时间，no为同一秒内抓拍的图片编号，reasons值定义参考NPPILY.Enum.CEFSPictureReason
+			
+	    streamType 查录像传入 STORAGE 查图片传入 PICTURE
+		  
+
+# web sdk demo可能没有前端查询，可参考发布的网页客户端(http://[平台ip]:[平台WEB服务端口，一般为2580]/webclient/index.html)

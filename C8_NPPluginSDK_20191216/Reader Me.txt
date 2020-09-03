@@ -1,0 +1,35 @@
+----NPPluginSDK----
+1、目录结构：
+	/js	- 脚本库，其中包含了NPPluginSDK的核心脚本，以及市面上的公共类脚本。以方便调用。
+	/documents - 文档，其中包含了NPPluginSDK的核心脚本开发说明。
+	/examples - 示例文件夹(嵌入网页版本）包含接口参数，结构说明 
+	/demo - 示例文件夹（单独网页版本）只是功能demo,没有说明
+2、简单调用：
+		NPPInterlayer.js需要引用到调用的页面内，同时NPPInterlayer.js依赖于底层脚本库NPPInterface.js文件。NPPInterlayer.js有一个NPPILY全局对象，这个是完成所有NPPILY功能接口的全局对象，不可有其它对象与其重名。
+		举个例子：如果要想播放视频最简单的几个步骤需要如何做呢？
+		1)	您需要在页面里引入NPPInterface.js，NPPInterlayer.js
+		2)	调用初始化函数NPPILY.Init
+		3)	初始化成功后，需要连接服务器并获取资源。NPPILY.Connect，调用NPPILY. Connect后，其连接服务器成功后，会返回connectId，这个connectId在获取资源，播放视频的时候都是必须的。
+		4)	成功连接服务器后，需要获取资源。NPPILY.ForkResource，注意在ForkResource的时候一定要传connectId，ForkResource会返回Array结构的资源列表，结构说明见。每次Fork的资源只是当前节点的子资源或当前节点的描述，这个要根据传入的forkLevel决定。
+		5)	获取完资源后找到资源类型为”IV”资源后再调用播放视点的接口就可以了。
+		6)	资源的问题解决了，就是窗口了，需要创建一个窗口容器对象WindowContainer，对象放入NPPILY.WindowContainers全局对象里。WindowContainer.window需要通过NPPILY.CreateWindow函数创建。另外，视频大小根据创建的窗口容器的大小决定。
+		7)	这时候资源和窗口都已经准备完成，调用NPPILY.PlayVide，开始监看视频。
+		8)	在关闭网页前必须调用NPPILY.Unload方法，清除NPPILY对象，断开与服务器的连接。
+
+3、配置示例属性
+	打开examples/npp_examples_config.js
+	修改其中属性：
+	connParams : {
+		// - 登录平台IP
+		path : "192.168.42.118:8866",
+		// - 登录平台用户名
+		username : "admin",
+		// - 登录平台密码
+		password : "",
+		
+		// - 登录平台企业ID
+		epId : "system",
+		
+		// - 登录平台是否通过网闸模式
+		bfix : 1
+	},

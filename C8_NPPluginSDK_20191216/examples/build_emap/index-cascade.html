@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>NPP Build Emap~</title>
+     
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <!-- GLOBALS -->
+    <script type="text/javascript" src="js/globals-cascade.js"></script>
+    
+    <!-- jQuery & easyui -->
+	<script type="text/javascript" src="../../js/jquery/jquery-1.9.1.js"></script>
+    <script type="text/javascript" src="../../js/jquery/lib/jquery.cookie.js"></script>
+    <script type="text/javascript" src="../../js/jquery/lib/jquery.json-2.4.js"></script>
+    
+	<link rel="stylesheet" type="text/css" href="../../js/jquery/easyui/themes/default/easyui.css" />
+	<link rel="stylesheet" type="text/css" href="../../js/jquery/easyui/themes/icon.css" />
+	<script type="text/javascript" src="../../js/jquery/easyui/jquery.easyui.min.js"></script>
+	<script type="text/javascript" src="../../js/jquery/easyui/locale/easyui-lang-zh_CN.js"></script>
+    
+    <!-- NP SDK, must include NPPInterface.js first than NPPInterlayer.js ! -->
+    <script type="text/javascript" src="../../js/NPPInterface.js"></script> 
+    <script type="text/javascript" src="../../js/NPPInterlayer.js"></script>
+    
+    <!-- body of buildemap -->
+    <link type="text/css" rel="stylesheet" href="css/main.css" />
+    <script type="text/javascript" src="js/buildemap-cascade.js"></script>
+    
+    <!-- Page load -->
+	<script type="text/javascript">
+    if (jQuery) {
+		jQuery.extend(jQuery, {
+			stringFormatter: function (formatter) {
+				try {
+					var formatter = formatter || "";
+					if (!formatter) return formatter;
+					
+					for (var i = 1; i <= arguments.length - 1; i++) {
+						var r = new RegExp("\\{"+(i-1)+"\\}", "gm");
+						formatter = formatter.replace(r, arguments[i]); 
+					}
+				}
+				catch (e) {
+				}
+				finally {
+					return formatter || "";	
+				}
+			}
+		});
+		String.prototype.Format = function () {
+			try {
+				var format = this || "";
+				for (var i = 0; i <= arguments.length - 1; i++) {
+					var r = new RegExp("\\{" + i + "\\}", "gm");
+					format = format.replace(r, arguments[i]); 
+				}
+			}
+			catch (e) {
+			}
+			finally {
+				return format || this || "";
+			};
+		};
+		
+        $(document).ready(function() { BuildEmap.Load(); });
+        $(window).unload(function() { BuildEmap.UnLoad(); });
+        $(window).resize(function() { BuildEmap.Resize(); }); 
+    }
+    else {
+        alert("您的浏览器可能不支持jQuery~");
+    }
+    </script> 
+</head>
+<body scroll="no">
+</body>
+</html>

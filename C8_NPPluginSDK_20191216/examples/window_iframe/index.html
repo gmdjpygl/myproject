@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>内嵌IFrame对讲测试</title>
+
+<link type="text/css" rel="stylesheet" href="../../js/jquery/easyui/themes/default/easyui.css" />
+
+<link type="text/css" rel="stylesheet" href="../../js/jquery/easyui/themes/icon.css" />
+
+<script type="text/javascript" src="../../js/jquery/jquery-1.9.1.js"></script>
+	
+<script type="text/javascript" src="../../js/jquery/lib/jquery.json-2.4.js"></script>
+
+<script type="text/javascript" src="../../js/jquery/easyui/jquery.easyui.min.js"></script>
+
+<script type="text/javascript" src="../../js/jquery/easyui/locale/easyui-lang-zh_CN.js"></script>
+
+<script type="text/javascript" src="../../js/NPPInterface.js"></script>
+
+<script type="text/javascript" src="../../js/NPPInterlayer.js"></script>
+   
+<script type="text/javascript" src="../npp_examples_config.js"></script>
+
+<style type="text/css">
+body {
+	background: #eaf3fc;
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+}
+
+.video-window {
+	width: 720px;
+	height: 300px;
+	background: #1A1A1A;
+	margin: 10px auto;
+	margin: 10px auto !important;
+}
+
+.iframe-window {
+	width: 100%;
+	height: 450px;
+	border: 0px solid gray;
+}
+</style>
+
+<script type="text/javascript">
+	
+// 暂时固定平台下的单一设备参数查询
+var PU = {
+	PUID: '151038403574621820',　// 设备ＰＵＩＤ（唯一标识）
+	ivIndex: 0, // 摄像头索引
+	oaIndex: 0, // 必须保证音频输出资源存在
+	
+	end: true
+};	
+
+var VP = VideoPlay = {
+	connectId: null,
+	
+	Load: function () {
+		var operator = NPPILY.Init();
+		if (operator.rv == NrcapError.NRCAP_SUCCESS)
+		{
+			VP.Connect();
+		}
+		else
+		{
+			alert('Nrcap初始化失败 -> ' + NrcapError.Detail(operator.rv));
+		}
+	},
+	
+	UnLoad: function () {
+		NPPILY.UnLoad();
+
+		VP.connectId = null;
+	},
+	
+	Connect: function () {
+		try {
+			
+			var cpm = new NPPILY.Struct.ConnParamStruct();
+			cpm.path = _npc.connParams.path;
+			cpm.username = _npc.connParams.username;
+			cpm.password = _npc.connParams.password;
+			cpm.epId = _npc.connParams.epId;
+			cpm.bFixCUIAddress = _npc.connParams.bfix;
+			
+			var operator = NPPILY.Connect(cpm);
+			if (operator.rv == NrcapError.NRCAP_SUCCESS)
+			{
+				// 连接成功
+				VP.connectId = operator.response;
+				
+				// 播放视频
+				VP.Play();
+			}
+			else
+			{
+				alert('平台登录失败 -> ' + NrcapError.Detail(operator.rv));
+			}
+		}
+		catch (e) {
+			return false;
+		}
+	},
+		
+	Play: function () {
+		try {
+			var winkey = 'video-window';
+			
+			if (!NPPILY.WindowContainers.get(winkey)) {
+				NPPILY.WindowContainers.set(
+					winkey, 
+					new NPPILY.Struct.WindowContainerStruct(
+						jQuery('#' + winkey)[0],
+						NPPILY.Enum.WindowType.VIDEO,
+						true,
+						null,
+						null
+					)
+				);
+			}
+			
+			NPPILY.WindowContainers.each(function (item) {
+				if (item.key == winkey) {
+					
+					var node = item.value;
+					
+					if (!node.window) {
+						// 视频窗口事件，单击、云台控制、菜单等，这里默认不展示
+						var windowEvent = new NPPILY.Struct.WindowEventStruct();
+						
+						// 窗口不存在，创建一个视频窗口
+						var operator = NPPILY.CreateWindow(
+							VP.connectId, 
+							item.key, 
+							NPPILY.Enum.WindowType.VIDEO, 
+							windowEvent	
+						);
+						if (operator.rv == NrcapError.NRCAP_SUCCESS) {
+							node.window = operator.response;
+						}
+						else {
+							alert('创建视频窗口失败 -> ' + NrcapError.Detail(operator.rv));
+							return true;
+						}
+					}
+					
+					// 点播中心存储录像
+					var play_operator = NPPILY.PlayVideo(
+						VP.connectId,
+						node.window,
+						PU.PUID,
+						PU.ivIndex
+					);
+					
+					if (play_operator.rv != NrcapError.NRCAP_SUCCESS) {
+						alert('播放视频失败 -> ' + NrcapError.Detail(play_operator.rv));
+						return true;
+					}
+				}
+			});
+			
+		}
+		catch (e) {
+			return false;
+		}
+	},
+		 
+	// 开启或关闭对讲
+	Talk: function () {
+		try {
+			var oa_operator = NPPILY.CallTalkControl.GetStatus(
+				VP.connectId,
+				PU.PUID,
+				PU.oaIndex
+			);
+			
+			if (oa_operator.rv == NrcapError.NRCAP_SUCCESS) {
+				var is_talking = false;
+				if (oa_operator.response.oaStreamHandle) {
+					if (oa_operator.response.talk) {
+						is_talking = true;
+					}
+				}
+				
+				var operator;
+				
+				if (!is_talking) {
+					operator = NPPILY.CallTalkControl.StartTalk(
+						VP.connectId,
+						PU.PUID,
+						PU.oaIndex
+					);
+				}
+				else {
+					operator = NPPILY.CallTalkControl.Stop(
+						VP.connectId,
+						PU.PUID,
+						PU.oaIndex
+					);
+				}
+				
+				if (operator.rv != NrcapError.NRCAP_SUCCESS) {
+					alert('开启或关闭对讲失败 -> ' + NrcapError.Detail(operator.rv));
+				}
+			}
+			else {
+				alert('获取音频输出状态 -> ' + NrcapError.Detail(oa_operator.rv));
+			}
+		}
+		catch (e) {
+		}
+	},
+	
+	// 移除子页面
+	RemoveSubPage: function () {
+		jQuery('iframe').remove();
+	},
+	
+	end: true
+};	
+
+if (jQuery) {
+	
+	jQuery.noConflict();
+
+	jQuery(document).ready(function () {
+		VP.Load();
+	});
+	jQuery(window).unload(function () {
+		VP.UnLoad();
+	});
+}
+else {
+	alert('Your browser may not support jQuery object!');
+}
+
+function logger(fnStr, log) {
+	var outputStr = '['+fnStr+']' + log;
+	if (typeof console != "undefined") {
+		console.log(outputStr);
+	}
+	else {
+		alert(outputStr)
+	}
+}
+function excep(fnStr, e) {
+	logger(fnStr, 'excep error -> ' + e.name + "," + e.message);
+}
+
+</script>
+
+</head>
+<body>
+	<div id="video-window" class="video-window"></div>
+	
+	<center>
+		<button id="video-talk" onclick="VP.Talk();">开启/关闭对讲</button>
+		<button id="video-talk" onclick="VP.RemoveSubPage();">移除子页面</button>
+	</center>
+	
+	<hr />
+	
+	<iframe src="iframe.html" class="iframe-window"></iframe>
+</body>
+</html>

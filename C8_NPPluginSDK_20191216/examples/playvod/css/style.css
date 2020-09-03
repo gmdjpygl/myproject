@@ -1,0 +1,66 @@
+html {font-size:12px;border:0;}
+body, div, dl, dt, dd, ul, ol, li,
+h1, h2, h3, h4, h5, h6, pre, code,
+form, fieldset, legend, input, button,
+textarea, p, blockquote, th, td {margin: 0;padding: 0;}
+img {border: 0;}
+cite,em,strong,th{font-style: inherit;font-weight: inherit;}
+h1, h2, h3, h4, h5, h6 {font-size: 100%;font-weight: normal;}
+input,button,textarea,select{font-family: inherit;font-size: inherit;font-style: inherit;font-weight: inherit;}
+input,button,textarea,select{*font-size: 100%;}
+
+body {line-height: 1.5em;}
+ul {list-style: none;}
+ol{margin-left:1.5em;}
+table {border-collapse: collapse;border-spacing: 0;}
+th{text-align: left;}
+
+
+
+
+.resourceTree label {custor:pointer;color:#151515;text-decoration:none;white-space:nowrap;vertical-align:middle; }
+.resourceTree label:hover{ color:#3E43ED;text-decoration:underline; }
+
+.resourceTree .root{ cursor:pointer; width:16px; height:16px; border:0px; background-color:Transparent; background-image:url(../images/icolist.png); background-repeat:no-repeat; background-position:left top;}
+.resourceTree .station{ cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(../images/icolist.png); background-repeat:no-repeat; background-position:-16px top;}
+.resourceTree .gateway{ cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(../images/icolist.png); background-repeat:no-repeat; background-position:-368px top;} 
+
+.resourceTree .storageUnit{ cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(../images/icolist.png); background-repeat:no-repeat; background-position:-289px top; }
+.resourceTree .decstation{ cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(../images/icolist.png); background-repeat:no-repeat; background-position:-384px top; }
+
+.resourceTree .root_disabled{ cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(../images/icolist.png); background-repeat:no-repeat; background-position:-432px top;}
+.resourceTree .station_disabled{ cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(../images/icolist.png); background-repeat:no-repeat; background-position:-464px top;}
+.resourceTree .gateway_disabled{ cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(../images/icolist.png); background-repeat:no-repeat; background-position:-816px top;} 
+.resourceTree .logic_disabled{ cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(../images/icolist.png); background-repeat:no-repeat; background-position:-880px top; }
+.resourceTree .storageUnit_disabled{ cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(../images/icolist.png); background-repeat:no-repeat; background-position:-737px top;  }
+.resourceTree .decstation_disabled{ cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(../images/icolist.png); background-repeat:no-repeat; background-position:-832px top; }
+.resourceTree .gps_disabled{ cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(../images/icolist.png); background-repeat:no-repeat; background-position:-848px top; } 
+
+
+.resourceTree .inputaudio{ cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(../images/icolist.png); background-repeat:no-repeat; background-position:-64px top;}
+.resourceTree .outputaudio{ cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(../images/icolist.png); background-repeat:no-repeat; background-position:-48px top;}
+.resourceTree .inputvideo{ cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(../images/icolist.png); background-repeat:no-repeat; background-position:-80px top;}
+.resourceTree .gps{ cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(../images/icolist2.png); background-repeat:no-repeat; background-position:-545px top;}
+.resourceTree .outputvideo{ cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(../images/icolist.png); background-repeat:no-repeat; background-position:-96px top;}
+.resourceTree .serialport{cursor:pointer;width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(../images/icolist.png);background-repeat:no-repeat; background-position:-128px top;}
+.resourceTree .ptz{cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(../images/icolist.png);background-repeat:no-repeat; background-position:-160px top;}
+.resourceTree .inputdigitalline{cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(../images/icolist.png);background-repeat:no-repeat; background-position:-192px top;}
+.resourceTree .outputdigitalline{cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(../images/icolist.png);background-repeat:no-repeat; background-position:-208px top;}
+.resourceTree .speaker{cursor:pointer; border:0px; width:16px; height:16px;  background-color:Transparent; background-image:url(../images/icolist.png);background-repeat:no-repeat; background-position:-48px top;}
+.resourceTree .storager{cursor:pointer; width:16px; height:16px; border:0px; background-color:Transparent; background-image:url(../images/icolist.png);background-repeat:no-repeat; background-position:-32px top;}
+.resourceTree .voddate{cursor:pointer; width:16px; height:16px; border:0px; background-color:Transparent; background-image:url(../images/icolist.png);background-repeat:no-repeat; background-position:-208px top;}
+
+
+
+.resourceTree .logic{ cursor:default; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(../images/icolist.png); background-repeat:no-repeat; background-position:-432px top;}
+.resourceTree .plus{ cursor:default; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(../images/outline.png); background-repeat:no-repeat; background-position:left top;}
+.resourceTree .minus{ cursor:default; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(../images/outline.png); background-repeat:no-repeat; background-position:-17px top;}
+.resourceTree .directline{ cursor:pointer; width:16px; border:0px; background-color:Transparent; background-image:url(../images/outline.png); background-repeat:no-repeat; background-position:-104px top;}
+.resourcetree .blankline{cursor:pointer; width:16px; border:0px; background-color:Transparent; background-image:url(../images/outline.png); background-repeat:no-repeat; background-position:-1000px top;}
+
+.resourceTree .outline{ cursor:pointer; width:16px; border:0px; background-color:Transparent; background-image:url(../images/outline.png); background-repeat:repeat-y; background-position:-49px top;}
+.resourceTree .endline{ cursor:pointer; width:16px; border:0px; background-color:Transparent; background-image:url(../images/outline.png); background-repeat:repeat-y; background-position:-32px top;}
+.resourceTree .stationmodel_expand{ cursor:pointer; width:16px; border:0px; background-color:Transparent; background-image:url(../images/outline.png); background-repeat:no-repeat; background-position:-85px top;}
+.resourceTree .stationmodel_collapse{ cursor:pointer; width:16px; border:0px; background-color:Transparent; background-image:url(../images/outline.png); background-repeat:no-repeat; background-position:-69px top;}
+.resourceTree .childresourcebox_directline{ cursor:pointer; width:16px; border:0px; background-color:Transparent; background-image:url(../images/outline.png); background-repeat:repeat-y; background-position:-104px top;}
+.resourcetree .childresourcebox_blankline{cursor:pointer; width:16px; border:0px; background-color:Transparent; background-image:url(../images/outline.png); background-repeat:repeat-y; background-position:-1000px top;}

@@ -1,0 +1,70 @@
+#list_panel{width:250px;height:310px;float:left;text-align:left;border-left:1px #CCC solid;border-bottom:1px #CCC solid; background-color:#FAFCFC; overflow:auto;border:1px grey solid;}
+
+#list_panel input{ width:16px; height:16px; line-height:16px; vertical-align:middle; padding:0px; margin:0px;} 
+#list_panel a{cursor:pointer;color:#151515;text-decoration:none; }
+#list_panel a:link {text-decoration:none;}
+#list_panel a:visited{text-decoration:none;} 
+#list_panel a:hover{ color:#3E43ED; text-decoration:underline;}
+#list_panel a:active{text-decoration:none;}
+
+#list_panel label {custor:pointer;color:#151515;text-decoration:none;white-space:nowrap;vertical-align:middle; }
+#list_panel label:hover{ color:#3E43ED;text-decoration:underline; }
+
+#list_panel .root{ cursor:pointer; width:16px; height:16px; border:0px; background-color:Transparent; background-image:url(icolist.png); background-repeat:no-repeat; background-position:left top;}
+#list_panel .station{ cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(icolist.png); background-repeat:no-repeat; background-position:-16px top;}
+#list_panel .gateway{ cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(icolist.png); background-repeat:no-repeat; background-position:-368px top;} 
+
+#list_panel .storageUnit{ cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(icolist.png); background-repeat:no-repeat; background-position:-289px top; }
+#list_panel .decstation{ cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(icolist.png); background-repeat:no-repeat; background-position:-384px top; }
+
+#list_panel .root_disabled{ cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(icolist.png); background-repeat:no-repeat; background-position:-432px top;}
+#list_panel .station_disabled{ cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(icolist.png); background-repeat:no-repeat; background-position:-464px top;}
+#list_panel .gateway_disabled{ cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(icolist.png); background-repeat:no-repeat; background-position:-816px top;} 
+#list_panel .logic_disabled{ cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(icolist.png); background-repeat:no-repeat; background-position:-880px top; }
+#list_panel .storageUnit_disabled{ cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(icolist.png); background-repeat:no-repeat; background-position:-737px top;  }
+#list_panel .decstation_disabled{ cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(icolist.png); background-repeat:no-repeat; background-position:-832px top; }
+#list_panel .gps_disabled{ cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(icolist.png); background-repeat:no-repeat; background-position:-848px top; } 
+
+
+#list_panel .inputaudio{ cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(icolist.png); background-repeat:no-repeat; background-position:-64px top;}
+#list_panel .outputaudio{ cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(icolist.png); background-repeat:no-repeat; background-position:-48px top;}
+#list_panel .inputvideo{ cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(icolist.png); background-repeat:no-repeat; background-position:-80px top;}
+#list_panel .gps{ cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(icolist2.png); background-repeat:no-repeat; background-position:-545px top;}
+#list_panel .outputvideo{ cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(icolist.png); background-repeat:no-repeat; background-position:-96px top;}
+#list_panel .serialport{cursor:pointer;width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(icolist.png);background-repeat:no-repeat; background-position:-128px top;}
+#list_panel .ptz{cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(icolist.png);background-repeat:no-repeat; background-position:-160px top;}
+#list_panel .inputdigitalline{cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(icolist.png);background-repeat:no-repeat; background-position:-192px top;}
+#list_panel .outputdigitalline{cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(icolist.png);background-repeat:no-repeat; background-position:-208px top;}
+#list_panel .speaker{cursor:pointer; border:0px; width:16px; height:16px;  background-color:Transparent; background-image:url(icolist.png);background-repeat:no-repeat; background-position:-48px top;}
+#list_panel .storager{cursor:pointer; width:16px; height:16px; border:0px; background-color:Transparent; background-image:url(icolist.png);background-repeat:no-repeat; background-position:-32px top;}
+#list_panel .voddate{cursor:pointer; width:16px; height:16px; border:0px; background-color:Transparent; background-image:url(icolist.png);background-repeat:no-repeat; background-position:-208px top;}
+
+#list_panel .root_disabled{ cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(icolist.png); background-repeat:no-repeat; background-position:-432px top;}
+#list_panel .station_disabled{ cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(icolist.png); background-repeat:no-repeat; background-position:-464px top;}
+#list_panel .gateway_disabled{ cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(icolist.png); background-repeat:no-repeat; background-position:-816px top;} 
+
+#list_panel .inputaudio_disabled{ cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(icolist.png); background-repeat:no-repeat; background-position:-512px top;}
+#list_panel .outputaudio_disabled{ cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(icolist.png); background-repeat:no-repeat; background-position:-496px top;}
+#list_panel .inputvideo_disabled{ cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(icolist.png); background-repeat:no-repeat; background-position:-528px top;}
+#list_panel .outputvideo_disabled{ cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(icolist.png); background-repeat:no-repeat; background-position:-544px top;}
+#list_panel .serialport_disabled{cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(icolist.png);background-repeat:no-repeat; background-position:-576px top;}
+#list_panel .gps_disabled{ cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(icolist2.png); background-repeat:no-repeat; background-position:-545px -16px;}
+#list_panel .ptz_disabled{cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(icolist.png);background-repeat:no-repeat; background-position:-608px top;}
+#list_panel .inputdigitalline_disabled{cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(icolist.png);background-repeat:no-repeat; background-position:-640px top;}
+#list_panel .outputdigitalline_disabled{cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(icolist.png);background-repeat:no-repeat; background-position:-656px top;}
+#list_panel .speaker_disabled{cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(icolist.png);background-repeat:no-repeat; background-position:-496px top;}
+#list_panel .storager_disabled{cursor:pointer; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(icolist.png);background-repeat:no-repeat; background-position:-480px top;}
+#list_panel .voddate_disabled{cursor:pointer; width:16px; height:16px; border:0px; background-color:Transparent; background-image:url(icolist.png);background-repeat:no-repeat; background-position:-572px top;}
+
+
+#list_panel .logic{ cursor:default; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(icolist.png); background-repeat:no-repeat; background-position:-432px top;}
+#list_panel .plus{ cursor:default; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(outline.png); background-repeat:no-repeat; background-position:left top;}
+#list_panel .minus{ cursor:default; width:16px; height:16px;  border:0px; background-color:Transparent; background-image:url(outline.png); background-repeat:no-repeat; background-position:-17px top;}
+#list_panel .directline{ cursor:pointer; width:16px; border:0px; background-color:Transparent; background-image:url(outline.png); background-repeat:no-repeat; background-position:-104px top;}
+.resourcetree .blankline{cursor:pointer; width:16px; border:0px; background-color:Transparent; background-image:url(outline.png); background-repeat:no-repeat; background-position:-1000px top;}
+#list_panel .outline{ cursor:pointer; width:16px; border:0px; background-color:Transparent; background-image:url(outline.png); background-repeat:repeat-y; background-position:-49px top;}
+#list_panel .endline{ cursor:pointer; width:16px; border:0px; background-color:Transparent; background-image:url(outline.png); background-repeat:repeat-y; background-position:-32px top;}
+#list_panel .stationmodel_expand{ cursor:pointer; width:16px; border:0px; background-color:Transparent; background-image:url(outline.png); background-repeat:no-repeat; background-position:-85px top;}
+#list_panel .stationmodel_collapse{ cursor:pointer; width:16px; border:0px; background-color:Transparent; background-image:url(outline.png); background-repeat:no-repeat; background-position:-69px top;}
+#list_panel .childresourcebox_directline{ cursor:pointer; width:16px; border:0px; background-color:Transparent; background-image:url(outline.png); background-repeat:repeat-y; background-position:-104px top;}
+.resourcetree .childresourcebox_blankline{cursor:pointer; border:0px; background-color:Transparent; background-image:url(outline.png); background-repeat:repeat-y; background-position:-1000px top;}

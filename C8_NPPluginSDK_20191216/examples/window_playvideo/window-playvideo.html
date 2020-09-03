@@ -1,0 +1,935 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+	<title>Demo</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	 
+    <script src="../../js/jquery/jquery-1.9.1.js" type="text/javascript"></script> 
+	<script src="../../js/jquery/lib/snippet/jquery.snippet.js" type="text/javascript"></script>
+	<script src="../../js/jquery/lib/jquery.json-2.4.js" type="text/javascript"></script> 
+    <script src="../../js/NPPInterface.js" type="text/javascript"></script> 
+    <script src="../../js/NPPInterlayer.js" type="text/javascript"></script> 
+	<script src="../npp_examples_config.js" type="text/javascript"></script>
+	<link rel="stylesheet" type="text/css" href="../images/pages.css" />	
+	<link rel="stylesheet" type="text/css" href="../../js/jquery/lib/snippet/jquery.snippet.css" /> 
+	<style>
+		table,td,tr{
+			border:1px grey solid;
+		}
+		td{
+			width:250px;
+		}
+		.td_b{
+			color:blue;
+		}
+		input,button{ width:80px;margin-bottom:3px; height:22px;}
+	</style>
+</head>
+<body>
+	<h1 class="h1A">窗口连接播放视频 NPPILY.PlayVideo</h1>
+    <div class="content cc">
+		<p style="text-indent: 2em;font-size:120%">
+            当页面加载完成，在主页面获取资源以后，点击子资源的名称就可以通过windows.open()传递播放视频所需的参数给子窗口，子窗口打开并开始进行播放视频的准备工作。子窗口打开后首先初始化插件，创建连接NPPILY.Connect(connParams)。然后子窗口调用NPPILY.CreateWindow接口，该接口会创建窗口插件，返回窗口信息，并记录在NPPILY.Struct.WindowStruct。接下来子窗口利用父页面传递过来的参数调用播放视频接口NPPILY.PlayVideo()，就可以再子窗口播放视频了。具体请看下面的接口说明。
+		</p>
+		<p style="text-indent: 2em;padding-top:10px;">
+			<strong>
+				窗口信息结构 NPPILY.Struct.WindowStruct:
+			</strong>
+		</p>
+		
+		<div style="padding-left:25px;padding-top:10px;">
+			<table>
+				<tr>
+					<td>
+						变量
+					</td>
+					<td>
+						类型
+					</td>
+					<td>
+						描述
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						container
+					</td>
+					<td>
+						String NOT NULL
+					</td>
+					<td>
+						窗口容器DOM对象
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						containerId
+					</td>
+					<td>
+						String NOT NULL
+					</td>
+					<td>
+						窗口容器ID
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						wndName
+					</td>
+					<td>
+						String NOT NULL
+					</td>
+					<td>
+						窗口插件Name
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						wnd
+					</td>
+					<td>
+						Object NOT NULL
+					</td>
+					<td>
+						窗口插件对象
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						connectId
+					</td>
+					<td>
+						String NOT NULL
+					</td>
+					<td>
+						与服务器连接id
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						wndHandle
+					</td>
+					<td>
+						String NOT NULL
+					</td>
+					<td>
+						窗口句柄
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						type
+					</td>
+					<td>
+						NPPILY.Enum.WindowType NOT NULL
+					</td>
+					<td>
+						窗口类型
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						params
+					</td>
+					<td>
+						Object
+					</td>
+					<td>
+						相关视频参数
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						<div style="padding-left:40px">puid</div>
+					</td>
+					<td>
+						String NOT NULL
+					</td>
+					<td>
+						设备PUID
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						<div style="padding-left:40px">idx</div>
+					</td>
+					<td>
+						String NOT NULL
+					</td>
+					<td>
+						视频资源索引
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						<div style="padding-left:40px">streamType</div>
+					</td>
+					<td>
+						NPPILY.Enum.NrcapStreamType NOT NULL
+					</td>
+					<td>
+						流类型
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						<div style="padding-left:40px">ivStreamHandle</div>
+					</td>
+					<td>
+						String NULL
+					</td>
+					<td>
+						视频流句柄
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						<div style="padding-left:40px">iaStreamHandle</div>
+					</td>
+					<td>
+						String NULL
+					</td>
+					<td>
+						音频流句柄
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						<div style="padding-left:40px">alg</div>
+					</td>
+					<td>
+						String NULL
+					</td>
+					<td>
+						平台转码流编码算法
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						<div style="padding-left:40px">resolution</div>
+					</td>
+					<td>
+						String NULL
+					</td>
+					<td>
+						平台转码流分辨率
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						<div style="padding-left:40px">bitRate</div>
+					</td>
+					<td>
+						String NULL
+					</td>
+					<td>
+						平台转码流码率
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						<div style="padding-left:40px">frameRate</div>
+					</td>
+					<td>
+						String NULL
+					</td>
+					<td>
+						平台转码流帧率
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						<div style="padding-left:40px">speed</div>
+					</td>
+					<td>
+						String NULL
+					</td>
+					<td>
+						点播速度
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						<div style="padding-left:40px">startTime</div>
+					</td>
+					<td>
+						String NULL
+					</td>
+					<td>
+						点播开始时间
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						<div style="padding-left:40px">endTime</div>
+					</td>
+					<td>
+						String NULL
+					</td>
+					<td>
+						点播结束时间
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						<div style="padding-left:40px">fileFullPath</div>
+					</td>
+					<td>
+						String NULL
+					</td>
+					<td>
+						点播文件全路径
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						<div style="padding-left:40px">fileTimeLength</div>
+					</td>
+					<td>
+						String NULL
+					</td>
+					<td>
+						点播文件时长
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						status
+					</td>
+					<td>
+						Object
+					</td>
+					<td>
+						视频窗口状态
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						<div style="padding-left:40px">isddrawing</div>
+					</td>
+					<td>
+						Bool NULL FALSE
+					</td>
+					<td>
+						是否使用了ddraw模式
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						<div style="padding-left:40px">isplaybyP2P</div>
+					</td>
+					<td>
+						Bool NULL FALSE
+					</td>
+					<td>
+						是否使用了P2P（点对点）方式观看视频<span style="color:red">(未启用)</span>
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						<div style="padding-left:40px">recording</div>
+					</td>
+					<td>
+						Bool NULL FALSE
+					</td>
+					<td>
+						是否在本地录像
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						<div style="padding-left:40px">playaudioing</div>
+					</td>
+					<td>
+						Bool NULL FALSE
+					</td>
+					<td>
+						是否在播放音频
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						<div style="padding-left:40px">playvideoing</div>
+					</td>
+					<td>
+						Bool NULL FALSE
+					</td>
+					<td>
+						是否在播放视频
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						<div style="padding-left:40px">playvoding</div>
+					</td>
+					<td>
+						Bool NULL FALSE
+					</td>
+					<td>
+						是否在点播录像
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						<div style="padding-left:40px">isfullscreening</div>
+					</td>
+					<td>
+						Bool NULL FALSE
+					</td>
+					<td>
+						视频窗口是否在全屏
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						customParams
+					</td>
+					<td>
+						Object NULL
+					</td>
+					<td>
+						自定义参数
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						style
+					</td>
+					<td>
+						Object
+					</td>
+					<td>
+						窗口样式<span style="color:red">(未启用)</span>
+					</td>
+				</tr>
+			</table>
+		</div>
+		<p style="text-indent: 2em;padding-top:10px;">
+			<strong>
+				窗口事件信息结构 NPPILY.Struct.WindowEventStruct
+			</strong>
+		</p>
+		<div style="padding-left:25px;padding-top:10px;">
+			<table>
+				<tr>
+					<td>
+						变量
+					</td>
+					<td>
+						类型
+					</td>
+					<td>
+						描述
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						lbtn_click
+					</td>
+					<td>
+						Object NULL
+					</td>
+					<td>
+						鼠标左键点击
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						select_rect
+					</td>
+					<td>
+						Object NULL
+					</td>
+					<td>
+						矩形框选择
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						ptz_control
+					</td>
+					<td>
+						Object NULL
+					</td>
+					<td>
+						云台控制
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						fsw_show
+					</td>
+					<td>
+						Object NULL
+					</td>
+					<td>
+						显示全屏
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						fsw_hide
+					</td>
+					<td>
+						Object NULL
+					</td>
+					<td>
+						关闭全屏
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						menu_command
+					</td>
+					<td>
+						Object NULL
+					</td>
+					<td>
+						自定义右键菜单项
+					</td>
+				</tr>
+			</table>
+		</div>
+		<p style="text-indent: 2em;padding-top:10px;">
+			<strong>
+				示例：
+			</strong>
+		</p>
+		
+		<div style="padding-left:25px;padding-top:10px;overflow:auto;width:785px;border:0px red solid;">
+			<div><input type="button" value="获取资源" onClick="javascript:WebClient.FetchResource();"/></div>
+			<div style="float:left;"><div id="resourceTree" class="resourceTree" ></div></div>
+			<div id="loginMsg"></div>
+		</div>	
+		
+		<p style="text-indent: 2em;padding-top:10px;">
+			<strong>
+				JavaScript源码：
+			</strong>
+		</p>
+		<div style="padding-left:25px;padding-top:10px;overflow:auto;">
+			<!-- <pre style="border:1px grey solid;width:790px;"> -->
+			<pre id="preCode" style="border:0px grey solid;width:790px;">
+			<code>
+	// - 新建子页面事件
+	window.open();
+	// - 添加窗口事件
+	var windowAttachEvent = new NPPILY.Struct.WindowEventStruct();
+	windowAttachEvent.lbtn_click.status = true;
+	windowAttachEvent.lbtn_click.callback = function(){
+		//鼠标左键单击响应回调函数
+	}
+	windowAttachEvent.select_rect.status = true;
+	windowAttachEvent.select_rect.callback = function(){
+		/*鼠标拉选响应回调函数,注意在窗口模式为“框选”时有效，
+		  回调时callback(x1, y1, x2,y2)，其中(x1,y1)、(x2,y2)
+		  分别代表窗口中框选的左上与右下坐标*/
+	}
+	windowAttachEvent.ptz_control.status = true;
+	windowAttachEvent.ptz_control.callback = function(){
+		//窗口云台控制响应回调函数
+	}
+	windowAttachEvent.fsw_show.status = true;
+	windowAttachEvent.fsw_show.callback = function(){
+		//窗口全屏后的回调函数
+	}
+	windowAttachEvent.fsw_hide.status = true;
+	windowAttachEvent.fsw_hide.callback = function(){
+		//窗口全屏恢复后的回调函数
+	}
+	
+	
+	// - 在播放视频之前，应先调用创建窗口
+	var opeator = NPPILY.CreateWindow(connectId, windowkey, "REALTIME", windowAttachEvent);
+	if(opeator.rv == NrcapError.NRCAP_SUCCESS){
+		var  wnd = opeator.response;
+		
+		// - 播放视频
+		var playRv = NPPILY.PlayVideo(connectId,wnd,puid,idx,"REALTIME");
+		if(playRv.rv == NrcapError.NRCAP_SUCCESS){
+			// - 播放成功
+		}
+	}
+	
+	</code>
+			</pre>
+		</div>
+		
+	</div>	
+</body>
+</html>
+<script>
+var WebClient = {
+	connectId : null,
+	resource : new NPPUtils.Hash(),
+	Windowopen : new NPPUtils.Hash(),
+	wnd : null,
+	childwindow : null,
+	Load:function(){
+		//初始化
+		try{
+			if(!NPPILY.Plug.inited){
+				//初始化
+				$("#preCode").snippet("javascript", { style: "acid", collapse: true, startCollapsed: false});
+				var rv = NPPILY.Init(new NPPILY.Struct.InitParamStruct(false, null,null));
+				if(rv.rv != NrcapError.NRCAP_SUCCESS){
+					alert(NrcapError.Detail(rv.rv));
+				}
+				WebClient.Connect();
+			}
+		}
+		catch(e){
+			alert(e.name + ","+ e.message);
+			return false;
+		}
+	},
+	// - 创建连接,并记录在NPPILY.Connections中
+	Connect:function(){
+		var path = _npc.connParams.path || "127.0.0.1:8866";
+			
+		var username = _npc.connParams.username || "admin";
+		var password = _npc.connParams.password || "";
+		var epId = _npc.connParams.epId || "system";//登陆参数：企业id
+		var bfix = _npc.connParams.bfix || 0;
+		
+		var param = new NPPIF.Struct.ConnParamStruct(path,username,epId,password,bfix);
+		var conn = NPPILY.Connect(param);
+		if(conn.rv == NrcapError.NRCAP_SUCCESS){
+			WebClient.connectId = conn.response;//NPPILY.Connect接口返回的连接ID(string)
+		}else{
+			if($("#loginMsg")[0])
+				$("#loginMsg")[0].innerHTML += NrcapError.Detail(conn.rv) + "</br>";
+		}
+	},
+	/*	
+		获取资源(FetchResource)
+		connectId(string) 连接ID
+		forkLevel(NPPILY.Enum.ForkResourceLevel) 构建资源级别
+		offset(uint) 分页查询开始索引
+		count(unit) 分页查询每次最大个数
+	*/
+	FetchResource: function () {
+		try {
+			var connectId = WebClient.connectId;
+			if (!connectId || !NPPILY.Connections.get(connectId)) {
+				alert("连接信息不存在，获取资源失败");
+				return false;
+			}
+			var _connStruct = NPPILY.Connections.get(connectId),
+				rootName = "",
+				resource = [],
+				style = "cr",
+				offset = 0,
+				count = 200,
+				html = [];
+			
+			if (_connStruct.connType == NPPILY.Enum.ConnectionType.Server) {
+				rootName = _connStruct.systemName || "网络视频监控系统";
+				
+				while(true) {
+					// 分页获取所有设备资源
+					var operator = NPPILY.ForkResource
+					(
+						connectId,
+						NPPILY.Enum.ForkResourceLevel.nppForkPUInfo,
+						offset,
+						count,
+						"" // 为空获取根平台的资源 
+					);
+					if (operator.rv == 0 && operator.response) {
+						resource = resource.concat(operator.response);
+						
+						if (operator.response.length >= count) {
+							// 继续获取
+							offset = offset + count;
+						}
+						else {
+							break;
+						}
+					}
+					else {
+						// 其他错误跳出循环
+						break;
+					} 
+				};
+				// 进行在线排序
+				var onlines = [], offlines = [];
+				$.each(resource, function (index, item) {
+					if (item.online == 1 && item.enable == 1) {
+						onlines.push(item);
+					}
+					else {
+						offlines.push(item);
+					}
+				});
+				resource = [];
+				resource = resource.concat(onlines);
+				resource = resource.concat(offlines);
+			}
+			else {
+				// 直连设备
+				var operator = NPPILY.ForkResource(connectId);
+				if (operator.rv == 0 && operator.response) {
+					resource = [operator.response];
+					
+					rootName = operator.response.name || "";
+				}
+			}
+			// 记录资源信息
+			WebClient.resource.set(connectId, resource);
+			
+			if ($("#resourceTree")[0]) {
+				var lastnode = "",
+					idRootPfx = style + '_cesSystemManagement';
+				
+				html.push('<div id="' + idRootPfx + '" style="white-space:nowrap;margin-top:2px !important; margin-top:2px;">');
+					html.push('<input id="'+idRootPfx+'_img_title" type="button" class="minus" onfocus="this.blur();" onclick="WebClient.Expandsion($(\'#'+idRootPfx+'_childresourcebox\')[0], $(\'#'+idRootPfx+'_img_title\')[0]);" />');
+					html.push('<input id="'+idRootPfx+'_img_ico" type="button" class="root" onfocus="this.blur();" onclick="WebClient.Expandsion($(\'#'+idRootPfx+'_childresourcebox\')[0], $(\'#'+idRootPfx+'_img_title\')[0]);" />');
+					html.push('<label onclick="WebClient.Expandsion($(\'#'+idRootPfx+'_childresourcebox\')[0],$(\'#'+idRootPfx+'_img_title\')[0]);" title="'+rootName+'">'+rootName+'</label>');
+					// html.push('<a href="javascript:void(0);" onclick="WebClient.Expandsion($(\'#'+idRootPfx+'_childresourcebox\')[0], $(\'#'+idRootPfx+'_img_title\')[0]);" title="' + rootName + '">' + rootName + '</a>');
+				html.push('</div>');
+				
+				html.push('<div id="'+idRootPfx+'_childresourcebox" class="childresourcebox_blankline" style="padding-left:15px;">');
+				// 遍历资源
+				$.each(resource, function (index, item) {
+					var prefix = "station", suffix = "_disabled", idPfx = style + "_" + item.puid;
+					
+					if (_connStruct.connType == NPPILY.Enum.ConnectionType.Server) {
+						switch (item.modelType) {
+							case NPPILY.Enum.PuModelType.ENC:
+								prefix = "station";
+								break;
+							case NPPILY.Enum.PuModelType.WENC:
+								prefix = "gateway";
+								break;
+							default:
+								return true;
+								break;
+						}
+					}
+					
+					if (item.online == 1 && item.enable == 1) {
+						suffix = "";
+					}
+					var clsname = prefix + "" + suffix;
+					
+					html.push('<div style="white-space:nowrap;">');
+						html.push('<input id="'+idPfx+'_img_title" type="button" class="plus" onfocus="this.blur();" onclick="WebClient.FetchChildResource(\'' + item.puid + '\', \'' + style + '\');" />');
+						html.push('<input id="'+idPfx+'_img_ico" type="button" class="'+clsname+'" onfocus="this.blur();" onclick="WebClient.FetchChildResource(\'' + item.puid + '\', \'' + style + '\');" />');
+						html.push('<label onclick="WebClient.FetchChildResource(\'' + item.puid + '\', \'' + style + '\');" title="'+item.name+'">'+item.name+'</label>');
+						// html.push('<a href="javascript:void(0);" onclick="WebClient.FetchChildResource(\'' + item.puid + '\', \'' + style + '\');" title="' + item.name + '">' + item.name + '</a>');
+					html.push('</div>');
+					html.push('<div id="'+idPfx+'_childresourcebox" class="childresourcebox_directline" style="height:auto;display:none;padding-left:15px;">');
+					html.push('</div>');
+					
+					lastnode = idPfx + '_childresourcebox';
+				});
+				if (resource.length <= 0) {
+					html.push('<div style="font-style:italic;">（无设备资源）</div>');
+				}
+				html.push('</div>');
+				
+				$("#resourceTree")
+					.html(html.join(""))
+					.find("#" + lastnode)
+					.attr("class", "childresourcebox_blankline");
+			}
+		}
+		catch (e) {
+			alert("excep error -> " + e.name + "::" + e.message);
+			return false;
+		}
+	},
+	
+	/*获取子资源(FetchChildResource)
+	  puid(string) 设备PUID
+	  connectId(string) 连接ID
+	  forkLevel(NPPILY.Enum.ForkResourceLevel.nppForkPUResourceInfo) 构建资源级别
+	*/
+	FetchChildResource: function (puid, style) {
+		try {
+			var idPfx = style + "_" + puid,
+				idChildresbox = idPfx + "_childresourcebox",
+				idPUTitle = idPfx + "_img_title";
+			
+			var connectId = WebClient.connectId;
+			if (!connectId || !NPPILY.Connections.get(connectId)) {
+				alert("连接信息不存在，获取资源失败");
+				return false;
+			}
+			var _connStruct = NPPILY.Connections.get(connectId);
+			
+			if ($("#" + idChildresbox)[0]) {
+				if ($("#" + idChildresbox).html() == "") {
+					// 是否存在相关子资源信息
+					var puInfo, puChildres = [];
+					$.each(WebClient.resource.get(connectId), function(index, item) {
+						if (item.puid == puid) {
+							puInfo = item;
+							puChildres = item.childResource || [];
+							return false;
+						}
+					});
+					// 为空就去获取子资源信息
+					if (!puChildres || puChildres.length <= 0) {
+						var operator = NPPILY.ForkResource
+						(
+							connectId,
+							NPPILY.Enum.ForkResourceLevel.nppForkPUResourceInfo,
+							null,
+							null,
+							null,
+							{
+								PUID: puid
+							}
+						);
+						if (operator.rv == 0) {
+							puChildres = operator.response;
+						}
+					}
+					
+					var html = [],
+						lastnode = "";
+					
+					if (puInfo && puChildres && puChildres.length > 0) {
+						$.each(puChildres, function (index, item) {
+							var prefix = "inputvideo", suffix = "";
+							
+							if (item.type != NPPILY.Enum.PuResourceType.VideoIn) {
+								return true;
+							}
+							
+							if (puInfo.online == 0 || puInfo.enable == 0 || item.enable == 0) {
+								suffix = "_disabled";
+							}
+							
+							var clsname = prefix + "" + suffix;
+							
+							var idChildPfx = idPfx + "_" + item.type + "_" + item.idx;
+							
+							html.push('<div style="white-space:nowrap;">');
+								html.push('<input id="'+idChildPfx+'_img_title" type="button" class="outline" onfocus="this.blur();" onclick="WebClient.treeCallBack(\'' + puid + '\',\'' + item.idx + '\',\'' + style + '\',\'' + item.name + '\');" />');
+								html.push('<input id="'+idChildPfx+'_img_ico" type="button" class="'+clsname+'" onfocus="this.blur();" onclick="WebClient.treeCallBack(\'' + puid + '\',\'' + item.idx + '\',\'' + style + '\',\'' + item.name + '\');" />');
+								html.push('<label onclick="WebClient.treeCallBack(\'' + puid + '\',\'' + item.idx + '\',\'' + style + '\',\'' + item.name + '\');" title="'+item.name+'">'+item.name+'</label>');
+								// html.push('<a href="javascript:void(0);" onclick="WebClient.treeCallBack(\'' + puid + '\',\'' + item.idx + '\',\'' + style + '\',\'' + item.name + '\');" title="' + item.name + '">' + item.name + '</a>');
+							html.push('</div>');
+							
+							lastnode = idChildPfx + "_img_title";
+						});
+					}
+					else {
+						html.push('<div style="font-style:italic;">（无视频资源）</div>');
+					}
+					
+					$("#" + idChildresbox)
+						.html(html.join(""))
+						.find("#" + lastnode)
+						.attr("class", "endline");
+						
+				} // end if html()
+				
+				WebClient.Expandsion($("#" + idChildresbox)[0], $("#" + idPUTitle)[0]);
+			} 
+		}
+		catch (e) {
+			alert("excep error -> " + e.name + "::" + e.message);
+			return false;
+		}
+	},
+	
+	treeCallBack: function(puid, idx, type, name) {
+		var connectId = WebClient.connectId;
+		var PageName = "playvideo_"+puid+"_"+idx;
+		//打开子页面
+		var url = "playvideo.html?puid="+puid+"&idx="+idx+"&type="+type+"&name="+name+"&connectId="+connectId+"&PageName="+PageName+"";
+		var childwindow = window.open(url,PageName,"height=350, width=450,toolbar=no, menubar=no,scrollbars=no, resizable=no,location=no, status=no")
+		WebClient.Windowopen.set(PageName,childwindow);
+		WebClient.childwindow = childwindow;
+		
+	},
+	//资源树控制
+	Expandsion: function (obj, title, ico) {
+		if (obj) {
+			if (obj.style.display == "none") {
+				if (obj.innerHTML == "") return;
+				obj.style.display = "block";
+				if (title) title.className = "minus";
+				if (ico) {
+					ico.className = "stationmodel_expand";
+				}
+			}
+			else {
+				obj.style.display = "none";
+				if (title) title.className = "plus";
+				if (ico) {
+					ico.className = "stationmodel_collapse";
+				}
+			}
+		}
+	},
+	//卸载插件
+	UnLoad:function(){
+		WebClient.Windowopen.each(function(item){
+			var childwindow = item.value;
+			childwindow.WebClient.StopVideo();
+		});
+		NPPILY.UnLoad();
+	},
+	end:true
+}
+
+if(window.attachEvent){
+	window.attachEvent(
+		"onload",
+		function() {
+			if(WebClient && typeof WebClient == "object" && typeof WebClient.Load == "function") {		
+				WebClient.Load();    
+			}  
+		} 
+	);
+	window.attachEvent(
+		"onunload",
+		function(){
+			if(WebClient && typeof WebClient == "object" && typeof WebClient.UnLoad == "function") {		
+				WebClient.UnLoad();    
+			}  
+		}
+	);
+	window.attachEvent(
+		"onbeforeunload",
+		function(){
+			if(WebClient && typeof WebClient == "object" && typeof WebClient.UnLoad == "function") {	
+				WebClient.UnLoad();    
+			}  
+		}
+	);
+}else{
+	window.addEventListener (
+        "load",
+        function() {
+            if (WebClient && typeof WebClient == "object" && typeof WebClient.Load == "function") {
+                WebClient.Load();
+            } 
+        },
+        false
+    );
+	window.addEventListener (
+        "unload",
+        function() {
+            if (WebClient && typeof WebClient == "object" && typeof WebClient.UnLoad == "function") {
+                WebClient.UnLoad();
+            } 
+        },
+        false
+    );
+	window.addEventListener (
+        "beforeunload",
+        function() {
+            if (WebClient && typeof WebClient == "object" && typeof WebClient.UnLoad == "function") {
+                WebClient.UnLoad();
+            } 
+        },
+        false
+    );
+}
+</script>

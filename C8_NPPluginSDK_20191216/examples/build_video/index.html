@@ -1,0 +1,37 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>NPP Build Video~</title>
+     
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <link type="text/css" rel="stylesheet" href="../../js/jquery/themes/base/jquery.ui.all.css" />
+    
+    <script type="text/javascript" src="../../js/jquery/jquery-1.9.1.js"></script>
+    <script type="text/javascript" src="../../js/jquery/lib/jquery.cookie.js"></script>
+    <script type="text/javascript" src="../../js/jquery/lib/jquery.json-2.4.js"></script>
+       
+    <script type="text/javascript" src="../../js/jquery/ui/jquery-ui.js"></script>
+    
+    <!-- NP SDK, must include NPPInterface.js first than NPPInterlayer.js ! -->
+    <script type="text/javascript" src="../../js/NPPInterface.js"></script> 
+    <script type="text/javascript" src="../../js/NPPInterlayer.js"></script>
+    
+    <link type="text/css" rel="stylesheet" href="css/main.css" />
+    <script type="text/javascript" src="js/buildvideo.js"></script>
+    
+    <!-- Page load -->
+	<script type="text/javascript">
+    if (jQuery) {
+        $(document).ready(function() { BuildVideo.Load(); });
+        $(window).unload(function() { BuildVideo.UnLoad(); });
+        $(window).resize(function() { BuildVideo.Resize(); }); 
+    }
+    else {
+        alert("您的浏览器可能不支持jQuery~");
+    }
+    </script> 
+</head>
+<body scroll="no">
+</body>
+</html>

@@ -344,7 +344,7 @@
 								html.push('<input id="'+idChildPfx+'_img_title" type="button" class="outline" onfocus="this.blur();" onclick="WebClient.treeCallBack(\'' + puid + '\',\'' + item.idx + '\',\'' + style + '\',\'' + item.name + '\');" />');
 								html.push('<input id="'+idChildPfx+'_img_ico" type="button" class="'+clsname+'" onfocus="this.blur();" onclick="WebClient.treeCallBack(\'' + puid + '\',\'' + item.idx + '\',\'' + style + '\',\'' + item.name + '\');" />');
 								html.push('<label onclick="WebClient.treeCallBack(\'' + puid + '\',\'' + item.idx + '\',\'' + style + '\',\'' + item.name + '\');" title="'+item.name+'">'+item.name+'</label>');
-								// html.push('<a href="javascript:void(0);" onclick="WebClient.treeCallBack(\'' + puid + '\',\'' + item.idx + '\',\'' + style + '\',\'' + item.name + '\');" title="' + item.name + '">' + item.name + '</a>');
+								//html.push('<a href="javascript:void(0);" onclick="WebClient.treeCallBack(\'' + puid + '\',\'' + item.idx + '\',\'' + style + '\',\'' + item.name + '\');" title="' + item.name + '">' + item.name + '</a>');
 							html.push('</div>');
 							
 							lastnode = idChildPfx + "_img_title";
@@ -1088,6 +1088,10 @@
 // 页面加载
 $(document).ready(function () {
 	WebClient.Load();
+	// 日照测试参数 puid=151038401211524732&name=单兵
+	var puid=getUrlParameter("puid");
+	var name=getUrlParameter("name");
+	WebClient.PlayVideo(puid,0,name);
 });
 $(window).unload(function () {
 	WebClient.UnLoad();

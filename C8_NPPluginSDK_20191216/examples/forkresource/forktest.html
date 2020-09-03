@@ -1,0 +1,264 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+	<title>刷新测试获取子资源</title>
+    
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+	<script src="../../js/jquery/jquery-1.9.1.js" type="text/javascript"></script>
+	
+	<script src="../../js/jquery/lib/jquery.json-2.4.js" type="text/javascript"></script> 
+	
+    <script src="../../js/NPPInterface.test.js" type="text/javascript"></script> 
+    
+    <script src="../../js/NPPInterlayer.test.js" type="text/javascript"></script>
+    
+	<script src="../npp_examples_config.js" type="text/javascript"></script>
+    
+    <script type="text/javascript">
+    
+    var ForkTest = {
+    	connectId: null,
+    	
+    	Load: function () {
+    		try {
+    			var fn = 'ForkTest.Load';
+    			
+    			var operator = NPPILY.Init();
+    			if (operator.rv == 0) {
+    				
+    				var path = _npc.connParams.path || "127.0.0.1:8866";
+    				var username = _npc.connParams.username || "admin";
+    				var password = _npc.connParams.password || "";
+    				var epId = _npc.connParams.epId || "system";
+    				var bfix = _npc.connParams.bfix || 0;
+    				
+    				var cpm = new NPPIF.Struct.ConnParamStruct(
+    					path,
+    					username,
+    					epId,
+    					password,
+    					bfix
+    				);
+    				
+    				var operator = NPPILY.Connect(cpm);
+    				
+    				if (operator.rv != 0) {
+        				t_logger(fn, 'NPPILY.Connect error -> ' + operator.rv);
+    				}
+    				else {
+    					ForkTest.connectId = operator.response;
+    					
+    					jQuery('#t_start').click(function () {
+    						ForkTest.Start();
+    					});
+    					jQuery('#t_stop').click(function () {
+    						ForkTest.Stop();
+    					});
+    					jQuery('#t_clear').click(function () {
+    						jQuery('#t_logs').val('');
+    						return false;
+    					});
+    					jQuery('#t_interval').change(function () {
+    						ForkTest.Stop();
+    						ForkTest.Start();
+    					});
+    					
+    					jQuery('#t_start').click();
+    				}
+    			}
+    			else {
+    				t_logger(fn, 'NPPILY.Init error -> ' + operator.rv);
+    			}
+    			
+    		}
+    		catch (e) {
+    			t_excep(fn, e);
+    		}
+    	},
+
+    	Start: function () {
+    		try {
+    			var fn = 'ForkTest.Start';
+    			
+    			if (ForkTest.connectId != null) {
+    				
+    				var PUID = jQuery('#t_PUID').val();
+    				
+    				if (!PUID) {
+    					alert('PUID为空');
+    					return false;
+    				}
+    				
+    				var tInterval = jQuery('#t_interval').val();
+    				
+    				var t_ivNum = jQuery('#t_ivNum').val();
+    				
+    				var _frFunc = function () {
+    					var operator = NPPILY.ForkResource(
+   	    					ForkTest.connectId, 
+   	    					NPPILY.Enum.ForkResourceLevel.nppForkOnePUInfo, 
+   	    					0, 
+   	    					0, 
+   							'', {
+   	    						PUID: PUID
+   	    					} 
+   	    				);
+    					
+    					// t_logger(fn, jQuery.toJSON(operator));
+    					
+    					if (operator.rv == 0) {
+    						var pu = operator.response;
+    						
+    						var ivs = [];
+    						jQuery.each(pu.childResource || [], function (index, item) {
+    							if (item.type == NPPILY.Enum.PuResourceType.VideoIn) {
+    								ivs.push(item);
+    							}
+    						});
+    						
+	    					t_logger(fn, 'ivs[' + ivs.length + '] -> ' + jQuery.toJSON(ivs));
+	    					
+	    					if (ivs.length < t_ivNum) {
+		    					t_logger(fn, '资源数异常，已停止获取');
+	    						
+	    						// 停止
+	    						jQuery('#t_stop').click();
+	    					}
+    					}
+    				};
+    				
+					NPPUtils.Timer.Start();
+					NPPUtils.Timer.Set('refresh', {
+						name: 'forktest',
+						fu: function () {
+							_frFunc();
+						},
+						interval: tInterval
+					});
+    				
+					_frFunc();
+    			}
+    		}
+    		catch (e) {
+    			t_excep(fn, e);
+    		}
+    		
+    	},
+    	
+    	Stop: function () {
+    		try {
+    			var fn = 'ForkTest.Stop';
+    			
+    			if (ForkTest.connectId != null) {
+    				NPPUtils.Timer.UnSet('refresh', 'forktest');
+    			}
+    		}
+    		catch (e) {
+    			t_excep(fn, e);
+    		}
+    		
+    	},
+    	
+    	UnLoad: function () {
+    		try {
+    			var fn = 'ForkTest.UnLoad';
+    			
+    			if (ForkTest.connectId != null) {
+    				
+    				NPPILY.UnLoad();
+    				
+    				ForkTest.connectId = null;
+    				
+    				NPPUtils.Timer.UnSet('refresh', 'forktest');
+    			}
+    		}
+    		catch (e) {
+    			t_excep(fn, e);
+    		}
+    		
+    	},
+    	
+    	end: true	
+    };
+    
+    var t_excep = function (fn, e) {
+    	logger(fn, 'excep error -> ' + e.name + ',' + e.message);
+    };
+    
+    var t_logtimes = 1;
+    
+    var t_logger = function (fn, logContent) {
+    	try {
+    		if (t_logtimes++ > 100) {
+            	jQuery('#t_logs').val('');
+    			
+    			t_logtimes = 1;
+    		}
+    		
+    		var time = NPPUtils.DateFormat('yyyy-MM-dd HH:mm:ss');
+    		
+    		var output = "[" + time + "][" + fn + "]" + logContent + "\r\n\r\n";
+    		
+        	jQuery('#t_logs').prepend(output);
+    		
+    		if (typeof console != "undefined") {
+    			console.log(output)
+    		}
+    		
+    	}catch (e) {	
+    	}
+    };
+
+    jQuery(document).ready(function () {
+    	ForkTest.Load();
+    });
+    jQuery(window).unload(function () {
+    	ForkTest.UnLoad();
+    });
+    
+    </script>
+	
+</head>
+<body style="background:#eaf3fc;">
+	
+	<table width="100%" height="100%" border="0" style="margin:0px;padding:0px;">
+		
+		<tr>
+			<td>
+				<label>设备PUID：</label>
+				<input type="text" id="t_PUID" value="151038401209601148" style="width:145px;" />
+			</td>
+			<td>
+				<label>摄像头数量：</label>
+				<input type="text" id="t_ivNum" value="5" style="width:45px;" />
+			</td>
+			<td>
+				<label>刷新获取间隔（毫秒）：</label>
+				<select id="t_interval" style="width:145px;">
+					<option selected>1000</option>
+					<option>2000</option>
+					<option>3000</option>
+					<option>5000</option>
+					<option>10000</option>
+					<option>30000</option>
+				</select>
+			</td>
+			<td>
+				<label>操作：</label>
+				<input type="button" id="t_start" value="开始" />
+				<input type="button" id="t_stop" value="停止" />
+				<input type="button" id="t_clear" value="清空" />
+			</td>
+		</tr>
+		
+		<tr>
+			<td colspan="4">
+				<textarea id="t_logs" style="width:100%;height:570px;">
+				</textarea>
+			</td>
+		</tr>
+	</table>
+	
+</body>
+</html>

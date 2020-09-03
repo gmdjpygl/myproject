@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title></title>
+		<script type="text/javascript" src="src/easyui/jquery.min.js" ></script>
+		<script type="text/javascript" src="src/easyui/jquery.easyui.min.js" ></script>
+		<script type="text/javascript" src="src/easyui/jquery.json-2.4.js" ></script>
+		<script type="text/javascript" src="src/easyui/custom.hash.js" ></script>
+		<script type="text/javascript" src="src/prototype/prototype_1.7.js" ></script>
+		<script type="text/javascript" src="../../js/NPPInterface.js" ></script> 
+        <script type="text/javascript" src="../../js/NPPInterlayer.js"></script>
+        <script type="text/javascript" src="../npp_examples_config.js" ></script>
+        <script type="text/javascript" src="js/Client.js" ></script>
+        <script type="text/javascript" src="js/WebClient.js" ></script>
+		<link rel="stylesheet" href="src/easyui/themes/default/easyui.css" />
+		<link rel="stylesheet" href="src/easyui/themes/icon.css" />
+		<link rel="stylesheet" href="themes/images/style.css" />
+	</head>
+	<body class="easyui-layout">
+	    <div data-options="region:'west',border:false" style="width:250px;">
+	    	<div id='list_panel' class="easyui-panel" title="设备列表" style="border-bottom: 0px;">	
+	    	</div>
+	    	<div id='control_panel' class="easyui-panel">
+	    		<div style="margin-top: 10px;">
+	    			<label for="time_interval">时间间隔：</label>
+		    		<select id="time_interval" class="easyui-combobox" name="interval" style="width:182px">
+					    <option>2</option>
+					    <option>3</option>
+					    <option>4</option>
+					    <option>5</option>
+					    <option>6</option>
+					</select>
+	    		</div>
+	    		<div style="margin-top: 10px;">
+	    			<label for="frame_number">画面数量：</label>
+		    		<select id="frame_number"  name="frame" style="width:182px">
+					    <option>1</option>
+					    <option>4</option>
+					    <option>9</option>
+					    <option>16</option>
+					    <option>25</option>
+					    <option>36</option>
+					</select>
+	    		</div>
+	    		<div style="margin-top: 10px;">
+	    			<a id="create" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-add'" style="margin: 10px 20px;">新建窗口</a>
+	    			<a id="save" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-save',disabled:true" style="margin: 10px 20px;">保存窗口</a>
+	    		</div>
+	    		<div style="margin-top: 10px;">
+	    			<a id="start" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-ok',disabled:true" style="margin: 10px 20px;">开始轮循</a>
+	    			<a id="stop" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-no',disabled:true" style="margin: 10px 20px;">暂停轮循</a>
+	    		</div>
+	    	</div>
+	    </div>
+	    <div data-options="region:'center',title:'视频分组',border:false" style="background:#eee;">
+	    	<div id="tab_group" data-options="border:false" class="easyui-tabs">    
+			</div>
+	    </div>
+	</body>
+</html>
+<script>
+	
+</script>

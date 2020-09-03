@@ -1,0 +1,113 @@
+.map-container {width:100%;height:100%;border:0px solid gray;}
+
+.warmTip-ul {list-style:;}
+li {line-height:20px;}
+.warmTip-ul a {color:blue;text-decoration:underline;}
+.warmTip-ul a:link {}
+.warmTip-ul a:hover {color:red;text-decoration:none;}
+.warmTip-ul a:active {}
+.warmTip-ul a:visited {color:blue;text-decoration:none;}
+
+.login-window-body { width:90%;height:70%;margin:15px auto;border:1px #CCCCCC solid; }
+.login-window-control { width:90%;height:30px;margin:0px auto;text-align:right;border:0px #CCCCCC solid; }
+.login-window-table {width:100%;height:80%;border:0px;margin:10px auto;}
+.login-submit, .login-reset {width:70px;}
+
+.control-top {width:99%;height:99%;margin:auto;}
+.control-bottom {width:99%;height:99%;margin:auto;}
+
+.control-windows {width:100%;height:300px;margin-top:1px;}
+.control-buttons {width:100%;height:60px;border-top:1px dashed #E6EEF8;}
+
+/* custom icons */
+.custom-icon-rular { width:16px;height:16px;background: url(../images/rular.png) no-repeat 2px 1px;  }
+
+
+/* --- windows box zone --- */
+.wintitle { color:#15428B;border-top:1px #FFFFFF solid; }
+.wintitle .title1 { float:left; width: 69%; height:18px;line-height:18px;vertical-align:middle;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; text-indent:2px;}
+.wintitle .title2 { float:left; width: 30%; height:18px;line-height:18px;vertical-align:middle;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+
+.winbox1 { float:left;cursor:default;width:1000px;height:500px;margin-top:0px;margin-top:0px !important;margin-left:1px;margin-left:1px !important;background-color:#9BCAF3;border:1px #FFFFFF solid;}
+.winbox1 .win { width:100%;height:482px;background-color:#1A1A1A;}
+.winbox1 .windowtitle { }
+
+.winbox4 { float:left;cursor:default;width:500px;height:245px;margin-top:0px;margin-top:0px !important;margin-left:1px;margin-left:1px !important;background-color:#9BCAF3;border:1px #FFFFFF solid;}
+.winbox4 .win { height:100%;background-color:#1A1A1A; }
+.winbox4 .windowtitle { }
+
+.winbox9 { float:left;cursor:default;width:500px;height:245px;margin-top:0px;margin-top:0px !important;margin-left:1px;margin-left:1px !important;background-color:#9BCAF3;border:1px #FFFFFF solid;}
+.winbox9 .win { height:100%;background-color:#1A1A1A; }
+.winbox9 .windowtitle { }
+
+.winbox16 { float:left;cursor:default;width:500px;height:245px;margin-top:0px;margin-top:0px !important;margin-left:1px;margin-left:1px !important;background-color:#9BCAF3;border:1px #FFFFFF solid;}
+.winbox16 .win { height:100%;background-color:#1A1A1A; }
+.winbox16 .windowtitle { }
+
+.winbox6 { float:left;cursor:default;width:500px;height:245px;margin-top:0px;margin-top:0px !important;margin-left:1px;margin-left:1px !important;background-color:#9BCAF3;border:1px #FFFFFF solid; }
+.winbox6 .win { height:100%;background-color:#1A1A1A; }
+.winbox6 .windowtitle { }
+
+/* video status */
+.video_readying { float:right;cursor:default;width:16px;height:16px;background-color:transparent;background:url(../images/videostatus.png) no-repeat left center;border:0px gray solid; }
+.video_buffering { float:right;cursor:default;width:16px;height:16px;background-color:transparent;background:url(../images/videostatus.png) no-repeat -16px center;border:0px gray solid; }
+.video_playing { float:right;cursor:default;width:16px;height:16px;background-color:transparent;background:url(../images/videostatus.png) no-repeat -32px center;border:0px gray solid; }
+.video_HD_readying { float:right;cursor:default;width:16px;height:16px;background-color:transparent;background:url(../images/videostatus.png) no-repeat -48px center;border:0px gray solid; }
+.video_HD_buffering { float:right;cursor:default;width:16px;height:16px;background-color:transparent;background:url(../images/videostatus.png) no-repeat -64px center;border:0px gray solid; }
+.video_HD_playing { float:right;cursor:default;width:16px;height:16px;background-color:transparent;background:url(../images/videostatus.png) no-repeat -80px center;border:0px gray solid; }
+.video_conputer { float:right;cursor:default;width:16px;height:16px;background-color:transparent;background:url(../images/videostatus.png) no-repeat -96px center;border:0px gray solid; }
+.video_recording { float:right;cursor:default;width:16px;height:16px;background-color:transparent;background:url(../images/videostatus.png) no-repeat -112px center;border:0px gray solid; }
+.video_playaudioing { float:right;cursor:default;width:16px;height:16px;background-color:transparent;background:url(../images/videostatus.png) no-repeat -128px center;border:0px gray solid; }
+.video_calling { float:right;cursor:default;width:16px;height:16px;background-color:transparent;background:url(../images/videostatus.png) no-repeat -144px center;border:0px gray solid; }
+.video_ddraw_disabled { float:right;cursor:default;width:16px;height:16px;background-color:transparent;background:url(../images/videostatus.png) no-repeat -160px center;border:0px gray solid; }
+.video_ddrawing { float:right;cursor:default;width:16px;height:16px;background-color:transparent;background:url(../images/videostatus.png) no-repeat -178px center;border:0px gray solid; }
+.video_p2p { float:right;cursor:default;width:16px;height:16px;background-color:transparent;background:url(../images/videostatus.png) no-repeat -242px center;border:0px gray solid; }
+
+.oa_calling { float:right;cursor:default;width:16px;height:16px;background-color:transparent;background:url(../images/RibbonVPCategorySmall.png) no-repeat -176px center;border:0px gray solid; }
+.oa_calling_hot { float:right;cursor:default;width:16px;height:16px;background-color:transparent;background:url(../images/RibbonVPCategorySmall.png) no-repeat -192px center;border:0px gray solid; }
+.oa_talking { float:right;cursor:default;width:16px;height:16px;background-color:transparent;background:url(../images/RibbonVPCategorySmall.png) no-repeat -208px center;border:0px gray solid; }
+.oa_talking_hot { float:right;cursor:default;width:16px;height:16px;background-color:transparent;background:url(../images/RibbonVPCategorySmall.png) no-repeat -224px center;border:0px gray solid; }
+
+
+/* control-buttons */
+.control-buttons .container { display:inline-block;width:20px;height:20px;padding:0;margin-top:5px;margin-left:5px;border:1px gray dashed;border-radius:4px; }
+.control-buttons .stopvideo { position:relative;top:2px;left:2px;width:16px;height:16px;background:url("../images/RibbonVPCategorySmall.png") no-repeat left center;background-color:transparent;border:0px solid gray; }
+
+.control-buttons .audio { position:relative;top:2px;left:2px;width:16px;height:16px;background:url("../images/RibbonVPCategorySmall.png") no-repeat -144px center;background-color:transparent;border:0px solid gray; }
+
+.control-buttons .localsnapshot { position:relative;top:2px;left:2px;width:16px;height:16px;background:url("../images/RibbonVPCategorySmall.png") no-repeat -80px center;background-color:transparent;border:0px solid gray; }
+
+.control-buttons .localrecord { position:relative;top:2px;left:2px;width:16px;height:16px;background:url("../images/RibbonVPCategorySmall.png") no-repeat -16px center;background-color:transparent;border:0px solid gray; }
+
+.control-buttons .fullscreen { position:relative;top:2px;left:2px;width:16px;height:16px;background:url("../images/RibbonVPCategorySmall.png") no-repeat -240px center;background-color:transparent;border:0px solid gray; }
+
+.control-buttons .switchddraw { position:relative;top:2px;left:2px;width:16px;height:16px;background:url("../images/RibbonVPCategorySmall.png") no-repeat -288px center;background-color:transparent;border:0px solid gray; }
+
+.control-buttons .opensnapshotdir { position:relative;top:2px;left:2px;width:16px;height:16px;/*background:url("") no-repeat -288px center;*/background-color:transparent;border:0px solid gray; }
+
+.control-buttons .openrecorddir { position:relative;top:2px;left:2px;width:16px;height:16px;/*background:url("") no-repeat -288px center;*/background-color:transparent;border:0px solid gray; }
+
+
+.control-buttons .window_1 { position:relative;top:2px;left:2px;width:16px;height:16px;background:url("../images/window_1.gif") no-repeat center;background-color:transparent;border:0px solid gray; }
+
+.control-buttons .window_4 { position:relative;top:2px;left:2px;width:16px;height:16px;background:url("../images/window_4.gif") no-repeat center;background-color:transparent;border:0px solid gray; }
+
+.control-buttons .window_9 { position:relative;top:2px;left:2px;width:16px;height:16px;background:url("../images/window_9.gif") no-repeat center;background-color:transparent;border:0px solid gray; }
+
+.control-buttons .window_16 { position:relative;top:2px;left:2px;width:16px;height:16px;background:url("../images/window_16.gif") no-repeat center;background-color:transparent;border:0px solid gray; }
+
+.control-buttons .window_6 { position:relative;top:2px;left:2px;width:16px;height:16px;background:url("../images/window_6.gif") no-repeat center;background-color:transparent;border:0px solid gray; }
+
+.control-buttons .settings { position:relative;top:2px;left:2px;width:16px;height:16px;background:url("../images/icons-18-black.png") no-repeat -289px center;background-color:transparent;border:0px solid gray; }
+
+
+.settings-table { width:98%;height:100px;border:0px;margin:10px auto; }
+/*.dir-select { width:16px;height:16px;line-height:16px;vertical-align:middle;background:url() no-repeat center; }
+.dir-open { width:16px;height:16px;line-height:16px;vertical-align:middle;background:url() no-repeat center; }*/
+
+
+.loading {background-image:url(../images/loading.gif);background-repeat:no-repeat;background-position:2px center;}
+
+.root {width:16px;height:20px;line-height:20px;vertical-align:middle;display:inline-block;background-image:url(../images/icolist.png);background-repeat:no-repeat;background-position:left center;}
+.middle {height:20px;line-height:20px;vertical-align:middle;}
+

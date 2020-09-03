@@ -1,0 +1,84 @@
+一、查询平台历史事件
+
+接口：
+	NPPILY.EventLog.QueryHistoryEventLog(connectId, options);
+
+参数：
+	connectId * 连接ID
+    options * 查询条件
+	{
+	   beginTime: ?, // 查询开始时间（UTC时间戳）
+	   endTime: ?, // 查询结束时间（UTC时间戳）
+	   offset: ?, // 分页查询偏移量
+	   count: ?, // 分页查询条数，建议每次200
+	   ID: ?, // 事件ID列表数组
+	   processed: ?, // 是否处警过
+	   processIP: ?, // 处境用户来源IP
+	   processUserID: ?, // 处境用户
+	   resourceSets: ? // 查询的设备对象集合
+	}
+
+示例：
+	
+	var options = {
+		beginTime: 1558935796,
+		endTime: 1559022196,
+		offset: 0,
+		count: 200,
+		ID: ['EVT_PU_Online','EVT_PU_Offline','EVT_ST_EmergentAlert'],
+		processed: '',
+		processUserID: '',
+		processIP: '',
+		resourceSets: [{
+			objID: '1573E5BC521C68946B',
+			resIdx: 0
+		}]
+	}
+	
+	var operator = NPPILY.EventLog.QueryHistoryEventLog(connectId, options);
+	
+	if (operator.rv == NrcapError.NRCAP_SUCCESS)
+	{
+		// 返回值示例（operator.response =>）：
+		
+		[{
+			"objType":"151",
+			"objID":"1573E5BC521C68946B",
+			"type":"SELF",
+			"idx":"0",
+			"event_index":"7153",
+			"event_name":"Event",
+			"ID":"EVT_PU_Online",
+			"time":"1558942304",
+			"level":0,
+			"ignoreFlag":"0",
+			"srcIDType":"151",
+			"srcID":"1573E5BC521C68946B",
+			"resType":"SELF",
+			"resIdx":"0",
+			"resName":"1573E5BC521C68946B",
+			"description":null,
+			"CU":null,
+			"process":null
+		},{
+			"objType":"151",
+			"objID":"1573E5BC521C68946B",
+			"type":"SELF",
+			"idx":"0",
+			"event_index":"7217",
+			"event_name":"Event",
+			"ID":"EVT_ST_EmergentAlert",
+			"time":"1558942578",
+			"level":0,
+			"ignoreFlag":"0",
+			"srcIDType":"151",
+			"srcID":"1573E5BC521C68946B",
+			"resType":"SELF",
+			"resIdx":"0",
+			"resName":"1573E5BC521C68946B",
+			"description":null,
+			"CU":null,
+			"process":null
+		},...]
+	
+	}

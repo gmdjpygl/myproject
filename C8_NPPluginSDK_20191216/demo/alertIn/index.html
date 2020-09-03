@@ -1,0 +1,1381 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>报警配置与事件通知</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <link href="main.css" rel="stylesheet" type="text/css" />
+    
+    <script src="../../js/jquery/jquery-1.9.1.js" type="text/javascript"></script>
+    <script src="../../js/jquery/lib/jquery.cookie.js" type="text/javascript"></script> 
+    <script src="../../js/jquery/lib/jquery.json-2.4.js" type="text/javascript"></script>
+   	
+    <script src="../../js/NPPInterface.js" type="text/javascript"></script> 
+    <script src="../../js/NPPInterlayer.js" type="text/javascript"></script>
+    
+    <script src="guardtimemap.js" type="text/javascript"></script>
+    
+    <script type="text/javascript">
+	<!-- 注册页面加载事件 -->
+	if (typeof jQuery != "undefined") {
+		$(document).ready(function () { WebClient.Load(); WebClient.Resize(); });				
+		$(window).unload(function () { WebClient.UnLoad(); });	
+		$(window).resize(function () { WebClient.Resize(); });	
+	}
+	else {
+		alert("jQuery加载失败或页面不支持~");
+	} 
+    </script>
+</head>
+<body> 
+<div class="header">
+	<!-- 登录 -->
+    <div id="loginBox" class="loginBox">
+    	<input id="loginButton" type="button" value="登录" onclick="WebClient.Operator('login');" />
+        &nbsp;<label>ip:</label><input id="ip" type="text" value="61.191.26.2" style="width:120px;" />
+        &nbsp;<label>port:</label><input id="port" type="text" value="9866" style="width:50px;" />
+        &nbsp;<label>username:</label><input id="username" type="text" value="admin" style="width:60px;" />
+        &nbsp;<label>epid:</label><input id="epid" type="text" value="system" style="width:60px;" />
+        &nbsp;<label>password:</label><input id="password" type="password" value="" style="width:60px;" />
+        &nbsp;<label>bfix:</label><input id="bfix" type="checkbox" style="width:20px;" />
+    </div>
+</div>
+<div class="middle">
+    <!-- 资源树 -->
+    <div id="resourceTreeBox" class="resourceTreeBox">
+    	<div class="top">资源树</div>
+    	<div class="bottom_1"></div>
+    </div>
+	<!-- 报警管理部分 -->
+    <div id="deviceManagerBox" class="deviceManagerBox">
+    	<div class="top">报警配置管理</div>
+    	<div class="bottom_2"></div>
+    </div>
+</div>
+<div class="footer">
+	<!-- 事件通知显示 -->
+    <div class="top">事件通知</div>
+    <div class="bottom_3"></div>
+</div>
+ 
+</body>
+</html>
+
+<script type="text/javascript">
+var WebClient = 
+{
+	version: "v2014.01.03",
+	
+	connectId: null,
+	
+	// - 是否开启调试
+	debug: true,
+	// - 语言风格
+	language: "zh_CN",
+	// - 插件文件路径
+	pluginFile: "../../MediaPlugin8.exe",
+	
+	Load: function () {
+		try {
+			var fn = "WebClient.Load";
+			
+			// - 初始化信息对象 
+			var ips = new NPPILY.Struct.InitParamStruct
+			(
+				WebClient.debug, // - 打开调试后使用logger(...)才有效
+				function (msgStruct) {
+					if (typeof console != "undefined") {
+						console.log($.toJSON(msgStruct));	
+					}	
+				},
+				{
+					language: WebClient.language,
+					warmTip : {
+						active : true,
+						pluginFile : WebClient.pluginFile
+					}
+				}
+			);
+			
+			// - 初始化NPPILY对象
+			var operator = NPPILY.Init(ips);
+			if (operator.rv == 0) {
+				// - 立刻登录
+				WebClient.Operator("login");
+			} 
+		}
+		catch (e) {
+			logger(fn, e.message + "::" + e.name);
+		}
+	},
+	UnLoad: function () {
+		try {
+			var fn = "WebClient.UnLoad";
+			
+			WebClient.Operator("logout");
+			
+			// - 卸载NPPILY对象
+			NPPILY.UnLoad(); 
+		}
+		catch (e) {
+			logger(fn, e.message + "::" + e.name);
+		}
+	},
+	
+	Operator: function (action) {
+		try {
+			var fn = "WebClient.Operator";
+			
+			if (action != "login" && action != "logout")
+			{
+				if (!WebClient.connectId || !NPPILY.Connections.get(WebClient.connectId))
+				{
+					if (confirm("请先登录，立即操作？"))
+					{
+						$("#loginButton")[0].onclick();
+					}
+					else 
+					{
+						if (action != "logout")
+						{
+							return false;
+						}
+					}
+				}
+			}
+			
+			var _args = [];
+			for (var i = 1; i < arguments.length; i++)
+			{
+				_args.push(arguments[i]);
+			}
+			
+			switch (action)
+			{
+				case "login":
+					var connParam = new NPPILY.Struct.ConnParamStruct
+					(
+						(($("#ip").val() || "127.0.0.1") + ":" + ($("#port").val()|| 8866)),
+						$("#username").val(),
+						$("#epid").val(),
+						$("#password").val(),
+						($("#bfix").attr("checked") ? 1 : 0) 
+					);
+					logger(fn, connParam);
+					
+					// - 连接
+					var operator = NPPILY.Connect(connParam);
+					
+					if (operator.rv == 0) {
+						WebClient.connectId = operator.response;
+					
+						$("#loginButton")
+							.val("退出")
+							.css({
+								"color": "brown",
+								"border": "1px brown solid"
+							});
+						$("#loginButton")[0].onclick = function () {
+							WebClient.Operator("logout");
+						};
+						
+						// - 注册事件通知回调
+						WebClient.NCEvent.RegisterNotifyCallback();
+						// - 设备管理
+						WebClient.DeviceManager.Init();
+					}
+					else {
+						alert("登录不成功【" + NrcapError.Detail(operator.rv) + "】，可稍候再试~");
+					}
+					break;
+				case "logout":
+					// - 断开连接
+					var operator = NPPILY.DisConnection(WebClient.connectId);
+					
+					if (operator.rv == 0) {
+						$("#loginButton")
+							.val("登录")
+							.css({
+								"color": "",
+								"border": "1px #000000 solid"
+							});
+						$("#loginButton")[0].onclick = function () {
+							WebClient.Operator("login");
+						};
+						
+						if ($("#resourceTreeBox .bottom_1")[0]) {
+							$("#resourceTreeBox .bottom_1").html("");
+						}
+						if ($("#deviceManagerBox .bottom_2")[0]) {
+							$("#deviceManagerBox .bottom_2").html("");
+						}
+						if ($(".footer .bottom_3")[0]) {
+							$(".footer .bottom_3").html("");
+						}
+						
+						WebClient.connectId = null;
+					}
+					break;
+			}
+		}
+		catch (e) {
+		
+		}   
+	},
+	
+	NCEvent: 
+	{
+		// - 累计行计数
+		lineNumber: 0, 
+		// - 最多显示行数
+		maxDisplayLine: 300,
+		
+		// - 注册事件通知回调
+		RegisterNotifyCallback: function () {
+			try {
+				var fn = "WebClient.NCEvent.RegisterNotifyCallback";
+				
+				var connectId = WebClient.connectId;
+				
+				if(connectId && NPPILY.Connections.get(connectId)) {
+					NPPILY.NCNotifyManager.Add
+					(
+						NPPILY.Enum.NCObjectNotify.event_notify, 
+						function (notify) 
+						{
+							logger(fn, notify);
+							
+							if (notify && typeof notify.eventName != "undefined") {
+								if (notify.errorCode == 0) {
+									WebClient.NCEvent.AnalysisNotify(notify);
+								}
+								else { 
+									alert("连接已断开！");
+									$("#loginButton").click();		
+								}
+							}
+						}	
+					);
+				} 
+			}
+			catch (e) {
+				logger(fn, e.message + "::" + e.name);
+			}
+		},
+		
+		AnalysisNotify: function (notify) {
+			try {
+				var fn = "WebClient.NCEvent.AnalysisNotify";
+				if (notify instanceof NPPILY.Struct.NCObjectNotifyStruct && typeof notify.keyData == "object" && typeof notify.keyData.event != "undefined") {
+					
+					var _EVENT = notify.keyData.event,
+						ID = _EVENT.id,
+						TIME = _EVENT.time,
+						SRCID = _EVENT.src_id,
+						SRCTYPE = _EVENT.res_type,
+						SRCIDX = _EVENT.res_idx,
+						SRCNAME = NPPUtils.UTF8toUnicode(_EVENT.res_name),
+						_DESC = _EVENT.desc || [],
+						PUNAME = (function () {
+							if (_DESC == "" || _DESC.length <= 0 || typeof _DESC == "undefined") {
+								return (SRCNAME || "");
+							}
+							else {
+								return typeof _DESC[0].PUName != "undefined" ? NPPUtils.UTF8toUnicode(_DESC[0].PUName) : (SRCNAME || "");
+							} 
+						})(),
+						MODE = "",
+						DESC = "";
+					
+					switch (ID)
+					{ 
+						case "EVT_IDL_AlertIn":
+							DESC = MODE = "发生报警";
+							break; 
+						case "EVT_IV_SignalLost":
+							DESC = MODE = "视频信号丢失";
+							break;
+						case "EVT_IV_SignalResumed":
+							DESC = MODE = "视频信号恢复";
+							break;
+						case "EVT_IV_MotionDetected":
+							DESC = MODE = "侦测到移动报警";
+							break;
+						case "EVT_IV_CoverDetected":
+							DESC = MODE = "侦测到遮挡报警";
+							break;
+						case "EVT_IV_ChannelChanged":
+							MODE = "视频通道改变";
+							DESC = "视频通道发生改变；当前通道号";
+							break;
+						case "EVT_PTZ_LockStatusChanged":
+							MODE = "云台锁定状态改变";
+							DESC = (_DESC[2].Lock ? "云台锁定" : "云台解锁");
+							break;
+						case "EVT_ODL_StatusChanged":
+							MODE = "报警输出状态改变";
+							DESC = {"1": "报警输出接通", "0": "报警输出断开", "2": "报警输出闪烁"}[_DESC[2].Connect];
+							break;
+						case "EVT_ST_StartMove":
+							DESC = MODE = "车辆启动通知";
+							break;
+						case "EVT_ST_StartStop":
+							DESC = MODE = "车辆停止通知";
+							break;
+						case "EVT_ST_EmergentAlert":
+							MODE = "紧急报警";
+							DESC = "用户触发紧急报警按钮";
+							break;
+						case "EVT_ST_UnusableTimeAlert":
+							DESC = MODE = "不可用时间报警";
+							break;
+						case "EVT_ST_VehicleBrake":
+							MODE = "车辆急刹报警";
+							DESC = "向后加速度：" + _DESC[0].BackAcceleration + "(0.1g), 左向加速度：" + _DESC[1].LeftAcceleration + "(0.1g), 垂直向下加速度：" + _DESC[2].DownAcceleration + "(0.1g)";
+							break;
+						case "EVT_ST_VehicleCollision":
+							MODE = "车辆碰撞报警";
+							DESC = "向后加速度：" + _DESC[0].BackAcceleration + "(0.1g), 左向加速度：" + _DESC[1].LeftAcceleration + "(0.1g), 垂直向下加速度：" + _DESC[2].DownAcceleration + "(0.1g)";
+							break;
+						case "EVT_ST_VehicleRollover":
+							MODE = "车辆侧翻报警";
+							DESC = "向后加速度：" + _DESC[0].BackAcceleration + "(0.1g), 左向加速度：" + _DESC[1].LeftAcceleration + "(0.1g), 垂直向下加速度：" + _DESC[2].DownAcceleration + "(0.1g)";
+							break;
+						case "EVT_ST_VehicleRolloverWarning":
+							MODE = "车辆侧翻预警";
+							DESC = "向后加速度：" + _DESC[0].BackAcceleration + "(0.1g), 左向加速度：" + _DESC[1].LeftAcceleration + "(0.1g), 垂直向下加速度：" + _DESC[2].DownAcceleration + "(0.1g)";
+							break;
+						case "EVT_SG_DiskError":
+							MODE = "磁盘错误";
+							DESC = "磁盘发生错误";
+							break;
+						case "EVT_ST_OverSpeed":
+							MODE = "超速报警";
+							DESC = "速度：当前"+_DESC[2].CurrentSpeed+"km/h，最高"+_DESC[3].UpperSpeed+"km/h；限速类型："+_DESC[0].LimitSpeedType+"；区域名称："+_DESC[1].RegionName;
+							break;
+						case "EVT_ST_ArriveStation":
+							MODE = "公交进站";
+							DESC = "行进方向"+_DESC[0].UpOrDown+";站点名称："+_DESC[1].StationName;
+							break;
+						case "EVT_ST_DepartStation":
+							MODE = "公交出站";
+							DESC = "行进方向"+_DESC[0].UpOrDown+";站点名称："+_DESC[1].StationName;
+							break;
+						case "EVT_GPS_InERailAlarm":
+							MODE = "进入限定区域报警";
+							DESC = "目标进入了“"+_DESC[2].RegionName +"”限制区域";
+							break;
+						case "EVT_GPS_OutERailAlarm":
+							MODE = "离开限定区域报警";
+							DESC = "目标离开了“"+_DESC[2].RegionName +"”限制区域";
+							break;
+						case "EVT_GPS_LineDepart":
+							MODE = "线路偏离报警";
+							DESC = "目标偏离了“"+_DESC[2].LineName +"”限制线路";
+							break;
+						case "EVT_GPS_LineBarge":
+							MODE = "闯入线路报警";
+							DESC = "目标闯入了“"+_DESC[2].LineName +"”限制线路";
+							break;
+						case "EVT_OA_StatusChanged":
+							DESC = MODE = "音频输出状态改变";
+							break;
+						case "EVT_OA_TalkStatusChanged":
+							DESC = MODE = "对讲状态改变";
+							break;
+						case "EVT_OA_TeamTalkStatusChanged":
+							DESC = MODE = "集群对讲状态改变";
+							break;
+						case "EVT_SP_IDCard":
+							MODE = "ID卡刷卡";
+							DESC = "有ID卡刷卡，卡号为" + _DESC[2].ID;
+							break;
+						case "EVT_PU_Online": 
+							DESC = MODE = "设备上线";
+							break;
+						case "EVT_PU_Offline": 
+							DESC = MODE = "设备下线";
+							break;
+						case "EVT_CU_Online": 
+							MODE = "用户上线";
+							DESC = "用户"+_DESC[5].UserID+"@"+_DESC[3].EPID+"，地址：" + _DESC[0].Address + ":" + _DESC[4].Port + "，CUID：" + _DESC[1].CUID + "，登录类型：" + _DESC[2].ClientType;
+							break;
+						case "EVT_CU_Offline": 
+							MODE = "用户下线";
+							DESC = "用户"+_DESC[5].UserID+"@"+_DESC[3].EPID+"，地址：" + _DESC[0].Address + ":" + _DESC[4].Port + "，CUID：" + _DESC[1].CUID + "，登录类型：" + _DESC[2].ClientType;
+							break;
+						default:
+							DESC = PUNAME;
+							break;
+					} // end switch
+					
+					// - 过滤掉DS
+					if (ID.search("_DS_") != -1) {
+						return false;
+					}	
+					 
+					if (!$("#event_notify_header")[0]) {
+						var html = [];
+						html.push('<div id="event_notify_header" crtype="evt_header" class="list_th">');
+							html.push('<div class="list_thtd" style="width:12%;">&nbsp;时间</div>');
+							html.push('<div class="list_thtd" style="width:20%;">&nbsp;事件ID</div>');
+							html.push('<div class="list_thtd" style="width:20%;">&nbsp;事件源&middot;所属对象</div>');
+							html.push('<div class="list_thtd" style="width:20%;">&nbsp;类型</div>');
+							html.push('<div class="list_thtd" style="width:20%;">&nbsp;描述</div>');
+						html.push('</div>');
+						
+						$(".footer .bottom_3")
+							.html(html.join(""))
+							.delegate("div[crtype=evt_line]", "mouseover mouseout", function (event) {
+								switch (event.type) {
+									case "mouseover":
+										if (!$(this).hasClass("list_tr_over")) {
+											$(this).addClass("list_tr_over");
+										}
+										break;
+									case "mouseout":
+										if ($(this).hasClass("list_tr_over")) {
+											$(this).removeClass("list_tr_over");
+										}
+										break;
+								}
+							});
+					}
+					if ($("#event_notify_header")[0]) {
+						var html = [];
+						var lineNo = (this.lineNumber++),
+							clsname = (lineNo%2==0?"list_tr":"list_trother"),
+							id = "event_notify_line_" + lineNo;
+						
+						var TIMESTR = NPPUtils.DateFormat("yyyy-MM-dd HH:mm:ss", new Date(parseInt(TIME)*1000)),
+							OBJECT = (SRCNAME+"&middot;"+PUNAME);
+						
+						html.push('<div id="'+id+'" crtype="evt_line" class="'+clsname+'">');
+							html.push('<div class="list_trtd" style="width:12%;" title="'+TIMESTR+'">&nbsp;'+TIMESTR+'</div>');
+							html.push('<div class="list_trtd" style="width:20%;" title="'+ID+'">&nbsp;'+ID+'</div>');
+							html.push('<div class="list_trtd" style="width:20%;" title="'+OBJECT+'">&nbsp;'+OBJECT+'</div>');
+							html.push('<div class="list_trtd" style="width:20%;" title="'+MODE+'">&nbsp;'+MODE+'</div>');
+							html.push('<div class="list_trtd" style="width:20%;" title="'+DESC+'">&nbsp;'+DESC+'</div>');
+						html.push('</div>');
+						
+						var curLines = $(".footer .bottom_3 .list_th")
+											.after(html.join(""))
+											// .next().fadeTo("fast", 0.5).delay(500).fadeTo("slow", 1).end()
+											.nextAll();
+						
+						if (curLines.size() > this.maxDisplayLine) {
+							var _ltLineNo = this.lineNumber - this.maxDisplayLine;
+							curLines
+								.each(function (i) {
+									if ($(this).attr("id")) {
+										var idLine = $(this).attr("id");
+										// - 移除最久的事件
+										if (idLine.split("_").length >= 4 && Number(idLine.split("_")[3]) < _ltLineNo) {
+											$(this).fadeOut("slow").queue(function () {
+												$(this).remove();
+											});
+										}
+									}
+								});
+						}
+					}	
+					
+					// - 处理设备上下线情形
+					if (ID == "EVT_PU_Online" || ID == "EVT_PU_Offline") {
+						var puid = SRCID || "";
+						if (puid && WebClient.DeviceManager.resource.get(puid)) {
+							var puNode = WebClient.DeviceManager.resource.get(puid);
+							
+							puNode.online = ID == "EVT_PU_Online" ? "1" : "0";
+							
+							if (ID == "EVT_PU_Online") {
+								$("input[id^=alert_"+puid+"][id$=_ico]").each(function (i) {
+									var clsname = $(this).attr("class");
+									$(this).attr("class", clsname.replace(/_disabled/g, ""));
+								});
+							}
+							else {
+								$("input[id^=alert_"+puid+"][id$=_ico]").each(function (i) {
+									var clsname = $(this).attr("class");
+									$(this).attr("class", clsname.replace(/_disabled/g, "") + "_disabled");
+								});
+								
+								// - 如果是下线，看是否正在做此设备的管理，要关掉
+								if ($("#alertIn_puid").val() == puid) {
+									$("#deviceManagerBox .bottom_2").html("");
+									
+									alert("设备"+(SRCNAME+"["+puid+"]")+"下线~");
+								}
+							}
+						}
+					}			
+				}
+			}
+			catch (e) {
+				logger(fn, e.message + "::" + e.name);
+			}
+		},
+		
+		end: true
+	},
+	// - 设备管理
+	DeviceManager: 
+	{
+		// - 存放资源信息到NPPUtils哈希对象中
+		resource: new NPPUtils.Hash(),
+	
+		Init: function () {
+			try {
+				var fn = "WebClient.DeviceManager.Init";
+				
+				this.resource = new NPPUtils.Hash();
+				
+				// - 获取创建设备资源
+				this.ForkPUResource();
+			}
+			catch (e) {
+				logger(fn, e.message + "::" + e.name);
+			}
+		},
+		// - 获取创建设备资源
+		ForkPUResource: function () {
+			try {
+				var fn = "WebClient.DeviceManager.ForkPUResource";
+				
+				var _connStruct = NPPILY.Connections.get(WebClient.connectId);
+				
+				var offset = 0,
+					count = 200;
+				
+				while(true) {
+					var operator = NPPILY.ForkResource
+					(
+						WebClient.connectId,
+						NPPILY.Enum.ForkResourceLevel.nppForkPUInfo,
+						offset,
+						count
+					);
+					if (operator.rv == 0) {
+						logger(fn, operator.response);
+						
+						if (typeof operator.response == "object") {
+							// - 直连设备时，只会含一个设备资源节点信息
+							if (operator.response.constructor != Array) {
+								operator.response = [operator.response];
+							}
+							$.each(operator.response, function (i, item) {
+								WebClient.DeviceManager.resource.set(item.puid, item);
+							});
+								
+							if (operator.response.length < count) {
+								break;
+							}
+							offset = offset + count;
+						}
+						else {
+							break;
+						}
+					}
+					else {
+						break;
+					}
+				}
+				
+				logger(fn, this.resource._self());
+				
+				// - 创建资源树
+				this.CreateTree(); 
+			}
+			catch (e) {
+				logger(fn, e.message + "::" + e.name);
+			}
+		},
+		// - 创建资源树
+		CreateTree: function () {
+			try {
+				var fn = "WebClient.DeviceManager.CreateTree";
+				
+				if ($("#resourceTreeBox .bottom_1")[0]) {
+					var connectId = WebClient.connectId;
+					if (!connectId || !NPPILY.Connections.get(connectId)) {
+						logger(fn, "connectId error~");
+						return false;
+					}
+					var _connStruct = NPPILY.Connections.get(connectId);
+					
+					var html = [], lastnode = null;
+					
+					var rootName = (_connStruct.systemName || "NVS");
+					
+					if (_connStruct.connType == NPPILY.Enum.ConnectionType.Device) {
+						rootName = "直连设备";
+					}
+							
+					html.push('<div style="padding-left:5px;white-space:nowrap;margin-top:5px;">');
+					html.push('<input type=button id="alert_root_title" class="minus" onfocus="this.blur();" onclick="WebClient.Expandsion($(\'#alert_root_title\')[0], $(\'#alert_root_childresourcebox\')[0]);" />');
+					html.push('<input type=button id="alert_root_ico" class="root" onfocus="this.blur();" onclick="WebClient.Expandsion($(\'#alert_root_title\')[0], $(\'#alert_root_childresourcebox\')[0]);" />');
+					html.push('<a id="alert_root_href" href="javascript:void(0);" onclick="WebClient.Expandsion($(\'#alert_root_title\')[0], $(\'#alert_root_childresourcebox\')[0]);">' + rootName + '</a>');
+					html.push('</div>');
+					
+					html.push('<div id="alert_root_childresourcebox" class="childresourcebox_blankline" style="padding-left:20px;">');
+					
+					this.resource.each
+					(
+						function (item)
+						{
+							var node = item.value;
+							
+							if (_connStruct.connType != NPPILY.Enum.ConnectionType.Device) {
+								if (node.modelType != NPPILY.Enum.PuModelType.ENC && node.modelType != NPPILY.Enum.PuModelType.WENC) {
+									return false;
+								}
+							} 
+							
+							var clsname = "station", sfx = "_disabled";
+							if (node.modelType == NPPILY.Enum.PuModelType.WENC) {
+								clsname = "gateway";
+							}
+							if (node.online == "1" && node.enable == "1") {
+								sfx = "";
+							}
+							clsname += sfx;
+							
+							html.push('<div style="white-space:nowrap;">');
+							html.push('<input type=button id="alert_'+node.puid+'_title" class="plus" onfocus="this.blur();" onclick="WebClient.DeviceManager.CreatePUChildResourceTree(\''+node.puid+'\');" />');
+							html.push('<input type=button id="alert_'+node.puid+'_ico" class="'+clsname+'" onfocus="this.blur();" onclick="WebClient.DeviceManager.CreatePUChildResourceTree(\''+node.puid+'\');" />');
+							html.push('<a id="alert_'+node.puid+'_href" href="javascript:void(0);" onclick="WebClient.DeviceManager.CreatePUChildResourceTree(\''+node.puid+'\');">' + (node.name || "") + '</a>');
+							html.push('</div>'); 
+							
+							html.push('<div id="alert_'+node.puid+'_childresourcebox" class="childresourcebox_directline" style="padding-left:15px;display:none;">'); 
+							html.push('</div>');
+							
+							lastnode = "alert_"+node.puid+"_childresourcebox";
+						}
+					);
+						
+					html.push('</div>');
+					
+					
+					if (!$("#resourceTreeBox .bottom_1").hasClass("resourceTree")) {
+						$("#resourceTreeBox .bottom_1").addClass("resourceTree")
+					}	
+					$("#resourceTreeBox .bottom_1")
+						.html(html.join(""))
+						.find("#"+lastnode)
+						.attr("class", "childresourcebox_blankline");
+				} 
+			}
+			catch (e) {
+				logger(fn, e.message + "::" + e.name);
+			}
+		},
+		// - 创建子模块资源
+		CreatePUChildResourceTree: function (puid) {
+			try {
+				var fn = "WebClient.DeviceManager.CreatePUChildResourceTree";
+				
+				var idChildTitle = "alert_" + puid + "_title",
+					idChildbox = "alert_" + puid + "_childresourcebox";
+				if (puid && $("#" + idChildTitle)[0] && $("#" + idChildbox)[0]) {
+					// - 子资源树为空，获取子资源并列出来
+					if ($("#" + idChildbox).html() == "") {
+						if (this.resource.get(puid)) {
+							var pu = this.resource.get(puid);
+							if (typeof pu.childResource == "undefined" || !$.isArray(pu.childResource) || pu.childResource.length <= 0) {
+								var operator = NPPILY.ForkResource
+								(
+									WebClient.connectId,
+									NPPILY.Enum.ForkResourceLevel.nppForkPUResourceInfo,
+									0,
+									0,
+									"",
+									{
+										PUID: puid
+									}
+								);
+								if (operator.rv == 0) {
+									logger(fn, operator.response);
+									if (typeof operator.response == "object" && operator.response.constructor == Array && operator.response.length > 0) {
+										pu.childResource = operator.response;
+									}
+								}
+							} // end pu
+							
+							var html = [], lastnode = null;
+							$.each(pu.childResource, function (i, item) {
+								// - 过滤非报警输入资源
+								if (item.type != NPPILY.Enum.PuResourceType.AlertIn) {
+									return true;
+								}
+								var clsname = "inputdigitalline", sfx = "_disabled";
+								if (pu.online == "1" && pu.enable == "1" && item.enable == "1") {
+									sfx = "";
+								}
+								clsname += sfx;
+								
+								html.push('<div style="white-space:nowrap;">');
+								html.push('<input type=button id="alert_'+puid+'_'+item.idx+'_title" class="outline" onfocus="this.blur();" onclick="WebClient.DeviceManager.AlertInConfig(\''+puid+'\', \''+item.type+'\', \''+item.idx+'\');" />');
+								html.push('<input type=button id="alert_'+puid+'_'+item.idx+'_ico" class="'+clsname+'" onfocus="this.blur();" onclick="WebClient.DeviceManager.AlertInConfig(\''+puid+'\', \''+item.type+'\', \''+item.idx+'\');" />');
+								html.push('<a id="alert_'+puid+'_'+item.idx+'_href" href="javascript:void(0);" onclick="WebClient.DeviceManager.AlertInConfig(\''+puid+'\', \''+item.type+'\', \''+item.idx+'\');">' + (item.name || "") + '</a>');
+								html.push('</div>'); 
+								
+								lastnode = "alert_" + puid + "_" + item.idx + "_title";
+							});
+							if (html.length <= 0) {
+								html.push('<div style="white-space:nowrap;">');
+								html.push('<input type=button id="alert_'+puid+'_none_title" class="endline" onfocus="this.blur();" />');
+								html.push('<a id="alert_'+puid+'_none_href" href="javascript:void(0);" style="color:brown;font-style:italic;" >（无报警资源）</a>');
+								html.push('</div>'); 
+							}
+							
+							$("#" + idChildbox)
+								.html(html.join(""))
+								.find('[id="'+lastnode+'"][class=outline]')
+								.attr("class", "endline");
+								
+						} // end if resource
+						
+					} // end empty
+					
+					WebClient.Expandsion($("#" + idChildTitle)[0], $("#" + idChildbox)[0]);
+				}
+			}
+			catch (e) {
+				logger(fn, e.message + "::" + e.name);
+			}
+		},
+		// - 配置界面功能
+		AlertInConfig: function (puid, resType, resIdx) {
+			try {
+				var fn = "WebClient.DeviceManager.AlertInConfig";
+				
+				logger(fn, arguments);
+				
+				if (!puid || !resType || typeof resIdx == "undefined") {
+					return false;
+				}
+				if (!this.resource.get(puid)) {
+					alert("未知设备信息~");
+					return false;
+				}
+				var pu = this.resource.get(puid),
+					childres = pu.childResource;
+				if (pu.online != "1" || pu.enable != "1") {
+					alert("设备不在线，无法设置~");
+					return false;
+				}
+				var stopFlag = true;
+				$.each(childres, function (i, item) {
+					if (item.type == NPPILY.Enum.PuResourceType.AlertIn && item.idx == resIdx) {
+						if (item.enable == "1") {
+							stopFlag = false;
+							return true;
+						}
+					}
+				});
+				if (stopFlag == true) {
+					alert("报警输入资源未使能~");
+					return false;
+				}
+				
+				// - 报警面板不存在或者为空时，重新创建
+				if (!$("#alertInBox")[0] || $("#alertInBox").html() == "") {
+					var html = [];
+					
+					html.push('<input type=hidden id="alertIn_puid" value="'+puid+'" />');
+					html.push('<input type=hidden id="alertIn_type" value="'+resType+'" />');
+					html.push('<input type=hidden id="alertIn_idx" value="'+resIdx+'" />');
+					
+					html.push('<table id="alertInBox" class="alertInBox" cellspacing="0" cellpadding="0" border="0">');
+					html.push('<tr>');
+						html.push('<td colspan=2>');
+						html.push('<label>&nbsp;工作模式：</label>');
+						html.push('<span>&nbsp;&nbsp;<select id="alertIn_mode" style="width:235px;"></select></span>');
+						html.push('</td>');
+					html.push('</tr>');
+					html.push('<tr>');
+						html.push('<td>');
+							<!-- 技数统计 -->
+							html.push('<fieldset style="height:90px;">');
+							html.push('<legend>计数统计</legend>');
+							html.push('<table id="alertIn_count" width="380" height="65" cellspacing=0 cellpadding=0 border=0>');
+								html.push('<tr>');
+									html.push('<td><lable>计数总值：</label></td>');
+									html.push('<td><input type=text id="alertIn_countsum" value="" style="width:155px;" /></td>');
+									html.push('<td><input type=button id="alertIn_countsum_reset" value="清零" style="width:65px;" /></td>');
+								html.push('</tr>');
+								html.push('<tr>');
+									html.push('<td><lable>开始计数时间：</label></td>');
+									html.push('<td><input type=text id="alertIn_countbeginTime" value="" style="width:155px;" /></td>');
+									html.push('<td><input type=button id="alertIn_countbeginTime_refresh" value="刷新" style="width:65px;" /></td>');
+								html.push('</tr>');
+							html.push('</table>');
+							html.push('</fieldset>');
+							<!-- 技数统计 -->
+							html.push('<fieldset style="height:60px;margin-top:2px;">');
+							html.push('<legend>状态采集</legend>');
+							html.push('<table id="alertIn_status" width="380" height="35" cellspacing=0 cellpadding=0 border=0>');
+								html.push('<tr>');
+									html.push('<td><lable>状态是否有效：</label></td>');
+									html.push('<td><input type=text id="alertIn_status" value="" style="width:200px;background-color:#F0F0F0;border:1px gray solid;" readonly /></td>');
+								html.push('</tr>');
+							html.push('</table>');
+							html.push('</fieldset>');
+						html.push('</td>');
+						html.push('<td>');
+							<!-- 报警输入 -->
+							html.push('<fieldset style="height:160px;">');
+							html.push('<legend>报警输入</legend>');
+							html.push('<table id="alertIn_trigger" width="380" height="135" cellspacing=0 cellpadding=0 border=0>');
+								html.push('<tr>');
+									html.push('<td><lable>报警触发模式：</label></td>');
+									html.push('<td><select id="alertIn_triggermode" style="width:160px;"></select></td>');
+								html.push('</tr>');
+								html.push('<tr>');
+									html.push('<td><lable>输入状态：</label></td>');
+									html.push('<td><input type=text id="alertIn_inputstatus" value="" style="width:155px;background-color:#F0F0F0;border:1px gray solid;" readonly /></td>');
+								html.push('</tr>');
+								html.push('<tr>');
+									html.push('<td><lable>报警间隔：</label></td>');
+									html.push('<td><input type=text id="alertIn_interval" value="" style="width:155px;" />&nbsp;<lable>秒</label></td>');
+								html.push('</tr>');
+							html.push('</table>');
+							html.push('</fieldset>');
+						html.push('</td>');
+					html.push('</tr>');
+					html.push('<tr>');
+						html.push('<td colspan=2>');
+						html.push('<label>&nbsp;报警开关：</label>');
+						<!-- 168个0或F字符，开启应为全F，关闭应为全0 -->
+						html.push('<span>&nbsp;&nbsp;<input type=button id="alertIn_open" value="开启" style="width:65px;" setValue="FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF" />&nbsp;<input type=button id="alertIn_close" value="关闭" style="width:65px;" setValue="000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" /></span>');
+						html.push('<span>&nbsp;&nbsp;<input type=button id="alertIn_map_seniorSet" value="高级设置&gt;&gt;" /></span>');
+						html.push('</td>');
+					html.push('</tr>');
+					html.push("</table>");
+					// - 高级布防时间表
+					html.push('<div id="alertInGuardTimeMap" class="alertInGuardTimeMap">'); 
+						html.push('<div id="alertIn_map" class="alertIn_map"></div>');
+						html.push('<div id="alertIn_map_control" class="alertIn_map_control">');
+							html.push('<input type=button id="alertIn_map_all" value="全选" style="width:65px;" />');
+							html.push('<input type=button id="alertIn_map_clear" value="清空" style="width:65px;" />');
+							html.push('<input type=button id="alertIn_map_refresh" value="刷新" style="width:65px;" />');
+							html.push('<input type=button id="alertIn_map_save" value="设置" style="width:65px;" />');
+						html.push('</div>');
+					html.push('</div>');
+					
+					$("#deviceManagerBox .bottom_2").html(html.join(""));
+				}
+				
+				$("#alertIn_puid").val(puid);
+				$("#alertIn_type").val(resType);
+				$("#alertIn_idx").val(resIdx);
+				
+				// - 工作模式
+				if ($("#alertIn_mode")) {
+					$("#alertIn_mode")[0].options.length = 0;
+					// - 获取支持的工作模式
+					var operator = WebClient.DeviceManager.IDL_GetSupportedWorkModeSets(puid, resIdx);
+					// alert($.toJSON(operator));
+					if (operator.rv == 0 && operator.response != null && operator.response.length > 0) {
+						$("#alertIn_mode").attr("disabled", false);
+						
+						$.each(operator.response, function (i, item) {
+							var text = item;
+							switch (item) {
+								case "AlertIn":
+									text = "报警模式";
+									break;
+								case "Counter":
+									text = "计数模式";
+									break;
+								case "StatusCap":
+									text = "状态采集模式";
+									break;
+							}
+							if (text) $("#alertIn_mode")[0].add(new Option(text, item));
+						});
+					}
+					else {
+						$("#alertIn_mode").attr("disabled", true);
+					}
+					
+					// - 获取当前工作模式
+					var operator = WebClient.DeviceManager.IDL_GetWorkMode(puid, resIdx);
+					if (operator.rv == 0) {
+						$("#alertIn_mode")
+							.val(operator.response)
+							.attr("orgValue", operator.response);
+						$("#alertIn_mode").off("change");
+						$("#alertIn_mode").on("change", function (event) {
+							logger(fn, this.value);
+							
+							if (this.value == "Counter") {
+								$("#alertIn_count").attr("disabled", false);
+								$("#alertIn_trigger").attr("disabled", true);
+							}
+							else if (this.value == "AlertIn") {
+								$("#alertIn_count").attr("disabled", true);
+								$("#alertIn_trigger").attr("disabled", false);
+							}
+							if (this.value != $(this).attr("orgValue") && !$(this).attr("disabled")) {
+								// - 提交设置当前工作模式
+								var operator = WebClient.DeviceManager.IDL_SetWorkMode(puid, resIdx, this.value);
+								if (operator.rv == 0) {
+									$(this).attr("orgValue", this.value);
+									alert("设置成功");
+								}
+								else {
+									this.value = $(this).attr("orgValue");
+									alert("设置失败");
+								}
+							}
+						});
+						$("#alertIn_mode").change();
+					} 
+					
+					// - 计数统计
+					if ($("#alertIn_countsum")[0]) {
+						var operator = WebClient.DeviceManager.IDL_GetCount(puid, resIdx, this.value);
+						if (operator.rv == 0) {
+							$("#alertIn_countsum")
+								.val(operator.response)
+								.attr("disabled", false);
+						}
+						else {
+							$("#alertIn_countsum").attr("disabled", true);
+						}
+						
+						// - 清零
+						$("#alertIn_countsum_reset").off("click");
+						$("#alertIn_countsum_reset").on("click", function (event) {
+							$("#alertIn_countsum").val("");
+						});
+					}
+					// - 刷新
+					if ($("#alertIn_countbeginTime_refresh")[0]) {
+						$("#alertIn_countbeginTime_refresh").off("click");
+						$("#alertIn_countbeginTime_refresh").on("click", function (event) {
+							// - 开始计数时间
+							var operator = WebClient.DeviceManager.IDL_GetCountBeginTime(puid, resIdx, this.value);
+							if (operator.rv == 0) {
+								$("#alertIn_countbeginTime")
+									.val(NPPUtils.DateFormat("yyyy-MM-dd HH:mm:ss", operator.response))
+									.attr("disabled", false);
+							}
+							else {
+								$("#alertIn_countbeginTime").attr("disabled", true);
+							}
+						})
+						.click();
+					}
+					// - 状态采集
+					if ($("#alertIn_status")[0]) {
+						var operator = WebClient.DeviceManager.IDL_GetLevelValid(puid, resIdx, this.value);
+						if (operator.rv == 0) {
+							$("#alertIn_status")
+								.val((operator.response == 1 ? "有效" : "无效"))
+								.attr("disabled", false);
+						}
+						else {
+							$("#alertIn_status").attr("disabled", true);
+						}
+					}
+					
+					// - 报警触发模式
+					if ($("#alertIn_triggermode")[0]) {
+						$("#alertIn_triggermode")[0].options.length = 0;
+						// - 支持的报警触发模式
+						var operator = WebClient.DeviceManager.IDL_GetSupportedAlertInModeSets(puid, resIdx);
+						if (operator.rv == 0 && operator.response != null && operator.response.length >= 0) {
+							$("#alertIn_triggermode").attr("disabled", false);
+							
+							$.each(operator.response, function (i, item) {
+								var text = item;
+								switch (item) {
+									case "NC":
+										text = "闭合报警";
+										break;
+									case "NO":
+										text = "开路报警";
+										break;
+									case "OC":
+										text = "先开后闭报警";
+										break;
+									case "CO":
+										text = "先闭后开报警";
+										break;
+								}
+								if (text) $("#alertIn_triggermode")[0].add(new Option(text, item));
+							});
+						}
+						else {
+							$("#alertIn_triggermode").attr("disabled", true);
+						}
+						
+						// - 当前报警触发模式
+						var operator = WebClient.DeviceManager.IDL_GetAlertInMode(puid, resIdx);
+						if (operator.rv == 0) {
+							$("#alertIn_triggermode")
+								.val(operator.response)
+								.attr("orgValue", operator.response);
+							$("#alertIn_triggermode").off("change");
+							$("#alertIn_triggermode").on("change", function (event) {
+								logger(fn, this.value);
+								
+								if (this.value != $(this).attr("orgValue") && !$(this).attr("disabled")) {
+									// - 提交设置当前报警触发模式
+									var operator = WebClient.DeviceManager.IDL_SetAlertInMode(puid, resIdx, this.value);
+									if (operator.rv == 0) {
+										$(this).attr("orgValue", this.value);
+										alert("设置成功");
+									}
+									else {
+										this.value = $(this).attr("orgValue");
+										alert("设置失败");
+									}
+								}
+							});
+						} 
+					}
+					// - 输入状态
+					if ($("#alertIn_inputstatus")[0]) {
+						var operator = WebClient.DeviceManager.IDL_GetAlertInStatus(puid, resIdx, this.value);
+						if (operator.rv == 0) {
+							$("#alertIn_inputstatus")
+								.val((operator.response == 1 ? "有报警" : "无报警"))
+								.attr("disabled", false);
+						}
+						else {
+							$("#alertIn_inputstatus").attr("disabled", true);
+						}
+					}
+					// - 报警间隔
+					if ($("#alertIn_interval")[0]) {
+						var operator = WebClient.DeviceManager.IDL_GetAlertInDuration(puid, resIdx);
+						if (operator.rv == 0) {
+							$("#alertIn_interval")
+								.val(operator.response)
+								.attr("orgValue", operator.response);
+							$("#alertIn_interval").off("change");
+							$("#alertIn_interval").on("change", function (event) {
+								logger(fn, this.value);
+								if (isNaN(this.value) || this.value < 0) {
+									this.value = $(this).attr("orgValue");
+									return false;
+								}
+								if (this.value != $(this).attr("orgValue") && typeof $(this).attr("orgValue") != "undefined") {
+									// - 提交设置当前报警触发模式
+									var operator = WebClient.DeviceManager.IDL_SetAlertInDuration(puid, resIdx, this.value);
+									if (operator.rv == 0) {
+										$(this).attr("orgValue", this.value);
+										alert("设置成功");
+									}
+									else {
+										this.value = $(this).attr("orgValue");
+										alert("设置失败");
+									}
+								}
+							});
+						} 
+					}
+					
+					// - 报警开关
+					// - 开启，全为F，设置的值为"FFF...FFF"
+					$("#alertIn_open").off("click");
+					$("#alertIn_open").on("click", function (evnet) {
+						if (typeof $(this).attr("setValue") != "undefined") {
+							var operator = WebClient.DeviceManager.IDL_SetGuardMap(puid, resIdx, $(this).attr("setValue"));
+							if (operator.rv == 0) {
+								alert("设置成功");
+							}
+							else {
+								alert("设置失败");
+							}
+						}
+					});
+					// - 关闭，全为0，设置的值为"000...000"
+					$("#alertIn_close").off("click");
+					$("#alertIn_close").on("click", function (evnet) {
+						if (typeof $(this).attr("setValue") != "undefined") {
+							var operator = WebClient.DeviceManager.IDL_SetGuardMap(puid, resIdx, $(this).attr("setValue"));
+							if (operator.rv == 0) {
+								alert("设置成功");
+							}
+							else {
+								alert("设置失败");
+							}
+						}
+					});
+					// - 高级设置
+					if($("#alertIn_map_seniorSet")) {
+						$("#alertIn_map_seniorSet").off("click");
+						$("#alertIn_map_seniorSet").on("click", function (event) {
+							$("#alertInGuardTimeMap")
+								.toggle("slow", function () {
+									if ($("#alertInGuardTimeMap").is(":visible")) {
+										$("#alertIn_map_seniorSet")
+											.val("<<高级设置")
+											.css({
+												color: "brown"
+											});
+															
+										
+									}
+									else {
+										$("#alertIn_map_seniorSet")
+											.val("高级设置>>")
+											.css({
+												color: "#000000"
+											});;
+									}
+									$("#deviceManagerBox .bottom_2")[0].scrollTop = $("#deviceManagerBox .bottom_2").height();
+								});
+								
+						});
+						
+						// - 布防时间表
+						if ($("#alertIn_map")[0]) {
+							var mapId = "alertIn_map",
+								mapType = "wek";
+							GuardTimeMap.Create(mapId, "wek", $("#alertIn_map").width(), $("#alertIn_map").height());
+							
+							// - 全选
+							$("#alertIn_map_all")[0].onclick = function () {
+								GuardTimeMap.SetStatus(mapId, mapType, "all");
+							};
+							// - 清空
+							$("#alertIn_map_clear")[0].onclick = function () {
+								GuardTimeMap.SetStatus(mapId, mapType, "clear");
+							};
+							// - 刷新
+							$("#alertIn_map_refresh")[0].onclick = function () {
+								var operator = WebClient.DeviceManager.IDL_GetGuardMap(puid, resIdx);
+								if (operator.rv == 0) {
+									$("#alertIn_map_save").attr("disabled", false);
+									// - 着色布防时间表
+									var hstr = operator.response.replace("0x", "");
+									var bina = "",
+										realBina = "";
+									for(var i = 0; i < hstr.length; i++) {
+										var splitstr = hstr.charAt(i).toUpperCase();
+										bina += GuardTimeMap.SwitchHexBinary(2, splitstr);
+									} 
+									for(var j = 0; j < bina.length; j+=2) {
+										var splitstr = bina.substr(j, 2); 
+										realBina += splitstr.search("1") == -1 ? "0" : "1"; 
+									} 
+									if (realBina.length == 336) {
+										GuardTimeMap.ColorMapByHexBinaryStr(mapId, mapType, 2, realBina);
+									}
+								}  
+								else {
+									$("#alertIn_map_save").attr("disabled", true);
+									
+									$("#alertIn_map_clear").click();
+								}
+							}
+							// - 获取一次
+							$("#alertIn_map_refresh").click();
+							
+							// - 设置
+							$("#alertIn_map_save")[0].onclick = function () {
+								var bstr = GuardTimeMap.GetBinaryMapStr(mapId, mapType);
+								var tmpbina = "",
+									realHstr = "";
+								var _copytimes = function(w, t) {
+									var ww = "";
+									while(t-- > 0) ww += "" + w; 
+									return ww;
+								}; 
+								for(var i = 0; i < bstr.length; i++) {
+									tmpbina += bstr.charAt(i) == "0" ? _copytimes("0", 2) : _copytimes("1", 2); 
+								}    
+								for(var i = 0; i < tmpbina.length; i+=4) {
+									var splitstr = tmpbina.substr(i, 4);
+									realHstr += GuardTimeMap.SwitchHexBinary(16, splitstr);
+								}
+								if (realHstr.length == 168) {
+									var operator = WebClient.DeviceManager.IDL_SetGuardMap(puid, resIdx, realHstr);
+									if (operator.rv == 0) {
+										alert("设置成功");
+									}
+									else {
+										alert("设置失败");
+									}
+								}
+							};
+						}
+					}
+					
+					
+					
+				} // end 
+			}
+			catch (e) {
+				logger(fn, e.message + "::" + e.name);
+			}
+		},
+		
+		// - 获取支持的工作模式
+		IDL_GetSupportedWorkModeSets: function (puid, idlIndex) {
+			return NPPILY.IDL_GetSupportedWorkModeSets(WebClient.connectId, puid, idlIndex);
+		},
+		// - 获取当前工作模式
+		IDL_GetWorkMode: function (puid, idlIndex) {
+			return NPPILY.IDL_GetWorkMode(WebClient.connectId, puid, idlIndex);
+		},
+		// - 设置当前工作模式
+		IDL_SetWorkMode: function (puid, idlIndex, modeValue) {
+			return NPPILY.IDL_SetWorkMode(WebClient.connectId, puid, idlIndex, modeValue);
+		},
+		// - 计数统计
+		IDL_GetCount: function (puid, idlIndex) {
+			return NPPILY.IDL_GetCount(WebClient.connectId, puid, idlIndex);
+		},
+		// - 开始计数时间
+		IDL_GetCountBeginTime: function (puid, idlIndex) {
+			return NPPILY.IDL_GetCountBeginTime(WebClient.connectId, puid, idlIndex);
+		},
+		// - 状态有效
+		IDL_GetLevelValid: function (puid, idlIndex) {
+			return NPPILY.IDL_GetLevelValid(WebClient.connectId, puid, idlIndex);
+		},
+		// - 支持的报警触发模式
+		IDL_GetSupportedAlertInModeSets: function (puid, idlIndex) {
+			return NPPILY.IDL_GetSupportedAlertInModeSets(WebClient.connectId, puid, idlIndex);
+		},
+		// - 获取当前报警触发模式
+		IDL_GetAlertInMode: function (puid, idlIndex) {
+			return NPPILY.IDL_GetAlertInMode(WebClient.connectId, puid, idlIndex);
+		},
+		// - 设置当前报警触发模式
+		IDL_SetAlertInMode: function (puid, idlIndex, triggerMode) {
+			return NPPILY.IDL_SetAlertInMode(WebClient.connectId, puid, idlIndex, triggerMode);
+		},
+		// - 获取报警输入状态
+		IDL_GetAlertInStatus: function (puid, idlIndex) {
+			return NPPILY.IDL_GetAlertInStatus(WebClient.connectId, puid, idlIndex);
+		}, 
+		// - 获取报警输入间隔
+		IDL_GetAlertInDuration: function (puid, idlIndex) {
+			return NPPILY.IDL_GetAlertInDuration(WebClient.connectId, puid, idlIndex);
+		},
+		// - 设置报警输入间隔
+		IDL_SetAlertInDuration: function (puid, idlIndex, value) {
+			return NPPILY.IDL_SetAlertInDuration(WebClient.connectId, puid, idlIndex, value);
+		},
+		// - 获取报警布防
+		IDL_GetGuardMap: function (puid, idlIndex) {
+			return NPPILY.IDL_GetGuardMap(WebClient.connectId, puid, idlIndex);
+		},
+		// - 设置报警布防，设置的mapValue格式为"012...F..."共168个十六进制字符的组合
+		IDL_SetGuardMap: function (puid, idlIndex, mapValue) {
+			return NPPILY.IDL_SetGuardMap(WebClient.connectId, puid, idlIndex, mapValue);
+		},
+		
+		end: true
+	},
+	Expandsion: function (objTitle, objBox, objIco) {
+		try {
+			var fn = "WebClient.Expandsion";
+			if (objTitle && objBox) {
+				if (objBox.style.display != "none") {
+					objBox.style.display = "none";
+					objTitle.className = "plus";
+					
+					if (objIco) {
+						objIco.className = "stationmodel_collapse";
+					}
+				}
+				else {
+					if (objBox.innerHTML == "") {
+						return false;
+					}
+					
+					objBox.style.display = "block";
+					objTitle.className = "minus";
+					
+					if (objIco) {
+						objIco.className = "stationmodel_expand";
+					}
+				}
+			}
+		}
+		catch (e) {
+			logger(fn, e.message + "::" + e.name);
+		}
+	},
+	
+	Resize: function () {
+		try {
+			var fn = "WebClient.Resize";
+			
+			var dimen_width = $(window).width(),
+				dimen_height = $(window).height();
+			
+			/*if (dimen_height <= 350) {
+				dimen_height = 350;
+			}*/
+			
+			if ($(".header")[0] && $(".middle")[0] && $(".footer")[0]) {
+				var _height = dimen_height - $(".header").height() - 7;
+				
+				$(".footer")
+					.css({
+						height: Math.floor(_height * 2 / 5) + "px"
+					});
+				$(".middle")
+					.css({
+						height: Math.floor(_height * 3 / 5) + "px"
+					});
+					
+				if ($("#deviceManagerBox")[0]) {
+					$("#deviceManagerBox")
+						.css({
+							width: ($(".middle").width() - $("#resourceTreeBox").width() - 3) + "px"
+						})
+						.find(".bottom_2")
+						.css({
+							height: ($("#deviceManagerBox").height() - 20) + "px"
+						});;
+					
+					if ($("#resourceTreeBox .bottom_1")[0]) {
+						$("#resourceTreeBox .bottom_1")
+							.css({
+								height: ($("#resourceTreeBox").height() - 20) + "px"
+							});
+					}
+				}
+				if ($(".footer .bottom_3")[0]) {
+					$(".footer .bottom_3")
+						.css({
+							width: "100%",
+							height: (Math.floor(_height * 2 / 5) - 20) + "px" 
+						});
+				}
+				
+			}
+		}
+		catch (e) {
+			logger(fn, e.message + "::" + e.name);
+		}
+	},
+	
+	end: true
+};
+// - 调试输出快捷函数
+var logger = function (fnStr, log) {
+	try {
+		if (WebClient.debug == true) {
+			if (NPPUtils && typeof NPPUtils.Log == "function") {
+				NPPUtils.Log(fnStr, log);	
+			}
+		}
+	}
+	catch (e) {
+	}
+	finally {	
+		return true;	
+	}
+};
+</script>

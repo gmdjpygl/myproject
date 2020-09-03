@@ -1,0 +1,1679 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Demo</title>
+    <!--<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" />-->
+    
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+	<link rel="stylesheet" type="text/css" href="../images/pages.css" />
+	<link rel="stylesheet" type="text/css" href="../../js/jquery/lib/snippet/jquery.snippet.css" /> 
+    
+    <script src="../../js/jquery/jquery-1.9.1.js" type="text/javascript"></script>
+	<script src="../../js/jquery/lib/jquery.json-2.4.js" type="text/javascript"></script> 
+	<script src="../../js/jquery/lib/snippet/jquery.snippet.js" type="text/javascript"></script>
+    
+	<script src="../npp_examples_config.js" type="text/javascript"></script>
+    <script src="../../js/NPPInterface.js" type="text/javascript"></script> 
+    <script src="../../js/NPPInterlayer.js" type="text/javascript"></script>
+    
+	<style>
+		table,td,tr{
+			border:1px grey solid;
+		}
+		td{
+			width:250px;
+		}
+		.td_b{
+			color:blue;
+		}
+		input,button{ width:80px;margin-bottom:3px; height:22px;}
+	</style>
+</head>
+<body>
+	<!-- @huzw 2019.11.20 add -->
+	<div style="margin-top:10px;height:auto;">
+		<h1 class="h1A">测试31.183平台FAT32存储查询</h1>
+		<div>
+			<button id="query1" onclick="SG_QueryFat32Files('151038400285239932',0);" style="width:auto;height:auto;padding:5px 5px;padding:5px 5px !important;">查询{000F7C6A0011-151038400285239932}</button>
+			<button id="query2" onclick="SG_QueryFat32Files('151038403657918076',0);" style="width:auto;height:auto;padding:5px 5px;padding:5px 5px !important;">查询{000F7C6607DA-151038403657918076}</button>
+		</div>
+		<div>
+			<span>查询结果：</span>
+			<button onclick="SG_ClearQueryResponse();" style="width:auto;height:auto;padding:2px 5px;padding:2px 5px !important;">清空结果</button>
+			<button onclick="SG_DownloadFat32File();" style="width:auto;height:auto;padding:2px 5px;padding:2px 5px !important;">下载第一个文件</button>
+		</div>
+		<textarea id="fat32_response" name="fat32_response" rows="10" cols="100" readonly></textarea>
+	</div>
+
+	<script type="text/javascript">
+	
+	function SG_QueryFat32Files (puid, ivIdx) {
+		try {
+
+			SG_ClearQueryResponse ();
+
+			var cs = NPPILY.Connections.get(NPPILY.Connections.keys()[0]);
+
+			if (cs) {
+				var sgIdx = 0;
+
+				var btime_str = '2019-12-05 11:00:00';
+				var etime_str = '2019-12-05 12:00:00';
+				
+				var btime_utc = parseInt(new Date(btime_str.replace(/-/,'/')).getTime() / 1000);
+				var etime_utc = parseInt(new Date(etime_str.replace(/-/,'/')).getTime() / 1000);
+
+				jQuery('#fat32_response').append('query {' + puid + ', '+ ivIdx + '} time from ' + btime_str + ' to ' + etime_str);
+
+				var _operator = NPPILY.SG_FAT32QueryFiles(
+					cs.connectId,
+					puid,
+					sgIdx, 
+					ivIdx, 
+					btime_utc, 
+					etime_utc, 
+					NPPILY.Enum.NrcapStreamType.STORAGE, 
+					0, 
+					100
+				);
+				
+				jQuery('#fat32_response').data({
+					puid: puid,
+					sgIdx: sgIdx,
+					ivIdx: ivIdx,
+					operator: _operator
+				});
+
+				jQuery('#fat32_response').append("\r\n");
+
+				jQuery('#fat32_response').append('query response: ' + jQuery.toJSON(_operator));
+			}
+		}
+		catch (e) {
+			jQuery('#fat32_response').append("\r\n");
+			jQuery('#fat32_response').append('excep error ->' + e.name + ', ' + e.message);
+		}
+	} 
+
+	function SG_ClearQueryResponse () {
+		try {
+			jQuery('#fat32_response').val('');
+			jQuery('#fat32_response').data('operator', null);
+		}
+		catch (e) {
+			jQuery('#fat32_response').append('excep error ->' + e.name + ', ' + e.message);
+		}
+	}
+
+	function SG_DownloadFat32File () {
+		try {
+			var _puid = jQuery('#fat32_response').data('puid');
+			var _sgIdx = jQuery('#fat32_response').data('sgIdx');
+			var _ivIdx = jQuery('#fat32_response').data('ivIdx');
+			var _operator = jQuery('#fat32_response').data('operator');
+			
+			if (_operator && _operator.rv == 0 && _operator.response) {
+				var _result = _operator.response;
+
+				if (_result && _result.length > 0) {
+					var cs = NPPILY.Connections.get(NPPILY.Connections.keys()[0]);
+
+					if (cs) {
+
+						var dl_operator = NPPILY.Download.StartFAT32FileDownload(
+							cs.connectId,
+							_puid,
+							_sgIdx,
+							_ivIdx,
+							_result[0].path + '' + _result[0].name,
+							'D://' + _result[0].name
+						);
+
+						jQuery('#fat32_response').append("\r\n");
+						jQuery('#fat32_response').append('dl_operator_str -> ' + jQuery.toJSON(dl_operator)); // dl_operator->response流句柄
+
+					}
+				}
+			}
+		}
+		catch (e) {
+			jQuery('#fat32_response').append('excep error ->' + e.name + ', ' + e.message);
+		}
+	}
+
+	</script>
+
+	<h1 class="h1A">获取资源 NPPILY.ForkResource</h1>
+	<div class="content cc">
+		<p style="text-indent: 2em">当连接成功后，就可以开始获取资源了。获取资源可以调用NPPILY.ForkResource(connectId, forkLevel, offset, count, domainRoad, customParams)函数。参数应按照以下参数要求传参。
+		</p>
+		<p style="text-indent: 2em;padding-top:10px;">
+			<strong>
+				获取资源参数说明:
+			</strong>
+		</p>
+		<div style="padding-left:25px;padding-top:10px;">
+			<table>
+				<tr>
+					<td>
+						变量
+					</td>
+					<td>
+						类型
+					</td>
+					<td>
+						描述
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						connectId
+					</td>
+					<td>
+						String NOT NULL
+					</td>
+					<td>
+						连接ID，由登录成功后返回连接唯一标识
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						forkLevel
+					</td>
+					<td>
+						NPPILY.Enum.ForkResourceLevel NOT NULL
+					</td>
+					<td>
+						获取或构建资源级别。具体信息，<span class="td_b">参考获取或构建资源级别</span>
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						offset
+					</td>
+					<td>
+						Number NULL
+					</td>
+					<td>
+						分页获取资源偏移量
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						count
+					</td>
+					<td>
+						Number NULL
+					</td>
+					<td>
+						分页获取资源偏移量
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						domainRoad 
+					</td>
+					<td>
+						String NULL
+					</td>
+					<td>
+						子域节点名称
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						customParams
+					</td>
+					<td>
+						Object NULL
+					</td>
+					<td>
+						自定义参数
+					</td>
+				</tr>
+			</table>
+		</div>
+		<p style="text-indent: 2em;padding-top:10px;">
+			<strong>
+				获取或构建资源级别 NPPILY.Enum.ForkResourceLevel
+			</strong>
+		</p>
+		<div style="padding-left:25px;padding-top:10px;">
+			<table>
+				<tr>
+					<td>
+						定义
+					</td>
+					<td>
+						值
+					</td>
+					<td>
+						描述
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						nppForkPUInfo
+					</td>
+					<td>
+						nppForkPUInfo
+					</td>
+					<td>
+						获取PU节点信息
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						nppForkPUResourceInfo
+					</td>
+					<td>
+						nppForkPUResourceInfo
+					</td>
+					<td>
+						获取PU节点资源信息
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						nppForkOnePUInfo
+					</td>
+					<td>
+						nppForkOnePUInfo
+					</td>
+					<td>
+						获取一个PU节点信息
+					</td>
+				</tr>
+			</table>
+		</div>
+		<p style="text-indent: 2em;padding-top:10px;">
+			<strong>
+				返回值 NPPILY.Struct.ReturnValueStruct
+			</strong>
+		</p>
+		<div style="padding-left:25px;padding-top:10px;">
+			<table>
+				<tr>
+					<td>
+						变量
+					</td>
+					<td>
+						类型
+					</td>
+					<td>
+						描述
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						rv
+					</td>
+					<td>
+						Number
+					</td>
+					<td>
+						错误编码
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						response
+					</td>
+					<td>
+						Object NULL
+					</td>
+					<td>
+						当rv为0时，返回有效的值，否则为NULL
+					</td>
+				</tr>
+			</table>
+		</div>
+		<p style="text-indent: 2em;padding-top:10px;">
+			<strong>说明：</strong>
+				offset和count参数在参数forklevel等于NPPILY.Enum.ForkResourceLevel.nppForkPUInfo时有效。
+				获取直连设备时，可只传connectId即可。
+				获取平台设备时，connectId和forkLevel参数必须传入，可分页查询资源信息。
+				在获取子资源时，customParams结构如下
+				<pre>
+	var customParams = 
+	{
+	    PUID : String puid
+	}
+				</pre>返回值rv等于0时，即代表获取成功。response等于resource。resource结构类型说明见NPPILY.Struct.PuNodeStruct和NPPILY.Struct.PuResourceNodeStruct。否则，rv等于相应的错误码。
+		</p>
+		
+		
+		<p style="text-indent: 2em;padding-top:10px;">
+			<strong>
+				PU资源节点结构 NPPILY.Struct.PuNodeStruct
+			</strong>
+		</p>
+		<div style="padding-left:25px;padding-top:10px;">
+			<table>
+				<tr>
+					<td>
+						变量
+					</td>
+					<td>
+						类型
+					</td>
+					<td>
+						描述
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						puid
+					</td>
+					<td>
+						String NOT NULL
+					</td>
+					<td>
+						设备PUID
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						resType
+					</td>
+					<td>
+						String NOT NULL
+					</td>
+					<td>
+						资源类型，一般为NPPILY.Enum.PuResourceType.SELF
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						resIdx
+					</td>
+					<td>
+						String NOT NULL
+					</td>
+					<td>
+						资源索引，一般为"0"
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						name
+					</td>
+					<td>
+						String NOT NULL
+					</td>
+					<td>
+						设备名称
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						description
+					</td>
+					<td>
+						String NULL
+					</td>
+					<td>
+						描述
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						enable
+					</td>
+					<td>
+						String NOT NULL
+					</td>
+					<td>
+						设备是否使能（”1”是”0”否）
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						online
+					</td>
+					<td>
+						String NOT NULL
+					</td>
+					<td>
+						设备是否在线（”1”是”0”否）
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						immitted
+					</td>
+					<td>
+						String NOT NULL
+					</td>
+					<td>
+						设备是否允许接入（”0”不允许，”1”允许）
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						modelName
+					</td>
+					<td>
+						String NOT NULL
+					</td>
+					<td>
+						站点型号
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						modelType
+					</td>
+					<td>
+						NPPILY.Enum.PuModelType NOT NULL
+					</td>
+					<td>
+						站点类型
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						manufactrueID
+					</td>
+					<td>
+						String NOT NULL
+					</td>
+					<td>
+						生产厂商
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						hardwareVersion
+					</td>
+					<td>
+						String NOT NULL
+					</td>
+					<td>
+						硬件版本号
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						softwareVersion
+					</td>
+					<td>
+						String NOT NULL
+					</td>
+					<td>
+						软件版本号
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						deviceID
+					</td>
+					<td>
+						String NOT NULL
+					</td>
+					<td>
+						设备ID
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						latitude
+					</td>
+					<td>
+						String NOT NULL
+					</td>
+					<td>
+						固定点纬度
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						longitude
+					</td>
+					<td>
+						String NOT NULL
+					</td>
+					<td>
+						固定点经度
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						_HANDLE
+					</td>
+					<td>
+						String NOT NULL
+					</td>
+					<td>
+						设备资源句柄
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						childResource
+					</td>
+					<td>
+						Array(NPPILY.Struct.PuResourceNodeStruct) NULL
+					</td>
+					<td>
+						子资源信息数组，在获取设备级资源时，此节点为空数组，获取子资源的时候上层可以用来存储子资源信息
+					</td>
+				</tr>
+			</table>
+		</div>
+		<p style="text-indent: 2em;padding-top:10px;">
+			<strong>
+				PU子资源节点结构 NPPILY.Struct.PuResourceNodeStruct
+			</strong>
+		</p>
+		<div style="padding-left:25px;padding-top:10px;">
+			<table>
+				<tr>
+					<td>
+						变量
+					</td>
+					<td>
+						类型
+					</td>
+					<td>
+						描述
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						type
+					</td>
+					<td>
+						NPPILY.Enum.PuResourceType NOT NULL
+					</td>
+					<td>
+						资源类型
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						idx
+					</td>
+					<td>
+						String NOT NULL
+					</td>
+					<td>
+						索引号
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						name
+					</td>
+					<td>
+						String NOT NULL
+					</td>
+					<td>
+						资源名称
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						description
+					</td>
+					<td>
+						String NOT NULL
+					</td>
+					<td>
+						资源描述
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						enable
+					</td>
+					<td>
+						String NOT NULL
+					</td>
+					<td>
+						是否使能（可以结合设备的online、enable属性必要的处理，如在资源树中用图标区别）
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						_HANDLE
+					</td>
+					<td>
+						String NOT NULL
+					</td>
+					<td>
+						设备子资源句柄
+					</td>
+				</tr>
+			</table>
+		</div>
+		<p style="text-indent: 2em;padding-top:10px;">
+			<strong>
+				NPPILY获取的设备类型 NPPILY.Enum.PuModelType
+			</strong>
+		</p>
+		<div style="padding-left:25px;padding-top:10px;">
+			<table>
+				<tr>
+					<td>
+						变量
+					</td>
+					<td>
+						类型
+					</td>
+					<td>
+						描述
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						ENC
+					</td>
+					<td>
+						ENC
+					</td>
+					<td>
+						有线编码器
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						WENC
+					</td>
+					<td>
+						WENC
+					</td>
+					<td>
+						无线编码器
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						DEC
+					</td>
+					<td>
+						DEC
+					</td>
+					<td>
+						有线解码器
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						WDEC
+					</td>
+					<td>
+						WDEC
+					</td>
+					<td>
+						无线解码器
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						CSU
+					</td>
+					<td>
+						CSU
+					</td>
+					<td>
+						中心存储单元
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						ESU
+					</td>
+					<td>
+						ESU
+					</td>
+					<td>
+						企业自建存储单元
+					</td>
+				</tr>
+			</table>
+		</div>
+		<p style="text-indent: 2em;padding-top:10px;">
+			<strong>
+				NPPILY获取的资源类型 NPPILY.Enum.PuResourceType
+			</strong>
+		</p>
+		<div style="padding-left:25px;padding-top:10px;">
+			<table>
+				<tr>
+					<td>
+						变量
+					</td>
+					<td>
+						类型
+					</td>
+					<td>
+						描述
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						GPS
+					</td>
+					<td>
+						GPS
+					</td>
+					<td>
+						GPS模块
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						WIFI
+					</td>
+					<td>
+						WIFI
+					</td>
+					<td>
+						WIFI模块
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						AudioIn
+					</td>
+					<td>
+						IA
+					</td>
+					<td>
+						输入音频
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						AlertIn
+					</td>
+					<td>
+						IDL
+					</td>
+					<td>
+						输入报警
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						AudioOut
+					</td>
+					<td>
+						OA
+					</td>
+					<td>
+						输出音频
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						AlertOut
+					</td>
+					<td>
+						ODL
+					</td>
+					<td>
+						输出报警
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						VideoIn
+					</td>
+					<td>
+						IV
+					</td>
+					<td>
+						输入视频
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						VideoOut
+					</td>
+					<td>
+						OV
+					</td>
+					<td>
+						输出视频
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						PTZ
+					</td>
+					<td>
+						PTZ
+					</td>
+					<td>
+						云台
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						SELF
+					</td>
+					<td>
+						SELF
+					</td>
+					<td>
+						站点
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						GPS
+					</td>
+					<td>
+						GPS
+					</td>
+					<td>
+						GPS模块
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						Storager
+					</td>
+					<td>
+						SG
+					</td>
+					<td>
+						存储器(前端存储)
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						SC
+					</td>
+					<td>
+						SC
+					</td>
+					<td>
+						存储器(中心存储)
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						SerialPort
+					</td>
+					<td>
+						SP
+					</td>
+					<td>
+						设备串口
+					</td>
+				</tr>
+				<tr>
+					<td class="td_b">
+						Wireless
+					</td>
+					<td>
+						WM
+					</td>
+					<td>
+						无线模块
+					</td>
+				</tr>
+			</table>
+		</div>
+		<p style="text-indent: 2em;padding-top:10px;">
+			<strong>
+				示例1（获取根级平台资源）：
+			</strong>
+		</p>
+		<div style="padding-left:25px;padding-top:10px;overflow:auto;">
+			<div><input type="button" value="获取资源" onClick="javascript:WebClient.FetchResource();"/></div>
+			<div id="resourceTree" class="resourceTree" ></div>
+			<div id="loginMsg"></div>
+		</div>
+		<p style="text-indent: 2em;padding-top:10px;">
+			<strong>
+				JavaScript源码：
+			</strong>
+		</p>
+		<div style="padding-left:25px;padding-top:10px;">
+			<pre id="preCode" style="border:0px grey solid;width:790px;">
+	//获取平台资源		
+	var offset = 0;
+	var count = 200;
+	var rv = NPPILY.ForkResource(connectId, NPPILY.Enum.ForkResourceLevel.nppForkPUInfo, offset, count);
+	
+	//获取平台子资源		
+	//PUID为设备PUID
+	var rv = NPPILY.ForkResource(connectId, NPPILY.Enum.ForkResourceLevel.nppForkPUResourceInfo, 0, 0, null,{PUID:puid});
+	
+	//获取前端资源
+	var rv = NPPILY.ForkResource(connectId);	
+	
+	//获取指定PUID的设备资源及子资源
+	//PUID为设备PUID
+	var rv = NPPILY.ForkResource(connectId, NPPILY.Enum.ForkResourceLevel.nppForkOnePUInfo, 0, 0, null,{PUID:puid});
+			</pre>
+		</div>
+        
+        <!-- @huzw 2014.04.15 add -->
+        <p style="text-indent:20px;padding-top:10px;">
+        	<strong>示例2（获取级联子域平台资源）：</strong>
+        </p>
+        <div style="padding-left:25px;padding-top:10px;overflow:auto;">
+        	<div><input type=button value="获取子域资源" onclick="WebClient.FetchCascadeResource();" /></div>
+            <div id="cascade_resourceTree" class="resourceTree"></div>
+            <div id="cascade_loginMsg"></div>
+        </div>
+        <p style="text-indent: 2em;padding-top:10px;">
+			<strong>
+				JavaScript源码：
+			</strong>
+		</p>
+        <div style="padding-left:25px;padding-top:10px;">
+			<pre id="cascade_preCode" style="border:0px grey solid;width:790px;">
+// 获取级联子域平台名称列表
+一、在建立平台连接成功后，在连接信息结构中会获取并保存一次子域名称，存放在domainRoad属性里
+var _connStruct = NPPILY.Connections.get(WebClient.connectId);
+// 下面是一个数组结构，结构如["A", "B", "C.A", ...]，其中每一项对应一个子域平台名称
+// 例如"C.A"表示C平台隶属A平台，而A平台隶属此处连接的主平台（隶属主平台的子域没有英文句号，其他子域隶属关系有英文句号）
+var domainRoads = _connStruct.domainRoad || []; 
+        
+二、或者重新调用命令获取子域名称
+var operator = NPPILY.GetDomainRoad(WebClient.connectId);
+if (operator.rv == 0) {
+    domainRoads = operator.response || [];
+}
+                
+// 根据级联子域平台名称获取资源
+jQuery.each(domainRoads, function (index, item) {
+	// item为一个子域名（取全称，如上面结构中的"C.A"，item不应该只为"C"，而应该为"C.A"）
+    // item如果为空或者子域名称不正确，实际上获取到的资源均是主平台的直接资源（注意获取主平台资源时item应为空）
+    // 获取资源时上层考虑分页获取，这里调用过程只做展示（demo具体代码中实现了分页获取功能）
+    var operator = NPPILY.ForkResource
+    (
+    	WebClient.connectId,
+        NPPILY.Enum.ForkResourceLevel.nppForkPUInfo,
+        0,
+        200,
+    	item
+    ); 
+    if (operator.rv == 0) {
+    	// operator.response即为资源数组，结构参考Array(NPPILY.Struct.PUNodeStruct)
+    }
+});
+			</pre>
+		</div>
+        
+	</div>
+</body>
+</html>
+<script>
+var WebClient = {
+	connectId : null,
+	resource : new NPPUtils.Hash(),
+	Load:function(){
+		//初始化插件
+		try{
+			if(!NPPILY.Plug.inited) {
+				
+				$.browser = {}; // 解决opera报错
+			
+				$("#preCode").snippet("javascript", { style: "acid", collapse: true, startCollapsed: false});
+				$("#cascade_preCode").snippet("javascript", { style: "acid", collapse: true, startCollapsed: false});
+				
+				//初始化
+				var rv = NPPILY.Init(new NPPILY.Struct.InitParamStruct(false, null,null));
+				if(rv.rv != NrcapError.NRCAP_SUCCESS){
+					alert(NrcapError.Detail(rv.rv));
+				}
+				WebClient.Connect();
+			}
+			
+			SG_ClearQueryResponse ();
+		}
+		catch(e){
+			alert(e.name + ","+ e.message);
+			return false;
+		}
+	},
+	// - 创建连接,并记录在NPPILY.Connections中
+	Connect:function(){
+		
+		var path = _npc.connParams.path || "127.0.0.1:8866";
+		var username = _npc.connParams.username || "admin";
+		var password = _npc.connParams.password || "";
+		var epId = _npc.connParams.epId || "system";//登陆参数：企业id
+		var bfix = _npc.connParams.bfix || 0;
+		
+		var param = new NPPIF.Struct.ConnParamStruct(path,username,epId,password,bfix);
+		var conn = NPPILY.Connect(param);
+		if(conn.rv == NrcapError.NRCAP_SUCCESS){
+			WebClient.connectId = conn.response;//NPPILY.Connect接口创建的连接ID(string)
+		}else{
+			if($("#loginMsg")[0])
+				$("#loginMsg")[0].innerHTML += NrcapError.Detail(conn.rv) + "</br>";
+		}
+	},
+	/*	
+		获取资源(FetchResource)
+		connectId(string) 连接ID
+		forkLevel(NPPILY.Enum.ForkResourceLevel) 构建资源级别
+		offset(uint) 分页查询开始索引
+		count(unit) 分页查询每次最大个数
+	*/
+	FetchResource: function () {
+		try {
+			var connectId = WebClient.connectId;
+			if (!connectId || !NPPILY.Connections.get(connectId)) {
+				alert("连接信息不存在，获取资源失败");
+				return false;
+			}
+			var _connStruct = NPPILY.Connections.get(connectId),
+				rootName = "",
+				resource = [],
+				style = "cr",
+				offset = 0,
+				count = 200,
+				html = [];
+			
+			if (_connStruct.connType == NPPILY.Enum.ConnectionType.Server) {
+				rootName = _connStruct.systemName || "网络视频监控系统";
+				
+				while(true) {
+					// 分页获取所有设备资源
+					var operator = NPPILY.ForkResource
+					(
+						connectId,
+						NPPILY.Enum.ForkResourceLevel.nppForkPUInfo,
+						offset,
+						count,
+						"" // 为空获取根平台的资源 
+					);
+					if (operator.rv == 0 && operator.response) {
+						resource = resource.concat(operator.response);
+						
+						if (operator.response.length >= count) {
+							// 继续获取
+							offset = offset + count;
+						}
+						else {
+							break;
+						}
+					}
+					else {
+						// 其他错误跳出循环
+						break;
+					} 
+				};
+				// 进行在线排序
+				var onlines = [], offlines = [];
+				$.each(resource, function (index, item) {
+					if (item.online == 1 && item.enable == 1) {
+						onlines.push(item);
+					}
+					else {
+						offlines.push(item);
+					}
+				});
+				resource = [];
+				resource = resource.concat(onlines);
+				resource = resource.concat(offlines);
+			}
+			else {
+				// 直连设备
+				var operator = NPPILY.ForkResource(connectId);
+				if (operator.rv == 0 && operator.response) {
+					resource = [operator.response];
+					
+					rootName = operator.response.name || "";
+				}
+			}
+			// 记录资源信息
+			WebClient.resource.set(connectId, resource);
+			
+			if ($("#resourceTree")[0]) {
+				var lastnode = "",
+					idRootPfx = style + '_cesSystemManagement';
+				
+				html.push('<div id="' + idRootPfx + '" style="white-space:nowrap;margin-top:2px !important; margin-top:2px;">');
+					html.push('<input id="'+idRootPfx+'_img_title" type="button" class="minus" onfocus="this.blur();" onclick="WebClient.Expandsion($(\'#'+idRootPfx+'_childresourcebox\')[0], $(\'#'+idRootPfx+'_img_title\')[0]);" />');
+					html.push('<input id="'+idRootPfx+'_img_ico" type="button" class="root" onfocus="this.blur();" onclick="WebClient.Expandsion($(\'#'+idRootPfx+'_childresourcebox\')[0], $(\'#'+idRootPfx+'_img_title\')[0]);" />');
+					html.push('<label onclick="WebClient.Expandsion($(\'#'+idRootPfx+'_childresourcebox\')[0],$(\'#'+idRootPfx+'_img_title\')[0]);" title="'+rootName+'">'+rootName+'</label>');
+					// html.push('<a href="javascript:void(0);" onclick="WebClient.Expandsion($(\'#'+idRootPfx+'_childresourcebox\')[0], $(\'#'+idRootPfx+'_img_title\')[0]);" title="' + rootName + '">' + rootName + '</a>');
+				html.push('</div>');
+				
+				html.push('<div id="'+idRootPfx+'_childresourcebox" class="childresourcebox_blankline" style="padding-left:15px;">');
+				// 遍历资源
+				$.each(resource, function (index, item) {
+					var prefix = "station", suffix = "_disabled", idPfx = style + "_" + item.puid;
+					
+					if (_connStruct.connType == NPPILY.Enum.ConnectionType.Server) {
+						switch (item.modelType) {
+							case NPPILY.Enum.PuModelType.ENC:
+								prefix = "station";
+								break;
+							case NPPILY.Enum.PuModelType.WENC:
+								prefix = "gateway";
+								break;
+							default:
+								return true;
+								break;
+						}
+					}
+					
+					if (item.online == 1 && item.enable == 1) {
+						suffix = "";
+					}
+					var clsname = prefix + "" + suffix;
+					
+					html.push('<div style="white-space:nowrap;">');
+						html.push('<input id="'+idPfx+'_img_title" type="button" class="plus" onfocus="this.blur();" onclick="WebClient.FetchChildResource(\'' + item.puid + '\', \'' + style + '\');" />');
+						html.push('<input id="'+idPfx+'_img_ico" type="button" class="'+clsname+'" onfocus="this.blur();" onclick="WebClient.FetchChildResource(\'' + item.puid + '\', \'' + style + '\');" />');
+						html.push('<label onclick="WebClient.FetchChildResource(\'' + item.puid + '\', \'' + style + '\');" title="'+item.name+'">'+item.name+'</label>');
+						// html.push('<a href="javascript:void(0);" onclick="WebClient.FetchChildResource(\'' + item.puid + '\', \'' + style + '\');" title="' + item.name + '">' + item.name + '</a>');
+					html.push('</div>');
+					html.push('<div id="'+idPfx+'_childresourcebox" class="childresourcebox_directline" style="height:auto;display:none;padding-left:15px;">');
+					html.push('</div>');
+					
+					lastnode = idPfx + '_childresourcebox';
+				});
+				if (resource.length <= 0) {
+					html.push('<div style="font-style:italic;">（无设备资源）</div>');
+				}
+				html.push('</div>');
+				
+				$("#resourceTree")
+					.html(html.join(""))
+					.find("#" + lastnode)
+					.attr("class", "childresourcebox_blankline");
+			}
+		}
+		catch (e) {
+			alert("excep error -> " + e.name + "::" + e.message);
+			return false;
+		}
+	},
+	
+	/*获取子资源(FetchChildResource)
+	  puid(string) 设备PUID
+	  connectId(string) 连接ID
+	  forkLevel(NPPILY.Enum.ForkResourceLevel.nppForkPUResourceInfo) 构建资源级别
+	*/
+	FetchChildResource: function (puid, style) {
+		try {
+			var idPfx = style + "_" + puid,
+				idChildresbox = idPfx + "_childresourcebox",
+				idPUTitle = idPfx + "_img_title";
+			
+			var connectId = WebClient.connectId;
+			if (!connectId || !NPPILY.Connections.get(connectId)) {
+				alert("连接信息不存在，获取资源失败");
+				return false;
+			}
+			var _connStruct = NPPILY.Connections.get(connectId);
+			
+			if ($("#" + idChildresbox)[0]) {
+				if ($("#" + idChildresbox).html() == "") {
+					// 是否存在相关子资源信息
+					var puInfo, puChildres = [];
+					$.each(WebClient.resource.get(connectId), function(index, item) {
+						if (item.puid == puid) {
+							puInfo = item;
+							puChildres = item.childResource || [];
+							return false;
+						}
+					});
+					// 为空就去获取子资源信息
+					if (!puChildres || puChildres.length <= 0) {
+						var operator = NPPILY.ForkResource
+						(
+							connectId,
+							NPPILY.Enum.ForkResourceLevel.nppForkPUResourceInfo,
+							null,
+							null,
+							null,
+							{
+								PUID: puid
+							}
+						);
+						if (operator.rv == 0) {
+							puChildres = operator.response;
+						}
+					}
+					
+					var html = [],
+						lastnode = "";
+					
+					if (puInfo && puChildres && puChildres.length > 0) {
+						$.each(puChildres, function (index, item) {
+							var prefix = "inputvideo", suffix = "";
+							
+							if (item.type != NPPILY.Enum.PuResourceType.VideoIn) {
+								return true;
+							}
+							
+							if (puInfo.online == 0 || puInfo.enable == 0 || item.enable == 0) {
+								suffix = "_disabled";
+							}
+							
+							var clsname = prefix + "" + suffix;
+							
+							var idChildPfx = idPfx + "_" + item.type + "_" + item.idx;
+							
+							html.push('<div style="white-space:nowrap;">');
+								html.push('<input id="'+idChildPfx+'_img_title" type="button" class="outline" onfocus="this.blur();" onclick="WebClient.treeCallBack(\'' + puid + '\',\'' + item.idx + '\',\'' + style + '\',\'' + item.name + '\');" />');
+								html.push('<input id="'+idChildPfx+'_img_ico" type="button" class="'+clsname+'" onfocus="this.blur();" onclick="WebClient.treeCallBack(\'' + puid + '\',\'' + item.idx + '\',\'' + style + '\',\'' + item.name + '\');" />');
+								html.push('<label onclick="WebClient.treeCallBack(\'' + puid + '\',\'' + item.idx + '\',\'' + style + '\',\'' + item.name + '\');" title="'+item.name+'">'+item.name+'</label>');
+								// html.push('<a href="javascript:void(0);" onclick="WebClient.treeCallBack(\'' + puid + '\',\'' + item.idx + '\',\'' + style + '\',\'' + item.name + '\');" title="' + item.name + '">' + item.name + '</a>');
+							html.push('</div>');
+							
+							lastnode = idChildPfx + "_img_title";
+						});
+					}
+					else {
+						html.push('<div style="font-style:italic;">（无视频资源）</div>');
+					}
+					
+					$("#" + idChildresbox)
+						.html(html.join(""))
+						.find("#" + lastnode)
+						.attr("class", "endline");
+						
+				} // end if html()
+				
+				WebClient.Expandsion($("#" + idChildresbox)[0], $("#" + idPUTitle)[0]);
+			} 
+		}
+		catch (e) {
+			alert("excep error -> " + e.name + "::" + e.message);
+			return false;
+		}
+	},
+	
+	treeCallBack: function(puid, idx, type, name) {
+		alert(name);
+	},
+	
+	/*
+	---
+	fn: FetchCascadeResource
+	desc: 获取级联子域平台资源
+	author: 
+		- huzw
+	time: 2014.04.15
+	...
+	*/
+	FetchCascadeResource: function () {
+		try {
+			var fn = "WebClient.FetchCascadeResource";
+			
+			// - 首先清空级联资源列表
+			$("#cascade_resourceTree").html();
+			
+			var connectId = WebClient.connectId;
+			if (!connectId || !NPPILY.Connections.get(connectId)) {
+				alert("fn -> " + fn + ", msg -> 连接不存在");
+				return false;
+			}
+			var _connStruct = NPPILY.Connections.get(connectId),
+				sysname = _connStruct.systemName,
+				lastNode = "";
+			
+			var html = [];
+			html.push('<div id="cascade_root" style="white-space:nowrap;">'); // 1
+				html.push('<input id="cascade_root_title" type=button class="minus" />');
+				html.push('<input id="cascade_root_ico" type=button class="root" />');
+				html.push('<a id="cascade_root_name" href="javascript:void(0);">'+(sysname||"NVS")+'</a>');
+			html.push('</div>'); // end 1
+			html.push('<div id="cascade_root_childresourcebox" class="childresourcebox_blankline" style="padding-left:15px;">'); // 2
+			// - 首先把级联子域平台名称列出来
+			// _connStruct.domainRoad = ["13电脑子域", "12.13电脑子域", "11平台.13电脑子域", "15.12.13电脑子域"]; // 测试
+					
+			var domainRoads = _connStruct.domainRoad;
+			if (!domainRoads || domainRoads.length <= 0) {
+				// - 获取子域名称
+				var operator = NPPILY.GetDomainRoad(connectId); 
+				if (operator.rv == NrcapError.NRCAP_SUCCESS) {
+					domainRoads = operator.response;
+					_connStruct.domainRoad = domainRoads;
+				}
+			}
+			var hasDR = false;
+			if (domainRoads) {
+				$.each(domainRoads, function (index, item) {
+					// - 首先过滤列出第一级的子域名称
+					if (item.indexOf(".") != -1) return true;
+					
+					hasDR = true;
+					
+					html.push('<div id="cascade_dr_'+item+'" style="white-space:nowrap;">');
+						html.push('<input id="cascade_dr_'+item+'_title" type=button class="plus" onclick="WebClient.FetchCascadeChildResource(\''+item+'\');" />');
+						html.push('<input id="cascade_dr_'+item+'_ico" type=button class="root" onclick="WebClient.FetchCascadeChildResource(\''+item+'\');" />');
+						html.push('<a id="cascade_dr_'+item+'_name" href="javascript:void(0);" onclick="WebClient.FetchCascadeChildResource(\''+item+'\');">'+item+'</a>');
+					html.push('</div>');
+					html.push('<div id="cascade_dr_'+item+'_childresourcebox" class="childresourcebox_directline" style="padding-left:15px;display:none;">');
+					html.push('</div>');
+					
+					lastNode = item;
+				});
+			}
+			if (!hasDR) {
+				html.push('<a href="javascript:void(0);" style="white-space:nowrap;"><p style="font-style:italic;">（无级联子域平台）</p></a>');
+			}
+			html.push('</div>'); // ene 2
+			 
+			$("#cascade_resourceTree")
+				.html(html.join(""))
+				.find("#cascade_dr_"+lastNode+"_childresourcebox")
+				.attr("class", "childresourcebox_blankline");
+		}
+		catch (e) {
+			alert("fn -> " + fn + ", msg ->" + e.name + "::" + e.message);		
+		}
+	},
+	// - 获取子域的资源 B.A -> domainName = B, fullDomainName = B.A
+	FetchCascadeChildResource: function (domainName, fullDomainName) {
+		try {
+			var fn = "WebClient.FetchCascadeChildResource";
+			
+			if (domainName) {
+				var fullDomainName = fullDomainName || domainName || "";
+				
+				var connectId = WebClient.connectId;
+				if (!connectId || !NPPILY.Connections.get(connectId)) {
+					alert("fn -> " + fn + ", msg -> 连接不存在");
+					return false;
+				}
+				var _connStruct = NPPILY.Connections.get(connectId),
+					domainRoads = _connStruct.domainRoad;
+					
+				var titleDomID = "cascade_dr_"+domainName+"_title",
+					icoDomID = "cascade_dr_"+domainName+"_ico",
+					childboxDomID = "cascade_dr_"+domainName+"_childresourcebox";
+					
+				if ($("#" + childboxDomID)[0] && $("#" + childboxDomID).html() == "") {
+					// - 获取子域对应的资源
+					var resource = [],
+						offset = 0,
+						count = 200,
+						html = [],
+						lastNode = null,
+						hasRes = false; // - 是否具有资源
+					
+					while(true) {
+						var operator = NPPILY.ForkResource
+						(
+							connectId,
+							NPPILY.Enum.ForkResourceLevel.nppForkPUInfo,
+							offset,
+							count,
+							fullDomainName					
+						);
+						if (operator.rv == NrcapError.NRCAP_SUCCESS) {
+							if (operator.response && $.isArray(operator.response)) {
+								resource = resource.concat(operator.response);
+								if (operator.response.length >= count) {
+									// - 继续循环获取
+									offset = offset + count;
+								}
+								else {
+									break;
+								}
+							}
+							else {
+								break;
+							}
+						}
+						else {
+							break;
+						}
+					};
+					// - 把子域平台的资源列出来
+					$.each(resource, function (index, item) {
+						if (_connStruct.connType != NPPILY.Enum.ConnectionType.Device) {
+							if (item.modelType != NPPILY.Enum.PuModelType.ENC && item.modelType != NPPILY.Enum.PuModelType.WENC) {
+								return true;
+							}
+						} 
+						
+						hasRes = true;
+						
+						var clsname = "station", sfx = "_disabled";
+						if (item.modelType == NPPILY.Enum.PuModelType.WENC) {
+							clsname = "gateway";
+						}
+						if (item.online == "1" && item.enable == "1") {
+							sfx = "";
+						}
+						clsname += sfx;
+						
+						var pfxDomID = "cascade_dr_" + domainName + "_" + item.puid;
+						
+						html.push('<div style="white-space:nowrap;">');
+						html.push('<input type=button id="'+pfxDomID+'_title" class="plus" onfocus="this.blur();" onclick="WebClient.CreateCascadePUChildResourceTree(\''+item.puid+'\', \''+domainName+'\', \''+fullDomainName+'\');" />');
+						html.push('<input type=button id="'+pfxDomID+'_ico" class="'+clsname+'" onfocus="this.blur();" onclick="WebClient.CreateCascadePUChildResourceTree(\''+item.puid+'\', \''+domainName+'\', \''+fullDomainName+'\');" />');
+						html.push('<a id="'+pfxDomID+'_name" href="javascript:void(0);" onclick="WebClient.CreateCascadePUChildResourceTree(\''+item.puid+'\', \''+domainName+'\', \''+fullDomainName+'\');">' + (item.name || "") + '</a>');
+						html.push('</div>'); 
+						
+						html.push('<div id="'+pfxDomID+'_childresourcebox" class="childresourcebox_directline" style="padding-left:15px;display:none;">'); 
+						html.push('</div>');
+						
+						lastNode = pfxDomID+"_childresourcebox";
+					});
+					// - 再列出来所属可能的子域
+					if (domainRoads) {
+						$.each(domainRoads, function (index, item) {
+							if (item.indexOf(".") != -1 && item.substr(item.indexOf(".") + 1) == fullDomainName) {
+								hasRes = true;
+								
+								var drName = item.substr(0, item.indexOf(".")); 
+								
+								var pfxDomID = "cascade_dr_" + drName;
+								
+								html.push('<div id="'+pfxDomID+'" style="white-space:nowrap;">');
+									html.push('<input id="'+pfxDomID+'_title" type=button class="plus" onclick="WebClient.FetchCascadeChildResource(\''+drName+'\', \''+item+'\');" />');
+									html.push('<input id="'+pfxDomID+'_ico" type=button class="root" onclick="WebClient.FetchCascadeChildResource(\''+drName+'\', \''+item+'\');" />');
+									html.push('<a id="'+pfxDomID+'_name" href="javascript:void(0);" onclick="WebClient.FetchCascadeChildResource(\''+drName+'\', \''+item+'\');">'+drName+'</a>');
+								html.push('</div>');
+								html.push('<div id="'+pfxDomID+'_childresourcebox" class="childresourcebox_directline" style="padding-left:15px;display:none;">');
+								html.push('</div>');
+								
+								lastNode = pfxDomID + "_childresourcebox";
+							}
+						});
+					} 
+					if (hasRes == false) {
+						html.push('<a href="javascript:void(0);" style="white-space:nowrap;"><p style="font-style:italic;">（资源为空）</p></a>');
+					}
+					
+					$("#" + childboxDomID)
+						.html(html.join(""))
+						.find("#" + lastNode)
+						.attr("class", "childresourcebox_blankline");
+					
+				} // end 
+				
+				// - 展开折叠控制
+				// WebClient.Expandsion($("#" + childboxDomID)[0], $("#" + titleDomID)[0], $("#" + icoDomID)[0]);
+				WebClient.Expandsion($("#" + childboxDomID)[0], $("#" + titleDomID)[0]);
+			}	 
+		}
+		catch (e) {
+			alert("fn -> " + fn + ", msg ->" + e.name + "::" + e.message);
+		}
+	},
+	// - 获取级联子域子资源
+	CreateCascadePUChildResourceTree: function(puid, domainName, fullDomainName) {
+		try {
+			var fn = "WebClient.CreateCascadePUChildResourceTree";
+			
+			if (puid && domainName) {
+				var fullDomainName = fullDomainName || domainName || "";
+				
+				var connectId = WebClient.connectId;
+				if (!connectId || !NPPILY.Connections.get(connectId)) {
+					alert("fn -> " + fn + ", msg -> 连接不存在");
+					return false;
+				}
+				var _connStruct = NPPILY.Connections.get(connectId);
+				
+				var pfxDomID = "cascade_dr_" + domainName + "_" + puid;
+				var titleDomID = pfxDomID + "_title";
+				var childboxDomID = pfxDomID + "_childresourcebox";
+				
+				// - 为空则创建
+				if ($("#" + childboxDomID)[0] && $("#" + childboxDomID).html() == "") {
+					var resource = [];
+					var operator = NPPILY.ForkResource
+					(
+						connectId,
+						NPPILY.Enum.ForkResourceLevel.nppForkOnePUInfo,
+						0,
+						0,
+						fullDomainName,
+						{
+							PUID: puid
+						}
+					);
+					if (operator.rv == NrcapError.NRCAP_SUCCESS) {
+						if (typeof operator.response == "object") {
+							if (operator.response.constructor != Array) {
+								operator.response = [operator.response];
+							}
+							resource = operator.response;
+						}
+					}
+					
+					var html = [],
+						hasRes = false,
+						lastNode = null;
+						
+					if (resource && resource.length > 0) {
+						// - 只应该含有一个设备资源信息
+						var pu = resource[0] || {};
+						var childRes = pu.childResource || [];
+						
+						$.each(childRes, function (index, item) {
+							// - 过滤非报警输入资源
+							if (item.type != NPPILY.Enum.PuResourceType.VideoIn) {
+								return true;
+							}
+							hasRes = true;
+							
+							var clsname = "inputvideo", sfx = "_disabled";
+							if (pu.online == "1" && pu.enable == "1" && item.enable == "1") {
+								sfx = "";
+							}
+							clsname += sfx;
+							
+							var pfxDomID = "cascade_dr_" + domainName + "_" + puid + "_" + item.idx;
+							
+							html.push('<div style="white-space:nowrap;margin:0px;">');
+							html.push('<input type=button id="'+pfxDomID+'_title" class="outline" onfocus="this.blur();" onclick="alert(\''+(puid + ", " + item.type + ", " + item.idx)+'\');" />');
+							html.push('<input type=button id="'+pfxDomID+'_ico" class="'+clsname+'" onfocus="this.blur();" onclick="alert(\''+(puid + ", " + item.type + ", " + item.idx)+'\');" />');
+							html.push('<a id="'+pfxDomID+'_name" href="javascript:void(0);" onclick="alert(\''+(puid + ", " + item.type + ", " + item.idx)+'\');" >' + (item.name || "") + '</a>');
+							html.push('</div>'); 
+							
+							lastNode = pfxDomID + "_title";
+						});
+					}
+					if(!hasRes) {
+						html.push('<a href="javascript:void(0);" style="white-space:nowrap;"><p style="font-style:italic;">（视频资源为空）</p></a>');
+					}
+					
+					$("#" + childboxDomID)
+						.html(html.join(""))
+						.find("#" + lastNode)
+						.attr("class", "endline");
+				}
+				
+				// - 展开折叠控制
+				WebClient.Expandsion($("#" + childboxDomID)[0], $("#" + titleDomID)[0]);
+			}
+		}
+		catch (e) {
+			alert("fn -> " + fn + ", msg ->" + e.name + "::" + e.message);
+		}
+	},
+	
+	Expandsion: function (obj, title, ico) {
+		if (obj) {
+			if (obj.style.display == "none") {
+				if (obj.innerHTML == "") return;
+				obj.style.display = "block";
+				if (title) title.className = "minus";
+				if (ico) {
+					ico.className = "stationmodel_expand";
+				}
+			}
+			else {
+				obj.style.display = "none";
+				if (title) title.className = "plus";
+				if (ico) {
+					ico.className = "stationmodel_collapse";
+				}
+			}
+		}
+	},
+	
+	
+	// - 卸载插件
+	UnLoad:function(){
+		NPPILY.UnLoad();
+	},
+	end:true
+}
+if(window.attachEvent){
+	window.attachEvent(
+		"onload",
+		function() {
+			if(WebClient && typeof WebClient == "object" && typeof WebClient.Load == "function") {		
+				WebClient.Load();    
+			}  
+		} 
+	);
+	window.attachEvent(
+		"onunload",
+		function(){
+			if(WebClient && typeof WebClient == "object" && typeof WebClient.UnLoad == "function") {		
+				WebClient.UnLoad();    
+			}  
+		}
+	);
+	window.attachEvent(
+		"onbeforeunload",
+		function(){
+			if(WebClient && typeof WebClient == "object" && typeof WebClient.UnLoad == "function") {	
+				WebClient.UnLoad();    
+			}  
+		}
+	);
+}else{
+	window.addEventListener (
+        "load",
+        function() {
+            if (WebClient && typeof WebClient == "object" && typeof WebClient.Load == "function") {
+                WebClient.Load();
+            } 
+        },
+        false
+    );
+	window.addEventListener (
+        "unload",
+        function() {
+            if (WebClient && typeof WebClient == "object" && typeof WebClient.UnLoad == "function") {
+                WebClient.UnLoad();
+            } 
+        },
+        false
+    );
+	window.addEventListener (
+        "beforeunload",
+        function() {
+            if (WebClient && typeof WebClient == "object" && typeof WebClient.UnLoad == "function") {
+                WebClient.UnLoad();
+            } 
+        },
+        false
+    );
+}
+</script>

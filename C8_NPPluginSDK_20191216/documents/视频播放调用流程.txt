@@ -1,0 +1,238 @@
+以下为视频播放调用流程（可能含示例请鉴别）：
+
+1、在页面中必须按顺序引入脚本NPPInterface.js, NPPInterlayer.js;注意此SDK中全局变量为NPPUtils,NrcapError,XML,MD5,NPPIF,NPPILY等
+
+2、使用此SDK功能，必须首先初始化插件
+	// 初始化参数设置
+	var ips = new NPPILY.Struct.InitParamStruct
+	(
+		false, // 是否打开调试
+		function (message) {
+			// message为此SDK内部调试信息回调，为NPPILY.Struct.DebugMessageStruct结构实例
+		}, 
+		{
+			warmTip : {
+				active : false, // 如果插件没有装载，是否默认启用页面温馨提示
+				pluginFile : "MediaPlugin7.exe" // 默认插件下载地址
+			}
+		}	
+	);
+	// 初始化
+	var operator = NPPILY.Init(ips);
+	if (operator.rv != 0) {
+		// 此时可能就是插件装载不成功，请下载MediaPlugin7.exe手动安装
+		// 详细错误描述可以使用NrcapError.Detail(operator.rv)获取
+		return false;
+	}
+	else {
+		// 可以后续做其他的事情了
+	}
+
+3、连接C7平台或直连设备
+	// connParam为 NPPILY.Struct.ConnParamStruct结构实例
+	var connParam = new NPPILY.Struct.ConnParamStruct
+	(
+		"61.191.26.2:8866", 
+		"admin", 
+		"system", 
+		"", 
+		1 
+	);
+	var operator = NPPILY.Connect(connParam);
+	if (operator.rv == 0) 
+	{
+		// 连接成功，operator.response即为连接ID（很重要，上层需要适当记录）
+		var connectId = operator.response;
+		
+		// 连接信息存放在全局变量NPPILY.Connections(NPPUtils.Hash<key, value>结构实例)中
+		// 连接ID为这里的key，value为NPPILY.Struct.ConnectionStruct结构实例
+		// 获取value属性值，可以如下
+		var cs = NPPILY.Connections.get(connectId);
+		// 判断连接类型
+		switch(cs.connType) {
+			case NPPILY.Enum.ConnectionType.Server:
+				// 连接C7平台
+				break;
+			case NPPILY.Enum.ConnectionType.Device:
+				// 直连设备
+				break;
+		}
+		
+		// 注意应注册事件通知回调函数，以便实时监测设备上下线、是否断开连接等，如下
+		NPPILY.NCNotifyManager.Add
+		(
+			NPPILY.Enum.NCObjectNotify.event_notify,
+			function (notify) {
+				// notify为NPPILY.Struct.NCObjectNotifyStruct结构实例
+				// notify示例{"eventName":"event_notify","_HANDLE":"0996DDA8","errorCode":"0","keyData":{"event":{"id":"EVT_PU_Online","time":"1399185733","level":"Notify","src_id":"151000004028120156","res_type":"SELF","res_idx":"0","ignore":"0","res_name":"000F5C3C18F0","res_desc":"","desc":[{"PUName":"000F5C3C18F0"},{"PUDesc":""}]}}}}
+				
+				// notify._HANDLE属性为句柄，对应连接session，可以根据connectId（连接ID）到NPPILY.Connections中去匹配；如果页面中只存在一个连接信息，那么这些事件肯定都属于此连接周期。（notify.errorCode为非0时，视为连接已断开）
+				// notify.keyData.event属性为具体的事件信息对象，可以根据notify.keyData.event.id属性的不同来区别属于哪个事件，设备上线为EVT_PU_Online，设备下线为EVT_PU_Offline。
+				
+				if (notify.errorCode != 0) {
+					// 连接通道已经断开，需要手动调用NPPILY.DisConnection(connectId);来断开连接
+				}
+				else {
+					// 处理其他有效的事件
+				}
+			}
+		);
+		
+	}
+	
+4、获取或构建资源
+	// 调用函数为NPPILY.ForkResource(connectId, forkLevel, offset, count, domainRoad, customParams);
+	
+	1> // 假若登录的是C7平台，如果平台中设备数过多的话，必要时需要分页获取
+		// 一般需要先获取第一层设备资源
+		var operator = NPPILY.ForkResource
+		(
+			connectId,
+			NPPILY.Enum.ForkResourceLevel.nppForkPUInfo,
+			0, // 分页获取开始量
+			200, // 分页获取条数
+			"" // 子域名全称如"B.A"或A，如果省略或者为空那么就是获取主平台的资源
+		);
+		if (operator.rv == 0) {
+			// 一般返回设备信息为数组结构Array(NPPILY.Struct.PUNodeStruct)
+			var resource = operator.response;
+			// 例如resource = [{"puid":"155740201384498699","resType":"SELF","resIdx":0,"name":"存储服务器","description":"","enable":"1","online":"1","immitted":1,"modelName":"SU","modelType":"CSU","manufactrueID":"00001","hardwareVersion":"","softwareVersion":"7.1.14.221","deviceID":"0FB416EAFC0B","latitude":"0","longitude":"0","_HANDLE":"1BD1CBE8","childResource":[]},{"puid":"151038402097284988","resType":"SELF","resIdx":0,"name":"展厅沙盘车辆抓拍","description":"","enable":"1","online":"1","immitted":1,"modelName":"CR100IP-G020C7-B","modelType":"ENC","manufactrueID":"00001","hardwareVersion":"V3.0.0.0.0.0.10","softwareVersion":"v7.1.3.0118","deviceID":"00001-000F7C07027D","latitude":"0","longitude":"0","_HANDLE":"1BD1CCD0","childResource":[]}, ...]
+		}
+		// 获取设备的子资源
+		var operator = NPPILY.ForkResource
+		(
+			connectId,
+			NPPILY.Enum.ForkResourceLevel.nppForkPUResourceInfo,
+			0, // 无意义
+			0, // 无意义
+			null, // 此时可以不填任何值 
+			{
+				PUID: "151038402097284988" // 把上面的puid属性实际值替换这里
+			}
+		);
+		if (operator.rv == 0) {
+			// 一般返回设备子资源信息为数组结构Array(NPPILY.Struct.PUResourceNodeStruct)
+			var childResource = operator.response;
+			// 例如childResource = [{"type":"IV","idx":"0","name":"Camera0","description":"Camera0","enable":"1","_HANDLE":"08CFA2A0"},{"type":"IA","idx":"0","name":"AudioIn0","description":"AudioIn0","enable":"1","_HANDLE":"08CFA150"},{"type":"OA","idx":"0","name":"AudioOut0","description":"AudioOut0","enable":"1","_HANDLE":"08CFA310"},{"type":"ODL","idx":"0","name":"AlertOut0","description":"AlertOut0","enable":"1","_HANDLE":"08CFA380"},{"type":"IDL","idx":"0","name":"AlertIn0","description":"AlertIn0","enable":"1","_HANDLE":"08CFA3F0"},{"type":"IDL","idx":"1","name":"AlertIn1","description":"AlertIn1","enable":"1","_HANDLE":"08CF9EB0"},{"type":"SP","idx":"0","name":"SerialPort0","description":"SerialPort0","enable":"1","_HANDLE":"08CF9F20"},{"type":"PTZ","idx":"0","name":"PTZ0","description":"PTZ0","enable":"1","_HANDLE":"08CF9F90"}]
+		}
+	
+	2> // 直连设备时，可以只传值connectId即可；亦可以传入connectId, ..., customParams.PUID
+	
+5、创建视频窗口信息
+	
+	1> 假设页面有4个视频窗口容器，DOM ID分别为window0, window1, window2, window3
+		// 首先初始视频容器信息，存放在全局的NPPILY.WindowContainers(NPPUtils.Hash<key, value>结构实例)中
+		// 注意DOM ID可以作为这里的key（当然可以自行记录有映射关系的替代字符串），value结构为NPPILY.Struct.WindowContainerStruct实例
+		
+		// 相同道理window0, window1, window2, window3依次存入
+		NPPILY.WindowContainers.set
+		(
+			"window0",
+			new NPPILY.Struct.WindowContainerStruct(
+				document.getElementById("window0"), // 自行存入个人感兴趣的值，这里是demo推荐存法
+				NPPILY.Enum.WindowType.VIDEO, // 代表是实时视频窗口信息，如果是录像点播回放请使用NPPILY.Enum.WindowType.VOD 
+				false, // 对应的视频窗口是否被选中激活，默认都是false
+				null, // 用来存放NPPILY.CreateWindow返回的窗口信息结构
+				null // 详细描述，一般在播放视频时存放视频的描述信息
+			)
+		);
+	
+		// 具体填入值后信息，查看所有信息，可以
+		var wins = NPPILY.WindowContainers._self(); // 或者var wins = NPPILY.WindowContainers.inf();
+		// wins可能的信息为{"window0":{"container": ..., "type":"VIDEO","active":false,"window":null,"description":null}, ...}
+		
+	2> 创建窗口信息
+		
+		// containerOrId可以为DOM容器或DOM ID
+		var containerOrId = document.getElementById("window0"); // 或者var containerOrId = "window0";
+		
+		// windowEvent为NPPILY.Struct.WindowEventStruct结构实例
+		var winevt = new NPPILY.Struct.WindowEventStruct();
+		// 点击视频窗口
+		winevt.lbtn_click.status = true;
+		winevt.lbtn_click.callback = function () {
+			// 点击后的回调函数
+		};
+		// 右键菜单
+		winevt.menu_command.status = true;
+		// 注意key取值为separator、-、split等字符串时，表示添加一个水平分隔条
+		winevt.menu_command.menu = [{
+			key: "stopvideo", text: "停止视频"							
+		}, {
+			key: "playaudio", text: "播放音频"
+		}, {
+			key: "localsnapshot", text: "本地抓拍"
+		}, {
+			key: "localrecord", text: "开启本地录像"
+		}, {
+			key: "separator", text: "first"		
+		}, {
+			key: "fullscreen", text: "全屏"		
+		}];						
+		winevt.menu_command.callback = function (menukey) {
+			// 回调函数，menukey表示上面的stopvideo、fullscreen等
+		};
+		
+		// 比如使用第一个视频窗口容器
+		var win0 = NPPILY.WindowContainers.get("window0");
+		
+		// 注意如果win0.window属性不为空，就没必要重新创建了
+		if (!win0.window) {
+			var operator = NPPILY.CreateWindow
+			(
+				connectId,
+				containerOrId, 
+				NPPILY.Enum.WindowType.VIDEO, // 实时视频
+				windowEvent
+			);
+			if (operator.rv == 0) {
+				// operator.response为NPPILY.Struct.WindowStruct结构实例，存放在对应的信息里
+				win0.window = operator.response;
+			}
+		}
+		
+
+6、播放实时视频
+	1> 可以首先激活窗口以便后面查找使用哪个窗口进行播放（假设激活DOM ID为window0的窗口）
+		NPPILY.WindowContainers.each(function (item) {
+			var node = item.value;
+			if (item.key == "window0") {
+				node.active = true;
+				// 其他处理
+			}
+			else {
+				node.active = false;
+				// 其他处理
+			}
+		});
+		
+	2> 要播放的设备puid以及childResource子资源中资源类型type为NPPILY.Enum.PuResourceType.VideoIn的，idx为视频索引
+		var operator = NPPILY.PlayVideo
+		(
+			connectId,
+			win0.window,
+			puid,
+			idx,
+			streamType // 流类型，默认为NPPILY.Enum.NrcapStreamType.REALTIME(实时流)
+		);
+		if (operator.rv == 0) {
+			// 播放成功
+			// 最好设置视频窗口插件自适应容器
+			NPPILY.ResizeWindowDimension(win0.window, "100%", "100%");
+		}
+	
+	3> 停止播放
+		NPPILY.StopVideo(win0.window);
+		
+		// 最好使视频窗口插件宽高设置为0，已达到不可见效果
+		NPPILY.ResizeWindowDimension(win0.window, 0, 0);
+		
+7、断开一个连接
+	var operator = NPPILY.DisConnection(connectId);
+	if (operator.rv == 0) {
+		// 断开成功，会清除NPPILY.WindowContainers中视频播放等信息
+	}
+
+8、退出页面时
+	必须调用NPPILY.UnLoad以便清理事件回调、停止视频、卸载插件等所有信息，故要是刷新或者退出页面时，上层不必单独调用断开连接函数，这个里面会自行处理！
+	

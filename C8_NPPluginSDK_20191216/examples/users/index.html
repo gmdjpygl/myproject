@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>内嵌IFrame对讲测试</title>
+
+<link type="text/css" rel="stylesheet" href="../../js/jquery/easyui/themes/default/easyui.css" />
+
+<link type="text/css" rel="stylesheet" href="../../js/jquery/easyui/themes/icon.css" />
+
+<script type="text/javascript" src="../../js/jquery/jquery-1.9.1.js"></script>
+	
+<script type="text/javascript" src="../../js/jquery/lib/jquery.json-2.4.js"></script>
+
+<script type="text/javascript" src="../../js/jquery/easyui/jquery.easyui.min.js"></script>
+
+<script type="text/javascript" src="../../js/jquery/easyui/locale/easyui-lang-zh_CN.js"></script>
+
+<script type="text/javascript" src="../../js/NPPInterface.js"></script>
+
+<script type="text/javascript" src="../../js/NPPInterlayer.js"></script>
+   
+<script type="text/javascript" src="../npp_examples_config.js"></script>
+
+<style type="text/css">
+body {
+	background: #eaf3fc;
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+}
+
+.video-window {
+	width: 720px;
+	height: 300px;
+	background: #1A1A1A;
+	margin: 10px auto;
+	margin: 10px auto !important;
+}
+
+.iframe-window {
+	width: 100%;
+	height: 450px;
+	border: 0px solid gray;
+}
+</style>
+
+<script type="text/javascript">
+
+//暂时固定平台下的单一设备参数查询
+var PU = {
+	PUID: '151038403641576316',　// 设备ＰＵＩＤ（唯一标识）
+	
+	end: true
+};	
+
+
+var VP = VideoPlay = {
+	connectId: null,
+	
+	Load: function () {
+		var operator = NPPILY.Init();
+		if (operator.rv == NrcapError.NRCAP_SUCCESS)
+		{
+			VP.Connect();
+		}
+		else
+		{
+			alert('Nrcap初始化失败 -> ' + NrcapError.Detail(operator.rv));
+		}
+	},
+	
+	UnLoad: function () {
+		NPPILY.UnLoad();
+
+		VP.connectId = null;
+	},
+	
+	Connect: function () {
+		try {
+			
+			var cpm = new NPPILY.Struct.ConnParamStruct();
+			cpm.path = _npc.connParams.path;
+			cpm.username = _npc.connParams.username;
+			cpm.password = _npc.connParams.password;
+			cpm.epId = _npc.connParams.epId;
+			cpm.bFixCUIAddress = _npc.connParams.bfix;
+			
+			var operator = NPPILY.Connect(cpm);
+			if (operator.rv == NrcapError.NRCAP_SUCCESS)
+			{
+				// 连接成功
+				VP.connectId = operator.response;
+				
+				// 创建用户
+				VP.CreateUser();
+				
+				// 关联设备
+				VP.AddUserResource();
+			}
+			else
+			{
+				alert('平台登录失败 -> ' + NrcapError.Detail(operator.rv));
+			}
+		}
+		catch (e) {
+			return false;
+		}
+	},
+	
+	// 创建用户
+	CreateUser: function () {
+		try {
+			
+			var userInformation = {
+	            Index: 1, // (uint) 父用户索引
+	            Identity: 'libo', // (string) 用户名
+	            Password: '', // (string) 密码（使用MD5编码）
+	            Active: 1, // (number) 用户是1否0被激活
+	            Priority: 2, // (uint) 用户优先级
+	            MaxSessionNum: 20, // (uint) 最大连接数
+	            ActorType: 1, // (uint) 所属角色类型（0自定义角色类型，1预定义角色类型） 
+	            Actor_Index: 1, // (uint) 所属角色索引
+	            Name: '', // (string) 联系人姓名
+	            Phones: '', // (string) 联系人电话
+	            Description: '', //(string) 联系人描述
+	            Remark: '', // (string) 其他备注
+	            EnableWhiteList: 1 //(number) 是1否0允许白名单
+	        };
+
+			var operator = NPPILY.UserManagementControl.AddUserInformation(
+				VP.connectId, 
+				userInformation
+			);
+			if (operator.rv != NrcapError.NRCAP_SUCCESS)
+			{
+				alert('创建用户失败 -> ' + NrcapError.Detail(operator.rv));
+			} 
+		}
+		catch (e) {
+		}
+	},
+	
+	// 关联设备
+	AddUserResource: function () {
+		try {
+			
+			var userIndex = 10; // 假设是这个，需要接口实际获取而来
+			
+			// 实际应用上，需要获取所有设备资源信息，这里假设只获取某个设备资源
+			var operator = NPPILY.ForkResource(
+				VP.connectId,
+				NPPILY.Enum.ForkResourceLevel.nppForkOnePUInfo,
+				null,
+				null,
+				'', {
+					PUID: PU.PUID
+				}
+			);
+			
+			if (operator.rv != NrcapError.NRCAP_SUCCESS)
+			{
+				alert('获取某设备资源失败 -> ' + NrcapError.Detail(operator.rv));
+			}
+			else {
+				logger('VP.AddUserResource', jQuery.toJSON(operator));
+				
+				// 示例： [VP.AddUserResource]{"rv":0,"response":{"puid":"151038400671091580","resType":"SELF","resIdx":0,"name":"000F7C0B0028","description":"","enable":"1","online":"1","immitted":1,"modelName":"CR300NC-B-P13R1-SW-1D","modelType":"WENC","manufactrueID":"00001","hardwareVersion":"V17.0.0.0.0.3.0.5","softwareVersion":"v7.1.3.1226","deviceID":"00001-000F7C0B0028","latitude":"0","longitude":"0","_HANDLE":"0AED37F0","childResource":[{"type":"IV","idx":"0","name":"Camera0","description":"","enable":"1","_HANDLE":"0ADAB548"},{"type":"ODL","idx":"0","name":"AlertOut0","description":"","enable":"1","_HANDLE":"0ADAAF98"},{"type":"IDL","idx":"0","name":"AlertIn0","description":"","enable":"1","_HANDLE":"0ADAB7E8"},{"type":"WIFI","idx":"0","name":"WiFi0","description":"","enable":"1","_HANDLE":"0ADAB778"},{"type":"PTZ","idx":"0","name":"PTZ0","description":"","enable":"1","_HANDLE":"0ADAB858"},{"type":"SG","idx":"0","name":"Storager0","description":"","enable":"1","_HANDLE":"0ADAB3F8"}]}}
+				
+				var onePU = operator.response;
+				
+				var resSets = [{
+					PUID: onePU.puid, Type: onePU.resType, Idx: onePU.resIdx
+				}];
+				
+				for (var i = 0; i < onePU.childResource.length; i++) {
+					var child = onePU.childResource[i];
+					
+					resSets.push({
+						PUID: onePU.puid,
+						Type: child.type,
+						Idx: child.idx
+					});
+				}
+
+				logger('VP.AddUserResource', jQuery.toJSON(resSets));
+				
+				// 示例：[VP.AddUserResource][{"PUID":"151038400671091580","Type":"SELF","Idx":0},{"PUID":"151038400671091580","Type":"IV","Idx":"0"},{"PUID":"151038400671091580","Type":"ODL","Idx":"0"},{"PUID":"151038400671091580","Type":"IDL","Idx":"0"},{"PUID":"151038400671091580","Type":"WIFI","Idx":"0"},{"PUID":"151038400671091580","Type":"PTZ","Idx":"0"},{"PUID":"151038400671091580","Type":"SG","Idx":"0"}]
+				
+				var operator = NPPILY.UserManagementControl.AddUserResource(
+					VP.connectId, 
+					userIndex, 
+					resSets
+				);
+
+				if (operator.rv != NrcapError.NRCAP_SUCCESS)
+				{
+					alert('关联用户资源失败 -> ' + NrcapError.Detail(operator.rv));
+				}
+			}
+		}
+		catch (e) {
+		}
+	},
+	
+	end: true
+};	
+
+if (jQuery) {
+	
+	jQuery.noConflict();
+
+	jQuery(document).ready(function () {
+		VP.Load();
+	});
+	jQuery(window).unload(function () {
+		VP.UnLoad();
+	});
+}
+else {
+	alert('Your browser may not support jQuery object!');
+}
+
+function logger(fnStr, log) {
+	var outputStr = '['+fnStr+']' + log;
+	if (typeof console != "undefined") {
+		console.log(outputStr);
+	}
+	else {
+		alert(outputStr)
+	}
+}
+function excep(fnStr, e) {
+	logger(fnStr, 'excep error -> ' + e.name + "," + e.message);
+}
+
+</script>
+
+</head>
+<body>
+	
+</body>
+</html>
