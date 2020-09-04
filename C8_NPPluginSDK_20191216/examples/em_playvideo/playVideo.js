@@ -1,6 +1,3 @@
-var videoSize={'videoWidth':640,'videoHeight':480};
-
-
 // 是否打开调试输出
 var enable_debug = true; 
 
@@ -400,43 +397,6 @@ var WebClient = {
 	treeCallBack: function(puid, idx, type, name) {
 		WebClient.PlayVideo(puid, idx, name);
 	},
-	
-	setVideoSize: function(){
-		// 设置窗口大小
-		//QCIF 176*144(PAL) 176*120(NTSC)
-		//QVGA 320*240
-		//CIF 352*288(PAL) 352*240(NTSC)
-		//VGA 640*480
-		//2CIF 704*288(此分辨率时,帧信息头填704*576,客户端拉伸显示)(PAL)
-		//704*240(此分辨率时,帧信息头填704*480,客户端拉伸显示)(NTSC)
-		//HD1 720*288(此分辨率时,帧信息头填720*576,客户端拉伸显示)(PAL)
-		//720*240(此分辨率时,帧信息头填720*480,客户端拉伸显示)(NTSC)
-		//4CIF 704*576(PAL) 704*480(NTSC)
-		//D1 720*576(PAL) 720*480(NTSC)
-		//960H 960*576(PAL) 960*480(NTSC)
-		//720P 1280*720
-		//960P 1280*960
-		//1080P 1920*1080
-		// 获取分辨率
-
-		var resolution = NPPILY.IV_GetResolution(WebClient.connectId, puid, 0, NPPILY.Enum.NrcapStreamType.REALTIME);
-		var h=0;
-		var w=0;
-		switch (resolution.response) {
-			case "QCIF": 
-				h=176;w=144;
-				break;
-			case "QVGA":
-				h=320;w=240;
-				break;
-			case "CIF":
-				h=352;w=288;
-				break;
-			case "VGA":
-				h=640;w=480;
-				break;
-		};
-	},
 
 	/*
 		创建窗口以及播放：
@@ -662,9 +622,12 @@ var WebClient = {
 				if (node.window.status.playvideoing) {
 					var customMenus = [];
 					if (node.window.status.playaudioing) {
+						$("#opt_voice").val("停止音频");
+						$("#opt_voice").addClass("buttonSelect");
 						customMenus.push({key: "playaudio", text: "停止音频"});
-					}
-					else {
+					} else {
+						$("#opt_voice").val("播放音频");
+						$("#opt_voice").removeClass("buttonSelect");
 						customMenus.push({key: "playaudio", text: "播放音频"});
 					}
 					NPPILY.WindowAttachEvent.UpdateMenuCommand(node.window, customMenus);
@@ -727,9 +690,12 @@ var WebClient = {
 					// 更新菜单项
 					var customMenus = [];
 					if (node.window.status.recording) {
+						$("#opt_record").val("停止本地录像");
+						$("#opt_record").addClass("buttonSelect");
 						customMenus.push({key: "localrecord", text: "停止本地录像"});
-					}
-					else {
+					} else {
+						$("#opt_record").val("开启本地录像");
+						$("#opt_record").removeClass("buttonSelect");
 						customMenus.push({key: "localrecord", text: "开启本地录像"});
 					}
 					NPPILY.WindowAttachEvent.UpdateMenuCommand(node.window, customMenus);
@@ -1117,22 +1083,30 @@ var WebClient = {
 					var oaStatus = oaStatus_operator.response;
 					if (oaStatus && oaStatus.oaStreamHandle) {
 						if (oaStatus.call) {
+							$("#opt_call").addClass("buttonSelect");
 							$("#opt_call").val("停止喊话");
 						}
 						else {
+							$("#opt_call").removeClass("buttonSelect");
 							$("#opt_call").val("开启喊话");
 						}
 						if (oaStatus.talk) {
+							$("#opt_talkback").addClass("buttonSelect");
 							$("#opt_talkback").val("停止对讲");
+							
 						}
 						else {
+							$("#opt_talkback").removeClass("buttonSelect");
 							$("#opt_talkback").val("开启对讲");
+							
 						}
 						return false;
 					}
 				}
 			}
 			// 其他情况
+			$("#opt_call").removeClass("buttonSelect");
+			$("#opt_talkback").removeClass("buttonSelect");
 			$("#opt_call").val("开启喊话");
 			$("#opt_talkback").val("开启对讲");
 		}
@@ -1176,8 +1150,13 @@ $(document).ready(function () {
 	// 日照测试参数 puid=151038401211524732&name=单兵
 	var puid=getUrlParameter("puid");
 	var name=getUrlParameter("name");
+	// 获取视频分辨率
+	getVideoResolution(puid);
+	// 设备窗体大小位置
+	setPageSize();
 	WebClient.PlayVideo(puid,0,name);
 });
+
 $(window).unload(function () {
 	WebClient.UnLoad();
 });
@@ -1206,4 +1185,69 @@ if (window.attachEvent) {
         },
         false
     );
-}
+};
+var screenHeight = window.screen.availHeight;
+var screenWidth = window.screen.availWidth;
+var pageHeight=1000;// 默认页面高度
+var pageWight=0;// 默认页面高度
+var pageShowType=1;// 0 竖屏;1 横屏
+var h=640; //高比例
+var w=480; //宽比例
+// 获取视频分辨率
+function getVideoResolution(puid){
+	//QCIF 176*144(PAL) 176*120(NTSC)
+	//QVGA 320*240
+	//CIF 352*288(PAL) 352*240(NTSC)
+	//VGA 640*480
+	//2CIF 704*288(此分辨率时,帧信息头填704*576,客户端拉伸显示)(PAL)
+	//704*240(此分辨率时,帧信息头填704*480,客户端拉伸显示)(NTSC)
+	//HD1 720*288(此分辨率时,帧信息头填720*576,客户端拉伸显示)(PAL)
+	//720*240(此分辨率时,帧信息头填720*480,客户端拉伸显示)(NTSC)
+	//4CIF 704*576(PAL) 704*480(NTSC)
+	//D1 720*576(PAL) 720*480(NTSC)
+	//960H 960*576(PAL) 960*480(NTSC)
+	//720P 1280*720
+	//960P 1280*960
+	//1080P 1920*1080
+	// 获取分辨率
+
+	var resolution = NPPILY.IV_GetResolution(WebClient.connectId, puid, 0, NPPILY.Enum.NrcapStreamType.REALTIME);
+	switch (resolution.response) {
+		case "QCIF": h=176;w=144;break;
+		case "QVGA":h=320;w=240;break;
+		case "CIF":h=352;w=288;break;
+		case "VGA":h=640;w=480;break;
+		case "2CIF":h=704;w=288;break;
+		case "2CIF":h=704;w=288;break;
+		case "HD1":h=720;w=288;break;
+		case "D1":h=704;w=576;break;
+		case "960H":h=960;w=576;break;
+		case "720P":h=1280;w=720;break;
+		case "960P":h=1280;w=960;break;
+		case "1080P":h=1920;w=1080;break;
+	};
+};
+// 设备页面大小
+function setPageSize(){
+	if(pageShowType==0){
+		if(screenWidth<1300){
+			pageWight = screenWidth;
+		}else{
+			pageWight=1300;
+		}
+		pageHeight = (w/h)*(pageWight)+90;
+		pageShowType=1;	
+		$("#opt_size").val("横屏");
+	}else{
+		if(screenHeight<1000){
+			pageHeight = screenHeight;
+		}else{
+			pageHeight=1000;
+		}
+		pageWight = (w/h)*(pageHeight-90);
+		pageShowType=0;
+		$("#opt_size").val("竖屏");
+	}
+	window.moveTo(screenWidth/2-pageWight/2,screenHeight/2-pageHeight/2);
+	top.resizeTo(pageWight,pageHeight);
+};

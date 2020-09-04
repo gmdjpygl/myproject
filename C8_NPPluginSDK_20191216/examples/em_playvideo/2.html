@@ -5,6 +5,7 @@
 <title>Insert title here</title>
 </head>
 <body style="width:10px; margin:0 auto;">
+	视频加载中
 </body>
 <script type="text/javascript">
 
@@ -19,12 +20,12 @@
         
         window.opener=null;
 		window.moveTo(window.screen.availWidth/2,window.screen.availHeight/2)
-		//top.resizeTo(10,10)
+		top.resizeTo(100,100);
 		window.open('','_self');
         var pathname = window.location.pathname;
         var addr = window.location.host+"/"+pathname.substring(1,pathname.indexOf("/",1));
-    	addr="file:///D:/github/myproject/C8_NPPluginSDK_20191216/examples/em_playvideo/playVideo.html?puid=151038401211524732&name=单兵";
-        var newWindow=window.open(addr,"_blank","height="+iHeight+",px width="+iWidth+"px, top="+iTop+"px, left="+iLeft+"px,"+
+    	addr="file:///D:/github/myproject/C8_NPPluginSDK_20191216/examples/em_playvideo/playVideo.html?puid=151038401211524732_1&name=单兵";
+        var newWindow=window.open(addr,"_blank"," top="+iTop+"px, left="+iLeft+"px,"+
                                     "toolbar=no, menubar=no,scrollbars=no, resizable=yes, location=no, status=no");
 		//window.close();
 	}
