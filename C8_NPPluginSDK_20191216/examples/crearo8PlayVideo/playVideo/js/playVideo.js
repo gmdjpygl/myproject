@@ -1170,6 +1170,9 @@ if (window.attachEvent) {
 	window.attachEvent("onresize",
 		function() {
 			console.log("调整事件");
+			var pageInnerHeight = document.body.clientHeight;
+			$("#contentDiv").css("height",(pageInnerHeight-60)+"px");
+			$("#windowbox").css("height",(pageInnerHeight-100)+"px");
 		}
 	);
 } else {
@@ -1181,7 +1184,10 @@ if (window.attachEvent) {
     );
 	window.addEventListener ("resize",
         function() {
-            console.log("调整事件");
+			console.log("调整事件");
+			var pageInnerHeight = document.body.clientHeight;
+			$("#contentDiv").css("height",(pageInnerHeight-60)+"px");
+			$("#windowbox").css("height",(pageInnerHeight-100)+"px");
         },
         false
     );
@@ -1229,6 +1235,7 @@ function getVideoResolution(puid){
 };
 // 设备页面大小
 function setPageSize(){
+
 	if(pageShowType==0){
 		if(screenWidth<1300){
 			pageWight = screenWidth;
@@ -1250,4 +1257,7 @@ function setPageSize(){
 	}
 	window.moveTo(screenWidth/2-pageWight/2,screenHeight/2-pageHeight/2);
 	top.resizeTo(pageWight,pageHeight);
+	var pageInnerHeight = document.body.clientHeight;
+	$("#contentDiv").css("height",(pageInnerHeight-60)+"px");
+	$("#windowbox").css("height",(pageInnerHeight-100)+"px");
 };
